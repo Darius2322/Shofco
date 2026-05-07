@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>SUN Call Tracker</title>
+<title>SHOFCO Survey Status Input</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -11,6 +11,7 @@
   --bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;
   --text:#e6edf3;--muted:#8b949e;--accent:#238636;--accent2:#2ea043;
   --salmon:#ff8c69;--salmon-bg:#2d1a13;--danger:#da3633;--warn:#d29922;--info:#1f6feb;
+  --purple:#8957e5;--purple-bg:#1c1433;
   --r:10px;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
@@ -18,16 +19,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .screen.active{display:block}
 
 /* ---- IMPORT ---- */
-#import-screen{display:none;flex-direction:column;align-items:center;justify-content:center;padding:28px 20px;min-height:100vh;gap:0}
+#import-screen{display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:28px 20px 40px;min-height:100vh;gap:0}
 #import-screen.active{display:flex}
 .logo{font-size:52px;margin-bottom:10px}
 .app-title{font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;text-align:center}
-.app-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:36px;line-height:1.5}
-.drop-zone{width:100%;max-width:400px;border:2px dashed var(--border);border-radius:18px;padding:44px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface);margin-bottom:16px}
+.app-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:22px;line-height:1.5}
+
+/* ---- RESUME CARD ---- */
+.resume-card{width:100%;max-width:400px;background:var(--surface);border:1.5px solid var(--accent);border-radius:14px;padding:15px 17px;margin-bottom:14px;cursor:pointer;transition:all .2s}
+.resume-card:hover{background:#0d2016;border-color:var(--accent2)}
+.rc-label{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.rc-title{font-size:15px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc-meta{font-size:12px;color:var(--muted);line-height:1.6;white-space:pre-line}
+.rc-actions{display:flex;gap:8px;margin-top:12px}
+
+/* ---- DROP ZONE ---- */
+.drop-zone{width:100%;max-width:400px;border:2px dashed var(--border);border-radius:18px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface);margin-bottom:14px}
 .drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:#0d2016}
-.dz-icon{font-size:44px;margin-bottom:14px}
+.dz-icon{font-size:40px;margin-bottom:12px}
 .dz-title{font-size:17px;font-weight:700;margin-bottom:6px}
-.dz-sub{font-size:13px;color:var(--muted);margin-bottom:22px}
+.dz-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
 .btn-p{background:var(--accent);color:#fff;border:none;padding:11px 26px;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:background .15s}
 .btn-p:hover{background:var(--accent2)}
 .btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:9px 18px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
@@ -36,7 +47,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .loading.vis{display:flex}
 .spinner{width:38px;height:38px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.import-note{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.5;max-width:320px}
+.import-note{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6;max-width:320px}
+
+/* ---- HISTORY ---- */
+.hist-wrap{width:100%;max-width:400px;margin-top:10px}
+.hist-toggle{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:6px 0;display:flex;align-items:center;gap:6px;width:100%;font-weight:600;transition:color .15s}
+.hist-toggle:hover{color:var(--text)}
+.hist-arrow{margin-left:auto;font-size:10px;transition:transform .2s}
+.hist-list{display:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-top:6px;overflow:hidden}
+.hist-list.open{display:block}
+.hist-empty{padding:12px 14px;font-size:12px;color:var(--muted);text-align:center}
+.hist-item{padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;display:flex;align-items:center;gap:8px}
+.hist-item:last-child{border-bottom:none}
+.hist-ico{font-size:14px;flex-shrink:0}
+.hist-fn{color:var(--text);font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-ts{color:var(--muted);white-space:nowrap;font-size:11px}
 
 /* ---- TOP BAR ---- */
 .top-bar{display:flex;align-items:center;padding:11px 14px;background:var(--surface);border-bottom:1px solid var(--border);gap:10px;position:sticky;top:0;z-index:100}
@@ -46,6 +71,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* ---- DASHBOARD ---- */
 #dashboard-screen{padding-bottom:24px}
+
+/* Resume / last position banner */
+.pos-banner{background:#1f6feb12;border:1px solid #1f6feb2a;border-radius:10px;margin:12px 14px 0;padding:10px 13px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s}
+.pos-banner:hover{background:#1f6feb1e}
+.pos-banner-txt{flex:1;font-size:12px;color:#58a6ff;line-height:1.5}
+.pos-banner-close{color:var(--muted);font-size:13px;background:none;border:none;cursor:pointer;padding:2px;flex-shrink:0;line-height:1}
+
 .dash-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px}
 .stat-c{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center}
 .stat-v{font-size:26px;font-weight:800;line-height:1;margin-bottom:3px}
@@ -78,6 +110,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ccard:hover{border-color:var(--muted)}
 .ccard.s-ok{border-color:#a0522d;background:var(--salmon-bg)}
 .ccard.s-done{opacity:.75}
+.ccard.s-last{border-color:#58a6ff !important;background:#1f6feb0e !important;box-shadow:0 0 0 1px #1f6feb33}
 .cnum{font-size:10px;color:var(--muted);min-width:32px;text-align:center;font-weight:700}
 .cinfo{flex:1;min-width:0}
 .cname{font-size:14px;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -93,40 +126,92 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ---- STATUS SHEET ---- */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:flex-end}
 .overlay.vis{display:flex}
-.bsheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding-bottom:20px;animation:up .22s ease}
+.bsheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding-bottom:24px;animation:up .22s ease}
 @keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .handle{width:38px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0}
-.sh-hdr{padding:15px 18px 12px;border-bottom:1px solid var(--border)}
+.sh-hdr{padding:14px 18px 13px;border-bottom:1px solid var(--border)}
 .sh-name{font-size:17px;font-weight:800;margin-bottom:3px}
 .sh-meta{font-size:12px;color:var(--muted);line-height:1.5}
 .cur-status{display:inline-flex;align-items:center;gap:6px;margin-top:7px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border)}
+
+/* ---- CALL / SURVEY ACTIONS ---- */
+.sh-actions{display:flex;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.btn-call{flex:1;background:#1f6feb18;color:#58a6ff;border:1.5px solid #1f6feb33;padding:12px 8px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;transition:all .15s}
+.btn-call:hover,.btn-call:active{background:#1f6feb2a;border-color:#1f6feb55}
+.btn-call.disabled{opacity:.35;pointer-events:none}
+.btn-survey{flex:1;background:#8957e518;color:#d2a8ff;border:1.5px solid #8957e533;padding:12px 8px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.btn-survey:hover,.btn-survey:active{background:#8957e52a;border-color:#8957e555}
+
+/* ---- STATUS GRID ---- */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:14px}
-.sbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:15px 7px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:12px;font-weight:600;color:var(--text);transition:all .15s;text-align:center;line-height:1.3}
+.sgrid>.sbtn:last-child:nth-child(odd){grid-column:1/-1}
+.sbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 7px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:12px;font-weight:600;color:var(--text);transition:all .15s;text-align:center;line-height:1.3}
 .sbtn:active{transform:scale(.96)}
-.sbtn-ico{font-size:22px}
+.sbtn-ico{font-size:20px}
 .sbtn.ok{border-color:var(--salmon);color:var(--salmon)}
 .sbtn.ok:hover{background:var(--salmon-bg)}
+.sbtn.avail{border-color:#3fb950;color:#3fb950}
+.sbtn.avail:hover{background:#0d2016}
 .sbtn.fail{border-color:#f85149;color:#f85149}
 .sbtn.fail:hover{background:#2d1118}
 .sbtn.warn{border-color:var(--warn);color:#e3b341}
 .sbtn.warn:hover{background:#2d2008}
-.cust-wrap{padding:0 14px 10px;display:flex;gap:7px}
-.cust-in{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;color:var(--text);font-size:13px;outline:none}
-.cust-in:focus{border-color:var(--accent)}
-.sh-clear{padding:0 14px;margin-top:2px}
+.sbtn.info{border-color:#58a6ff;color:#58a6ff}
+.sbtn.info:hover{background:#0d1c33}
+
+.sh-clear{padding:0 14px;margin-top:4px;margin-bottom:4px}
+
+/* ---- CUSTOM TILE ---- */
+.sbtn.custom{border-color:#58a6ff55;color:#58a6ff;position:relative;padding:10px 7px 10px}
+.sbtn.custom:hover{background:#0d1c33}
+.custom-tile-inner{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%}
+.custom-tile-ico{font-size:20px}
+.custom-tile-label{font-size:12px;font-weight:600;color:#58a6ff;text-align:center;line-height:1.3;word-break:break-word;max-width:100%}
+.custom-tile-edit{display:none;position:absolute;inset:0;border-radius:12px;background:var(--bg);border:1.5px solid var(--accent);flex-direction:column;align-items:stretch;padding:7px 7px 6px;gap:5px;z-index:10}
+.sbtn.custom.editing .custom-tile-inner{display:none}
+.sbtn.custom.editing .custom-tile-edit{display:flex}
+.ct-input{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 7px;color:var(--text);font-size:12px;outline:none;width:100%}
+.ct-input:focus{border-color:var(--accent)}
+.ct-actions{display:flex;gap:5px}
+.ct-save{flex:1;background:var(--accent);color:#fff;border:none;border-radius:7px;padding:5px;font-size:11px;font-weight:700;cursor:pointer}
+.ct-del{background:var(--surface2);border:1px solid #f8514933;color:#f85149;border-radius:7px;padding:5px 7px;font-size:11px;font-weight:700;cursor:pointer}
+.ct-edit-ico{position:absolute;top:5px;right:5px;background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;padding:2px;line-height:1;z-index:5}
+.ct-edit-ico:hover{color:var(--text)}
+
+/* ---- FILE ERROR BANNER ---- */
+.file-error{width:100%;max-width:400px;background:#2d1118;border:1.5px solid var(--danger);border-radius:14px;padding:14px 14px 14px 16px;display:flex;align-items:flex-start;gap:12px;animation:shake .35s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.fe-icon{font-size:22px;flex-shrink:0;margin-top:1px}
+.fe-body{flex:1;min-width:0}
+.fe-title{font-size:14px;font-weight:800;color:#ff7b72;margin-bottom:4px}
+.fe-msg{font-size:12px;color:#ffa0a0;line-height:1.55}
+.fe-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 4px;flex-shrink:0;line-height:1;border-radius:6px;margin-top:-2px;transition:color .15s}
+.fe-close:hover{color:var(--text)}
 
 /* ---- TOAST ---- */
-.toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%) translateY(16px);background:#238636;color:#fff;padding:9px 20px;border-radius:24px;font-size:13px;font-weight:600;opacity:0;transition:all .28s;z-index:300;pointer-events:none;white-space:nowrap}
+.toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%) translateY(16px);background:#238636;color:#fff;padding:9px 20px;border-radius:24px;font-size:13px;font-weight:600;opacity:0;transition:all .28s;z-index:300;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 40px);text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.warn-toast{background:#7d4e12}
 </style>
 </head>
 <body>
 
 <!-- ======================== IMPORT SCREEN ======================== -->
 <div id="import-screen" class="screen active">
-  <div class="logo">📞</div>
-  <div class="app-title">SUN Call Tracker</div>
-  <div class="app-sub">Youth Work Pathways<br>Call Status Manager</div>
+  <div class="logo">📋</div>
+  <div class="app-title">SHOFCO Survey</div>
+  <div class="app-sub">Survey Status Input<br>Call Status Manager</div>
+
+  <!-- Resume card – shown when a saved session exists -->
+  <div class="resume-card" id="resume-card" style="display:none" onclick="resumeSession()">
+    <div class="rc-label">↩️ Saved Session</div>
+    <div class="rc-title" id="rc-title">—</div>
+    <div class="rc-meta" id="rc-meta"></div>
+    <div class="rc-actions">
+      <button class="btn-p" style="font-size:12px;padding:8px 16px" onclick="event.stopPropagation();resumeSession()">↩️ Resume</button>
+      <button class="btn-s" style="font-size:12px;padding:8px 12px" onclick="event.stopPropagation();clearLS()">🗑️ Clear</button>
+    </div>
+  </div>
 
   <div class="drop-zone" id="drop-zone" onclick="document.getElementById('fi').click()">
     <div class="dz-icon">📊</div>
@@ -142,12 +227,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <span style="color:var(--muted);font-size:13px">Reading call list, please wait…</span>
   </div>
 
+  <!-- File error banner -->
+  <div class="file-error" id="file-error" style="display:none">
+    <div class="fe-icon">⚠️</div>
+    <div class="fe-body">
+      <div class="fe-title" id="fe-title">Wrong file</div>
+      <div class="fe-msg" id="fe-msg"></div>
+    </div>
+    <button class="fe-close" onclick="hideFileError()">✕</button>
+  </div>
+
   <div class="import-note">
     ✅ Your data stays on your device — nothing is uploaded.<br>
     Supports the multi-sheet .xlsx call list format.
   </div>
 
+  <!-- Hidden file input -->
   <input type="file" id="fi" accept=".xlsx,.xls" style="display:none">
+
+  <!-- Download history (shown when exports exist) -->
+  <div class="hist-wrap" id="hist-wrap" style="display:none">
+    <button class="hist-toggle" onclick="toggleHist()">
+      📜 Download History
+      <span class="hist-arrow" id="hist-arrow">▼</span>
+    </button>
+    <div class="hist-list" id="hist-list"></div>
+  </div>
 </div>
 
 <!-- ======================== DASHBOARD SCREEN ======================== -->
@@ -156,6 +261,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="top-bar-title">📞 SUN Call Tracker</div>
     <button class="btn-s" onclick="exportExcel()" style="font-size:12px;padding:6px 11px">⬇️ Export</button>
     <button class="btn-ico" onclick="goImport()" title="Load new file">📂</button>
+  </div>
+
+  <!-- Last position reminder banner -->
+  <div class="pos-banner" id="pos-banner" style="display:none" onclick="resumePosition()">
+    <div class="pos-banner-txt" id="pos-banner-txt"></div>
+    <button class="pos-banner-close" onclick="event.stopPropagation();dismissPosBanner()" title="Dismiss">✕</button>
   </div>
 
   <div class="dash-stats">
@@ -211,42 +322,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="overlay" id="overlay" onclick="closeSh(event)">
   <div class="bsheet">
     <div class="handle"></div>
+
     <div class="sh-hdr">
       <div class="sh-name" id="sh-name"></div>
       <div class="sh-meta" id="sh-meta"></div>
       <div class="cur-status" id="cur-status">No status yet</div>
     </div>
 
-    <div class="sgrid">
-      <button class="sbtn ok" onclick="setSt('Successful')">
-        <span class="sbtn-ico">✅</span>Successful
-      </button>
-      <button class="sbtn fail" onclick="setSt('Not Reachable')">
-        <span class="sbtn-ico">📵</span>Not Reachable
-      </button>
-      <button class="sbtn fail" onclick="setSt('No Answer')">
-        <span class="sbtn-ico">🔕</span>No Answer
-      </button>
-      <button class="sbtn fail" onclick="setSt('Wrong Number')">
-        <span class="sbtn-ico">🔢</span>Wrong Number
-      </button>
-      <button class="sbtn fail" onclick="setSt('Out of Service')">
-        <span class="sbtn-ico">⛔</span>Out of Service
-      </button>
-      <button class="sbtn warn" onclick="setSt('Did Not Attend')">
-        <span class="sbtn-ico">🚶</span>Did Not Attend
-      </button>
-      <button class="sbtn warn" onclick="setSt('Call Later')">
-        <span class="sbtn-ico">📞</span>Call Later
-      </button>
-      <button class="sbtn warn" onclick="setSt('Stepped Out')">
-        <span class="sbtn-ico">🚪</span>Stepped Out
-      </button>
+    <!-- Call + Survey quick-action buttons -->
+    <div class="sh-actions">
+      <a id="call-btn" href="#" class="btn-call">📞 Call Now</a>
+      <button class="btn-survey" onclick="openSurvey()">📋 Open Survey</button>
     </div>
 
-    <div class="cust-wrap">
-      <input type="text" class="cust-in" id="cust-in" placeholder="Custom status / note…">
-      <button class="btn-p" onclick="setCust()">💾 Save</button>
+    <!-- Status grid — presets + custom tiles -->
+    <div class="sgrid" id="sgrid">
+      <button class="sbtn ok"    onclick="setSt('Successful')">
+        <span class="sbtn-ico">✅</span>Successful
+      </button>
+      <button class="sbtn fail"  onclick="setSt('Not Reachable')">
+        <span class="sbtn-ico">📵</span>Not Reachable
+      </button>
+      <button class="sbtn fail"  onclick="setSt('No Answer')">
+        <span class="sbtn-ico">🔕</span>No Answer
+      </button>
+      <button class="sbtn fail"  onclick="setSt('Wrong Number')">
+        <span class="sbtn-ico">🔢</span>Wrong Number
+      </button>
+      <button class="sbtn fail"  onclick="setSt('Out of Service')">
+        <span class="sbtn-ico">⛔</span>Out of Service
+      </button>
+      <button class="sbtn warn"  onclick="setSt('Did Not Attend')">
+        <span class="sbtn-ico">🚶</span>Did Not Attend
+      </button>
+      <button class="sbtn warn"  onclick="setSt('Call Later')">
+        <span class="sbtn-ico">📅</span>Call Later
+      </button>
+      <!-- Custom option tiles injected here by renderCustomOpts() -->
+    </div>
+
+    <!-- Add option button row -->
+    <div id="add-opt-row" style="padding:0 14px 10px">
+      <button id="add-opt-btn" onclick="addCustomOption()"
+        style="width:100%;background:none;border:1.5px dashed var(--border);color:var(--muted);border-radius:12px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s">
+        ＋ Add Custom Option
+      </button>
     </div>
 
     <div class="sh-clear">
@@ -259,6 +379,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <script>
 // ================================================================
+// CONSTANTS
+// ================================================================
+const SURVEY_URL  = 'https://wkf.ms/3P9IpYZ';
+const LS_DATA     = 'sun_data_v2';
+const LS_META     = 'sun_meta_v2';
+const LS_POSITION = 'sun_pos_v2';
+const LS_HISTORY  = 'sun_history_v2';
+const LS_OPTS     = 'sun_custom_opts_v1';
+
+// ================================================================
 // STATE
 // ================================================================
 let D = {};           // { sheetName: [rowObjects] }
@@ -266,61 +396,259 @@ let cur = '';         // current sheet
 let filter = 'all';
 let sortAsc = true;
 let contact = null;   // currently selected contact
+let scrollPos = {};   // { sheetName: scrollY } — in-memory per session
+let saveTimer = null;
+let histOpen  = false;
 
-const PRESET = ['Successful','Not Reachable','No Answer','Wrong Number','Out of Service','Did Not Attend','Call Later','Stepped Out'];
-const COLORS = ['#238636','#1f6feb','#8957e5','#e3b341','#f0883e','#3fb950','#58a6ff','#d2a8ff','#ffa657','#ff7b72','#79c0ff'];
+const PRESET = [
+  'Successful','Not Reachable','No Answer',
+  'Wrong Number','Out of Service','Did Not Attend','Call Later'
+];
+const COLORS = [
+  '#238636','#1f6feb','#8957e5','#e3b341','#f0883e',
+  '#3fb950','#58a6ff','#d2a8ff','#ffa657','#ff7b72','#79c0ff'
+];
+
+// ================================================================
+// LOCALSTORAGE HELPERS
+// ================================================================
+function saveToLS(immediate = false) {
+  clearTimeout(saveTimer);
+  const doSave = () => {
+    try {
+      localStorage.setItem(LS_DATA, JSON.stringify(D));
+      const meta = getMeta();
+      meta.savedAt = Date.now();
+      localStorage.setItem(LS_META, JSON.stringify(meta));
+    } catch(e) {
+      console.warn('localStorage save failed:', e);
+      toast('⚠️ Auto-save failed', true);
+    }
+  };
+  if (immediate) {
+    doSave();
+  } else {
+    saveTimer = setTimeout(doSave, 400);
+  }
+}
+
+function loadFromLS() {
+  try {
+    const raw = localStorage.getItem(LS_DATA);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return false;
+    D = parsed;
+    return Object.keys(D).length > 0;
+  } catch(e) { return false; }
+}
+
+function getMeta() {
+  try { return JSON.parse(localStorage.getItem(LS_META) || '{}'); } catch(e) { return {}; }
+}
+
+function getPosition() {
+  try { return JSON.parse(localStorage.getItem(LS_POSITION) || '{}'); } catch(e) { return {}; }
+}
+
+function savePosition(sheet, c) {
+  try {
+    const pos = getPosition();
+    pos.sheet       = sheet;
+    pos.contactIdx  = c ? c._idx  : (pos.contactIdx  || null);
+    pos.contactName = c ? c.name  : (pos.contactName || null);
+    pos.rowNum      = c ? c.rowNum: (pos.rowNum      || null);
+    pos.ts          = Date.now();
+    localStorage.setItem(LS_POSITION, JSON.stringify(pos));
+  } catch(e) {}
+}
+
+function saveScrollForSheet(sheet, y) {
+  scrollPos[sheet] = y;
+  try {
+    const pos = getPosition();
+    if (pos.sheet === sheet) { pos.scrollY = y; localStorage.setItem(LS_POSITION, JSON.stringify(pos)); }
+  } catch(e) {}
+}
+
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem(LS_HISTORY) || '[]'); } catch(e) { return []; }
+}
+
+function addToHistory(filename) {
+  try {
+    const h = getHistory();
+    h.unshift({ ts: Date.now(), filename });
+    if (h.length > 15) h.length = 15;
+    localStorage.setItem(LS_HISTORY, JSON.stringify(h));
+  } catch(e) {}
+}
+
+function clearLS() {
+  if (!confirm('Clear all saved session data? Your Excel file is not affected.')) return;
+  [LS_DATA, LS_META, LS_POSITION].forEach(k => localStorage.removeItem(k));
+  D = {}; cur = ''; scrollPos = {};
+  renderImportExtras();
+  toast('🗑️ Session cleared');
+}
 
 // ================================================================
 // FILE LOADING
 // ================================================================
-const fi = document.getElementById('fi');
-const dz = document.getElementById('drop-zone');
+const fi      = document.getElementById('fi');
+const dz      = document.getElementById('drop-zone');
 const loading = document.getElementById('loading');
 
-fi.onchange = e => { if(e.target.files[0]) loadFile(e.target.files[0]); };
+fi.onchange = e => { if (e.target.files[0]) { hideFileError(); loadFile(e.target.files[0]); } };
 
 dz.ondragover  = e => { e.preventDefault(); dz.classList.add('drag'); };
-dz.ondragleave = () => dz.classList.remove('drag');
+dz.ondragleave = ()  => dz.classList.remove('drag');
 dz.ondrop = e => {
-  e.preventDefault();
-  dz.classList.remove('drag');
-  if(e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+  e.preventDefault(); dz.classList.remove('drag');
+  if (e.dataTransfer.files[0]) { hideFileError(); loadFile(e.dataTransfer.files[0]); }
 };
 
+function showFileError(title, msg) {
+  document.getElementById('fe-title').textContent = title;
+  document.getElementById('fe-msg').textContent   = msg;
+  const el = document.getElementById('file-error');
+  el.style.display = 'flex';
+  // Re-trigger shake animation
+  el.style.animation = 'none';
+  el.offsetHeight; // reflow
+  el.style.animation = '';
+}
+
+function hideFileError() {
+  document.getElementById('file-error').style.display = 'none';
+}
+
+const REQUIRED_COLS = ['Name', 'Phone_number', 'Ward', 'County'];
+
 function loadFile(file) {
+  hideFileError();
+
+  // Check file extension
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['xlsx','xls'].includes(ext)) {
+    showFileError(
+      '❌ Wrong file type',
+      `"${file.name}" is not an Excel file. Please upload a .xlsx or .xls file.`
+    );
+    dz.style.display = '';
+    fi.value = '';
+    return;
+  }
+
   loading.classList.add('vis');
   dz.style.display = 'none';
+
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
-      D = {};
+      const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+
+      // Must have at least one sheet
+      if (!wb.SheetNames.length) {
+        throw { friendly: 'The file has no sheets.', detail: 'Make sure you are uploading the correct SHOFCO call list file.' };
+      }
+
+      const newD = {};
+      let totalRows = 0;
+      let missingColsSheet = null;
+
       wb.SheetNames.forEach(sn => {
-        const rows = XLSX.utils.sheet_to_json(wb.Sheets[sn], {defval:''});
-        D[sn] = rows.map((r,i) => ({
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[sn], { defval: '' });
+        if (!rows.length) return; // skip empty sheets
+
+        // Check required columns on first non-empty sheet
+        if (!missingColsSheet) {
+          const cols = Object.keys(rows[0]);
+          const missing = REQUIRED_COLS.filter(c =>
+            !cols.includes(c) && !cols.includes(c.replace('_',' '))
+          );
+          // Allow Phone or Phone_number
+          const hasPhone = cols.includes('Phone_number') || cols.includes('Phone');
+          const hasName  = cols.includes('Name');
+          if (!hasName || !hasPhone || cols.includes('Ward') === false && cols.includes('County') === false) {
+            missingColsSheet = { sheet: sn, cols };
+          }
+        }
+
+        newD[sn] = rows.map((r, i) => ({
           _idx: i, _sheet: sn,
-          _status: String(r['Status'] || r['Call Status'] || '').trim(),
-          rowNum: r['Unnamed: 0'] || (i+1),
-          name: String(r['Name'] || ''),
-          gender: String(r['Gender'] || ''),
-          phone: String(r['Phone_number'] || r['Phone'] || ''),
-          id: String(r['ID'] || ''),
-          yob: String(r['Y.OB'] || r['Year of Birth'] || ''),
-          ward: String(r['Ward'] || ''),
-          county: String(r['County'] || ''),
-          teenMum: String(r['Teen Mum'] || ''),
-          pwds: String(r['PWDs'] || ''),
-          refugee: String(r['Refugee'] || '')
+          _status:  String(r['Status'] || r['Call Status'] || '').trim(),
+          rowNum:   r['Unnamed: 0'] || (i + 1),
+          name:     String(r['Name']           || ''),
+          gender:   String(r['Gender']         || ''),
+          phone:    String(r['Phone_number']   || r['Phone'] || ''),
+          id:       String(r['ID']             || ''),
+          yob:      String(r['Y.OB']           || r['Year of Birth'] || ''),
+          ward:     String(r['Ward']           || ''),
+          county:   String(r['County']         || ''),
+          teenMum:  String(r['Teen Mum']       || ''),
+          pwds:     String(r['PWDs']           || ''),
+          refugee:  String(r['Refugee']        || '')
         }));
+        totalRows += newD[sn].length;
       });
+
+      // No usable data at all
+      if (!Object.keys(newD).length || totalRows === 0) {
+        throw { friendly: 'The file appears to be empty.', detail: 'No rows of data were found. Please check the file and try again.' };
+      }
+
+      // Columns don't look right
+      if (missingColsSheet) {
+        const found = missingColsSheet.cols.slice(0,6).join(', ');
+        throw {
+          friendly: 'This doesn\'t look like the correct call list.',
+          detail: `Sheet "${missingColsSheet.sheet}" is missing required columns (Name, Phone, Ward, County).\nColumns found: ${found}…`
+        };
+      }
+
+      D = newD;
+
+      // Persist to localStorage immediately
+      try {
+        localStorage.setItem(LS_DATA, JSON.stringify(D));
+        localStorage.setItem(LS_META, JSON.stringify({
+          filename: file.name,
+          savedAt:  Date.now(),
+          sheets:   Object.keys(D).length,
+          total:    totalRows
+        }));
+        localStorage.removeItem(LS_POSITION);
+      } catch(lsErr) {
+        console.warn('Could not save to localStorage:', lsErr);
+      }
+
       loading.classList.remove('vis');
       showDash();
+
     } catch(err) {
       loading.classList.remove('vis');
       dz.style.display = '';
-      alert('Could not read file:\n' + err.message);
+      fi.value = '';
+
+      if (err.friendly) {
+        showFileError(err.friendly, err.detail || '');
+      } else {
+        showFileError(
+          '❌ Could not read file',
+          `"${file.name}" could not be parsed. Make sure it's a valid SHOFCO .xlsx call list.\n\nDetail: ${err.message}`
+        );
+      }
     }
   };
+
+  reader.onerror = () => {
+    loading.classList.remove('vis');
+    dz.style.display = '';
+    fi.value = '';
+    showFileError('❌ File read error', 'The file could not be read. Please try again or use a different file.');
+  };
+
   reader.readAsArrayBuffer(file);
 }
 
@@ -329,6 +657,79 @@ function goImport() {
   dz.style.display = '';
   loading.classList.remove('vis');
   fi.value = '';
+  renderImportExtras();
+}
+
+function resumeSession() {
+  if (loadFromLS()) {
+    showDash();
+  } else {
+    toast('⚠️ No saved session found', true);
+  }
+}
+
+// ================================================================
+// IMPORT SCREEN — RESUME CARD + HISTORY
+// ================================================================
+function renderImportExtras() {
+  const meta = getMeta();
+  const rc   = document.getElementById('resume-card');
+
+  if (meta.filename && meta.savedAt) {
+    const pos = getPosition();
+    document.getElementById('rc-title').textContent = '📁 ' + meta.filename;
+    let info = `${(meta.total || 0).toLocaleString()} contacts · ${meta.sheets || 0} sheet(s) · Saved ${fmtRelTime(meta.savedAt)}`;
+    if (pos.contactName && pos.sheet) {
+      info += `\n↩️ Last: ${pos.sheet} → #${pos.rowNum} ${pos.contactName}`;
+    } else if (pos.sheet) {
+      info += `\n↩️ Last open: ${pos.sheet}`;
+    }
+    document.getElementById('rc-meta').textContent = info;
+    rc.style.display = '';
+  } else {
+    rc.style.display = 'none';
+  }
+
+  // History section
+  const h    = getHistory();
+  const hw   = document.getElementById('hist-wrap');
+  hw.style.display = h.length ? '' : 'none';
+  if (h.length) renderHistList();
+}
+
+function renderHistList() {
+  const h    = getHistory();
+  const list = document.getElementById('hist-list');
+  if (!h.length) {
+    list.innerHTML = '<div class="hist-empty">No exports yet</div>';
+    return;
+  }
+  list.innerHTML = h.map(item =>
+    `<div class="hist-item">
+      <span class="hist-ico">⬇️</span>
+      <span class="hist-fn">${esc(item.filename)}</span>
+      <span class="hist-ts">${fmtRelTime(item.ts)}</span>
+    </div>`
+  ).join('');
+}
+
+function toggleHist() {
+  histOpen = !histOpen;
+  document.getElementById('hist-list').classList.toggle('open', histOpen);
+  document.getElementById('hist-arrow').textContent = histOpen ? '▲' : '▼';
+  if (histOpen) renderHistList();
+}
+
+function fmtRelTime(ts) {
+  const diff = Date.now() - ts;
+  const m = Math.floor(diff / 60000);
+  const h = Math.floor(diff / 3600000);
+  const d = Math.floor(diff / 86400000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return `${m}m ago`;
+  if (h < 24) return `${h}h ago`;
+  if (d < 7)  return `${d}d ago`;
+  return new Date(ts).toLocaleDateString();
 }
 
 // ================================================================
@@ -337,47 +738,97 @@ function goImport() {
 function showScr(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
+  window.scrollTo(0, 0);
 }
 
 function showDash() {
   showScr('dashboard-screen');
   renderDash();
+  renderPosBanner();
 }
 
 function openList(sheet) {
-  cur = sheet;
+  cur    = sheet;
   filter = 'all';
   document.getElementById('srch').value = '';
   document.querySelectorAll('.ftab').forEach(t => t.classList.toggle('active', t.dataset.f === 'all'));
   document.getElementById('cl-title').textContent = sheet + "'s List";
+  savePosition(sheet, null);
   showScr('calllist-screen');
   renderMini();
   renderList();
+  // Restore scroll for this sheet
+  const sy = scrollPos[sheet] || 0;
+  if (sy) requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, sy)));
+}
+
+// Track scroll within the call list and persist per-sheet
+window.addEventListener('scroll', () => {
+  const active = document.querySelector('.screen.active');
+  if (active && active.id === 'calllist-screen' && cur) {
+    saveScrollForSheet(cur, window.scrollY);
+  }
+}, { passive: true });
+
+// ================================================================
+// DASHBOARD — POSITION BANNER
+// ================================================================
+function renderPosBanner() {
+  const pos    = getPosition();
+  const banner = document.getElementById('pos-banner');
+  const txt    = document.getElementById('pos-banner-txt');
+  if (pos.sheet && D[pos.sheet]) {
+    if (pos.contactName) {
+      txt.innerHTML = `↩️ <strong>Resume:</strong> ${esc(pos.sheet)} &nbsp;·&nbsp; Last opened: #${pos.rowNum} ${esc(pos.contactName)}`;
+    } else {
+      txt.innerHTML = `↩️ <strong>Resume:</strong> Continue working on ${esc(pos.sheet)}'s list`;
+    }
+    banner.style.display = '';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+function resumePosition() {
+  const pos = getPosition();
+  if (!pos.sheet || !D[pos.sheet]) { toast('⚠️ Sheet not found', true); return; }
+  openList(pos.sheet);
+  if (pos.contactIdx !== null && pos.contactIdx !== undefined) {
+    setTimeout(() => {
+      const el = document.querySelector(`.ccard[data-idx="${pos.contactIdx}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 300);
+  }
+}
+
+function dismissPosBanner() {
+  document.getElementById('pos-banner').style.display = 'none';
 }
 
 // ================================================================
-// DASHBOARD
+// DASHBOARD RENDER
 // ================================================================
 function renderDash() {
-  const all = Object.values(D).flat();
-  const tot = all.length;
+  const all  = Object.values(D).flat();
+  const tot  = all.length;
   const done = all.filter(r => r._status).length;
-  const ok = all.filter(r => r._status === 'Successful').length;
+  const ok   = all.filter(r => r._status === 'Successful').length;
   document.getElementById('sv-total').textContent = tot.toLocaleString();
   document.getElementById('sv-done').textContent  = done.toLocaleString();
   document.getElementById('sv-ok').textContent    = ok.toLocaleString();
 
-  const grid = document.getElementById('agent-grid');
+  const grid  = document.getElementById('agent-grid');
   const names = Object.keys(D);
   grid.innerHTML = names.map((sn, i) => {
     const rows = D[sn];
-    const t = rows.length;
-    const d = rows.filter(r => r._status).length;
-    const s = rows.filter(r => r._status === 'Successful').length;
-    const pct = t ? Math.round((d/t)*100) : 0;
+    const t   = rows.length;
+    const d   = rows.filter(r => r._status).length;
+    const s   = rows.filter(r => r._status === 'Successful').length;
+    const pct = t ? Math.round((d / t) * 100) : 0;
     const col = COLORS[i % COLORS.length];
-    const init = sn.slice(0,2).toUpperCase();
+    const init = sn.slice(0, 2).toUpperCase();
     return `<div class="agent-card" onclick="openList('${esc(sn)}')">
       <div class="av" style="background:${col}">${init}</div>
       <div class="ag-name">${esc(sn)}</div>
@@ -401,28 +852,28 @@ function toggleSort() { sortAsc = !sortAsc; renderList(); }
 
 function filtered() {
   const rows = D[cur] || [];
-  const q = document.getElementById('srch').value.toLowerCase().trim();
+  const q    = document.getElementById('srch').value.toLowerCase().trim();
   let out = rows;
-  if(q) out = out.filter(r =>
+  if (q) out = out.filter(r =>
     r.name.toLowerCase().includes(q) ||
     r.phone.includes(q) ||
     r.county.toLowerCase().includes(q) ||
     r.ward.toLowerCase().includes(q) ||
     r.id.includes(q)
   );
-  if(filter === 'pending')    out = out.filter(r => !r._status);
-  if(filter === 'successful') out = out.filter(r => r._status === 'Successful');
-  if(filter === 'failed')     out = out.filter(r => r._status && r._status !== 'Successful');
-  if(!sortAsc) out = [...out].reverse();
+  if (filter === 'pending')    out = out.filter(r => !r._status);
+  if (filter === 'successful') out = out.filter(r => r._status === 'Successful');
+  if (filter === 'failed')     out = out.filter(r => r._status && r._status !== 'Successful');
+  if (!sortAsc) out = [...out].reverse();
   return out;
 }
 
 function renderMini() {
   const rows = D[cur] || [];
-  const tot = rows.length;
-  const ok  = rows.filter(r => r._status === 'Successful').length;
-  const fail= rows.filter(r => r._status && r._status !== 'Successful').length;
-  const pend= rows.filter(r => !r._status).length;
+  const tot  = rows.length;
+  const ok   = rows.filter(r => r._status === 'Successful').length;
+  const fail = rows.filter(r => r._status && r._status !== 'Successful').length;
+  const pend = rows.filter(r => !r._status).length;
   document.getElementById('mini-stats').innerHTML =
     `<div class="ms-item"><div class="dot" style="background:var(--muted)"></div>${tot.toLocaleString()} total</div>
      <div class="ms-item"><div class="dot" style="background:#58a6ff"></div>${pend.toLocaleString()} pending</div>
@@ -432,18 +883,20 @@ function renderMini() {
 
 function renderList() {
   const rows = filtered();
+  const pos  = getPosition();
   const list = document.getElementById('clist');
-  if(!rows.length) {
+  if (!rows.length) {
     list.innerHTML = `<div class="empty"><div class="empty-ico">🔍</div>No contacts match</div>`;
     return;
   }
   list.innerHTML = rows.map(r => {
     const isOk   = r._status === 'Successful';
     const hasSt  = !!r._status;
-    const cls    = isOk ? 's-ok' : (hasSt ? 's-done' : '');
+    const isLast = pos.sheet === cur && pos.contactIdx === r._idx;
+    const cls    = (isOk ? 's-ok' : (hasSt ? 's-done' : '')) + (isLast ? ' s-last' : '');
     const bcls   = isOk ? 'b-ok' : (hasSt ? 'b-fail' : 'b-pend');
     const label  = r._status || 'Pending';
-    return `<div class="ccard ${cls}" onclick="openSh(${r._idx})">
+    return `<div class="ccard ${cls}" data-idx="${r._idx}" onclick="openSh(${r._idx})">
       <div class="cnum">${r.rowNum}</div>
       <div class="cinfo">
         <div class="cname">${esc(r.name)}</div>
@@ -460,51 +913,186 @@ function renderList() {
 function openSh(idx) {
   const rows = D[cur] || [];
   contact = rows.find(r => r._idx === idx);
-  if(!contact) return;
+  if (!contact) return;
+
+  // Remember position
+  savePosition(cur, contact);
+
   document.getElementById('sh-name').textContent = contact.name;
   document.getElementById('sh-meta').textContent =
     `📱 ${contact.phone}  ·  📍 ${contact.county}, ${contact.ward}  ·  🗓️ Born ${contact.yob}`;
+
   const cs = document.getElementById('cur-status');
   cs.textContent = contact._status || 'No status yet';
-  cs.style.color = contact._status === 'Successful' ? 'var(--salmon)' : (contact._status ? '#e3b341' : 'var(--muted)');
+  cs.style.color = contact._status === 'Successful'
+    ? 'var(--salmon)' : (contact._status ? '#e3b341' : 'var(--muted)');
+
   const isPreset = PRESET.includes(contact._status);
-  document.getElementById('cust-in').value = (!isPreset && contact._status) ? contact._status : '';
+
+  // Set up call button with real tel: link
+  const callBtn = document.getElementById('call-btn');
+  const digits  = contact.phone.replace(/\s+/g, '').replace(/[^\d+]/g, '');
+  if (digits) {
+    callBtn.href = 'tel:' + digits;
+    callBtn.classList.remove('disabled');
+  } else {
+    callBtn.href = '#';
+    callBtn.classList.add('disabled');
+  }
+
   document.getElementById('overlay').classList.add('vis');
+  renderCustomOpts();
 }
 
 function closeSh(e) {
-  if(e.target === document.getElementById('overlay'))
+  if (e.target === document.getElementById('overlay'))
     document.getElementById('overlay').classList.remove('vis');
 }
 
 function setSt(st) {
-  if(!contact) return;
+  if (!contact) return;
   contact._status = st;
   document.getElementById('overlay').classList.remove('vis');
   renderList();
   renderMini();
-  toast(st ? '✅ Saved: ' + st : '🗑️ Cleared');
+  saveToLS(true);   // immediate save after every status change
+  toast(st ? '✅ Saved: ' + st : '🗑️ Status cleared');
 }
 
-function setCust() {
-  const v = document.getElementById('cust-in').value.trim();
-  if(!v) return;
-  setSt(v);
+
+function openSurvey() {
+  if (!contact) { window.open(SURVEY_URL, '_blank', 'noopener'); return; }
+
+  // monday.com forms support prefill via query params: ?field_name=value
+  // The visible form fields from the screenshot:
+  //   "Name you are calling" -> name
+  //   "Record the Phone number you are calling" -> phone
+  // We pass all available contact data and monday.com will fill what matches.
+  const params = new URLSearchParams();
+  if (contact.name)   params.set('name',   contact.name);
+  if (contact.phone)  params.set('phone',  contact.phone);
+  if (contact.county) params.set('county', contact.county);
+  if (contact.ward)   params.set('ward',   contact.ward);
+  if (contact.yob)    params.set('yob',    contact.yob);
+  if (contact.id)     params.set('id',     contact.id);
+  if (contact.gender) params.set('gender', contact.gender);
+
+  const sep = SURVEY_URL.includes('?') ? '&' : '?';
+  window.open(SURVEY_URL + sep + params.toString(), '_blank', 'noopener');
 }
 
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 2600);
+// ================================================================
+// CUSTOM OPTIONS — rendered as tiles inside sgrid (up to 3)
+// ================================================================
+function getCustomOpts() {
+  try { return JSON.parse(localStorage.getItem(LS_OPTS) || '[]'); } catch(e) { return []; }
+}
+
+function saveCustomOpts(opts) {
+  try { localStorage.setItem(LS_OPTS, JSON.stringify(opts)); } catch(e) {}
+}
+
+function renderCustomOpts() {
+  const opts   = getCustomOpts();
+  const grid   = document.getElementById('sgrid');
+  const addBtn = document.getElementById('add-opt-btn');
+  if (!grid) return;
+
+  // Remove any previously injected custom tiles
+  grid.querySelectorAll('.sbtn.custom').forEach(el => el.remove());
+
+  opts.forEach((opt, i) => {
+    const tile = document.createElement('button');
+    tile.className = 'sbtn custom';
+    // Tiles are full-width when they are last and odd; CSS handles this via :nth-child
+    tile.innerHTML = `
+      <button class="ct-edit-ico" onclick="event.stopPropagation();startEditTile(${i})" title="Edit">✏️</button>
+      <div class="custom-tile-inner">
+        <span class="custom-tile-ico">⚙️</span>
+        <span class="custom-tile-label">${esc(opt || 'My Option')}</span>
+      </div>
+      <div class="custom-tile-edit">
+        <input class="ct-input" id="ct-in-${i}" type="text" value="${esc(opt)}" placeholder="Option name…"
+          oninput="liveUpdateTile(${i},this.value)"
+          onkeydown="if(event.key==='Enter'){saveTile(${i})}if(event.key==='Escape'){cancelEditTile(${i})}">
+        <div class="ct-actions">
+          <button class="ct-save" onclick="event.stopPropagation();saveTile(${i})">✓ Save</button>
+          <button class="ct-del"  onclick="event.stopPropagation();deleteTile(${i})">✕</button>
+        </div>
+      </div>`;
+    tile.id = `ct-tile-${i}`;
+    tile.onclick = (e) => {
+      if (tile.classList.contains('editing')) return;
+      const val = (getCustomOpts()[i] || '').trim();
+      if (!val) { startEditTile(i); return; }
+      setSt(val);
+    };
+    grid.appendChild(tile);
+  });
+
+  // Show/hide add button
+  if (addBtn) addBtn.style.display = opts.length >= 3 ? 'none' : '';
+  const addRow = document.getElementById('add-opt-row');
+  if (addRow) addRow.style.display = opts.length >= 3 ? 'none' : '';
+}
+
+function startEditTile(i) {
+  const tile = document.getElementById(`ct-tile-${i}`);
+  if (!tile) return;
+  tile.classList.add('editing');
+  setTimeout(() => {
+    const inp = document.getElementById(`ct-in-${i}`);
+    if (inp) { inp.focus(); inp.select(); }
+  }, 30);
+}
+
+function cancelEditTile(i) {
+  const tile = document.getElementById(`ct-tile-${i}`);
+  if (tile) tile.classList.remove('editing');
+}
+
+function liveUpdateTile(i, val) {
+  // Update label live while typing
+  const tile = document.getElementById(`ct-tile-${i}`);
+  if (!tile) return;
+  const lbl = tile.querySelector('.custom-tile-label');
+  if (lbl) lbl.textContent = val || 'My Option';
+}
+
+function saveTile(i) {
+  const inp = document.getElementById(`ct-in-${i}`);
+  if (!inp) return;
+  const val = inp.value.trim();
+  const opts = getCustomOpts();
+  opts[i] = val;
+  saveCustomOpts(opts);
+  renderCustomOpts();
+  if (val) toast('💾 Option saved: ' + val);
+}
+
+function deleteTile(i) {
+  const opts = getCustomOpts();
+  opts.splice(i, 1);
+  saveCustomOpts(opts);
+  renderCustomOpts();
+  toast('🗑️ Option removed');
+}
+
+function addCustomOption() {
+  const opts = getCustomOpts();
+  if (opts.length >= 3) return;
+  opts.push('');
+  saveCustomOpts(opts);
+  renderCustomOpts();
+  // Open edit mode immediately on new tile
+  setTimeout(() => startEditTile(opts.length - 1), 40);
 }
 
 // ================================================================
 // EXPORT TO EXCEL
 // ================================================================
 function exportExcel() {
-  if(!Object.keys(D).length) { alert('No data loaded yet.'); return; }
+  if (!Object.keys(D).length) { alert('No data loaded yet.'); return; }
   const wb = XLSX.utils.book_new();
 
   Object.entries(D).forEach(([sn, rows]) => {
@@ -519,34 +1107,34 @@ function exportExcel() {
       {wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},
       {wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18}
     ];
-
-    // Style header row
     const hdrStyle = {
-      font:{bold:true,color:{rgb:'FFFFFF'}},
-      fill:{fgColor:{rgb:'1B4332'}},
-      alignment:{horizontal:'center'}
+      font: { bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '1B4332' } },
+      alignment: { horizontal: 'center' }
     };
     hdr.forEach((_, ci) => {
-      const ref = XLSX.utils.encode_cell({r:0, c:ci});
-      if(ws[ref]) ws[ref].s = hdrStyle;
+      const ref = XLSX.utils.encode_cell({ r: 0, c: ci });
+      if (ws[ref]) ws[ref].s = hdrStyle;
     });
-
-    // Style Successful rows (salmon)
     rows.forEach((r, ri) => {
-      if(r._status === 'Successful') {
+      if (r._status === 'Successful') {
         hdr.forEach((_, ci) => {
-          const ref = XLSX.utils.encode_cell({r: ri+1, c: ci});
-          if(ws[ref]) ws[ref].s = { fill:{ fgColor:{ rgb:'FFCDB2' } } };
+          const ref = XLSX.utils.encode_cell({ r: ri + 1, c: ci });
+          if (ws[ref]) ws[ref].s = { fill: { fgColor: { rgb: 'FFCDB2' } } };
         });
       }
     });
-
     XLSX.utils.book_append_sheet(wb, ws, sn);
   });
 
-  const date = new Date().toISOString().slice(0,10);
-  XLSX.writeFile(wb, `Call_Status_${date}.xlsx`);
-  toast('📊 Exported!');
+  const date     = new Date().toISOString().slice(0, 10);
+  const filename = `Call_Status_${date}.xlsx`;
+  XLSX.writeFile(wb, filename);
+
+  // Log to download history
+  addToHistory(filename);
+
+  toast('📊 Exported! · ' + filename);
 }
 
 // ================================================================
@@ -559,6 +1147,29 @@ function esc(s) {
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;');
 }
+
+function toast(msg, warn = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('warn-toast', warn);
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ================================================================
+// INIT — check localStorage on every page load
+// ================================================================
+(function initApp() {
+  const hasData = loadFromLS();
+  if (hasData) {
+    // Skip import screen — go straight to dashboard
+    showDash();
+  } else {
+    showScr('import-screen');
+  }
+  renderImportExtras();
+})();
 </script>
 </body>
 </html>
