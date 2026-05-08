@@ -109,7 +109,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .day-sub{font-size:12px;color:var(--muted)}
 .status-breakdown{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px}
 .sb-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;padding:10px 13px 7px;border-bottom:1px solid var(--border)}
-.sb-row{display:flex;align-items:center;gap:10px;padding:8px 13px;border-bottom:1px solid var(--border2)}
+.sb-row{display:flex;align-items:center;gap:8px;padding:8px 13px;border-bottom:1px solid var(--border2)}
 .sb-row:last-child{border-bottom:none}
 .sb-label{flex:1;font-size:13px;font-weight:500}
 .sb-bar-wrap{width:90px;background:var(--surface2);border-radius:3px;height:5px}
@@ -134,7 +134,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 /* ============ CALL LIST SCREEN ============ */
 #calllist-screen{padding-bottom:72px}
 .cl-summary{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 14px}
-.cl-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.cl-summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .cls-item{background:var(--surface2);border-radius:8px;padding:7px 8px;text-align:center}
 .cls-v{font-size:16px;font-weight:800;line-height:1;margin-bottom:1px}
 .cls-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
@@ -151,8 +151,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .s-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;color:var(--text);font-size:14px;outline:none;font-family:var(--font)}
 .s-input:focus{border-color:var(--accent)}
 .s-input::placeholder{color:var(--muted)}
-.filter-tabs{display:flex;gap:6px;padding:7px 14px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch}
-.ftab{white-space:nowrap;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .15s;font-family:var(--font)}
+.filter-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:7px 14px;background:var(--surface);border-bottom:1px solid var(--border)}
+.ftab{white-space:nowrap;padding:6px 4px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .15s;font-family:var(--font);text-align:center;overflow:hidden;text-overflow:ellipsis}
 .ftab.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .clist{padding:7px 14px}
 .ccard{background:var(--surface);border:1px solid var(--border);border-radius:9px;margin-bottom:6px;padding:10px 12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px}
@@ -317,14 +317,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   </div>
 
   <!-- Support Contact -->
-  <div style="width:100%;max-width:420px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;text-align:center">
-    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">⚠️ Encounter a problem? Reach out to Darius</div>
+  <div style="width:100%;max-width:420px;background:linear-gradient(135deg,#0d1929,#121e35);border:1px solid rgba(59,125,216,.25);border-radius:16px;padding:18px;margin-bottom:12px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.3),0 0 0 1px rgba(59,125,216,.08) inset">
+    <div style="font-size:10px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px">⚠️ Need Help?</div>
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px">Contact <span style="background:linear-gradient(135deg,#4e90f0,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800">Darius</span> for support</div>
     <div style="display:flex;gap:10px;justify-content:center">
-      <a href="https://wa.me/254110554040" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;border:none;padding:9px 18px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:opacity .15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-        <span style="font-size:16px">💬</span> WhatsApp
+      <a href="https://wa.me/254110554040" target="_blank" style="display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#128C7E,#25D366);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s;box-shadow:0 3px 14px rgba(37,211,102,.25)" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(37,211,102,.4)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 3px 14px rgba(37,211,102,.25)'">
+        <span style="font-size:17px">💬</span> WhatsApp
       </a>
-      <a href="tel:0110554040" style="display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:opacity .15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-        <span style="font-size:16px">📞</span> Call
+      <a href="tel:0110554040" style="display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#2563eb,#4e90f0);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s;box-shadow:0 3px 14px rgba(59,125,216,.3)" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(59,125,216,.45)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 3px 14px rgba(59,125,216,.3)'">
+        <span style="font-size:17px">📞</span> Call Now
       </a>
     </div>
   </div>
@@ -340,18 +341,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   <!-- Footer -->
   <div style="width:100%;max-width:420px;margin-top:20px;border-top:1px solid var(--border);padding-top:20px;text-align:center">
     <div style="font-size:12px;color:var(--muted);margin-bottom:14px">© 2026 SHOFCO Survey. All rights reserved.</div>
-    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Developed by <span style="background:linear-gradient(135deg,#4e90f0,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Darius</span></div>
-    <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap">
-      <a href="https://wa.me/254110554040" target="_blank" style="display:inline-flex;align-items:center;gap:5px;background:#25D366;color:#fff;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;transition:opacity .15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">Developed by <span style="background:linear-gradient(135deg,#4e90f0,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800">Darius</span></div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:10px;flex-wrap:wrap">
+      <a href="https://wa.me/254110554040" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#128C7E,#25D366);color:#fff;padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 10px rgba(37,211,102,.2)" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 5px 18px rgba(37,211,102,.35)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 2px 10px rgba(37,211,102,.2)'">
         <span>💬</span> WhatsApp
       </a>
-      <a href="tel:0110554040" style="display:inline-flex;align-items:center;gap:5px;background:var(--accent);color:#fff;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;transition:opacity .15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+      <a href="tel:0110554040" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#2563eb,#4e90f0);color:#fff;padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 10px rgba(59,125,216,.2)" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 5px 18px rgba(59,125,216,.35)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 2px 10px rgba(59,125,216,.2)'">
         <span>📞</span> 0110554040
       </a>
-    </div>
-    <div style="margin-top:10px">
-      <a href="https://dmn-solution.vercel.app/" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--accent),#5b21b6);color:#fff;padding:9px 22px;border-radius:9px;font-size:13px;font-weight:700;text-decoration:none;transition:opacity .15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-        🌐 Visit My Website
+      <a href="https://dmn-solution.vercel.app/" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--accent),#5b21b6);color:#fff;padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 10px rgba(91,33,182,.25)" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 5px 18px rgba(91,33,182,.4)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 2px 10px rgba(91,33,182,.25)'">
+        🌐 My Website
       </a>
     </div>
   </div>
@@ -372,6 +371,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="today-pills" id="today-pills">
       <div class="tpill"><div><div class="tpill-v" id="tp-today">0</div><div class="tpill-l">Today's Calls</div></div></div>
       <div class="tpill"><div><div class="tpill-v" style="color:var(--green)" id="tp-ok">0</div><div class="tpill-l">Successful</div></div></div>
+      <div class="tpill" style="border-color:var(--accent)44"><div><div class="tpill-v" style="color:var(--accent2)" id="tp-total-calls">0</div><div class="tpill-l">Total Calls 🔴</div></div></div>
     </div>
   </div>
 
@@ -422,8 +422,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   <!-- Overall Breakdown -->
   <div class="sec-hdr">📊 Overall Breakdown</div>
   <div style="padding:0 14px 90px">
-    <div class="status-breakdown" id="enum-overall-bd">
-      <div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No data yet</div>
+    <div class="status-breakdown">
+      <div class="sb-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>All-time Breakdown</span>
+        <span id="enum-overall-total-badge" style="font-size:11px;font-weight:800;color:var(--accent2)">0 total</span>
+      </div>
+      <div id="enum-overall-bd">
+        <div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No data yet</div>
+      </div>
     </div>
   </div>
 
@@ -482,7 +488,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   <!-- OVERALL TAB -->
   <div class="admin-section" id="adm-overall-sec">
     <div class="status-breakdown">
-      <div class="sb-title">All-time Status Breakdown</div>
+      <div class="sb-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>All-time Status Breakdown</span>
+        <span id="adm-overall-total-calls" style="font-size:12px;font-weight:800;color:var(--accent2)">0 calls</span>
+      </div>
       <div id="adm-overall-breakdown"></div>
     </div>
   </div>
@@ -534,6 +543,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <div class="cls-item"><div class="cls-v" id="cls-total">0</div><div class="cls-l">Total</div></div>
       <div class="cls-item"><div class="cls-v" style="color:var(--accent2)" id="cls-pend">0</div><div class="cls-l">Pending</div></div>
       <div class="cls-item"><div class="cls-v" style="color:var(--green)" id="cls-ok">0</div><div class="cls-l">Success</div></div>
+      <div class="cls-item"><div class="cls-v" style="color:#c084fc" id="cls-altered">0</div><div class="cls-l">Altered</div></div>
       <div class="cls-item"><div class="cls-v" style="color:var(--danger)" id="cls-fail">0</div><div class="cls-l">Other</div></div>
     </div>
   </div>
@@ -544,7 +554,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   <div class="mini-stats" id="mini-stats"></div>
 
   <div class="search-bar">
-    <input type="text" class="s-input" id="srch" placeholder="🔍  Name, phone, county, ward…" oninput="renderList()">
+    <input type="text" class="s-input" id="srch" placeholder="🔍  Name, phone, ID, gender, year of birth, county…" oninput="renderList()">
     <button class="btn-sm" onclick="clrSearch()" style="padding:6px 10px;font-size:12px">✕</button>
   </div>
 
@@ -574,10 +584,18 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   </div>
 
   <!-- Contact info -->
-  <div style="padding:13px 14px;border-bottom:1px solid var(--border);background:var(--surface)">
-    <div style="font-size:19px;font-weight:900;margin-bottom:4px;letter-spacing:-.3px" id="ss-name"></div>
-    <div style="font-size:11px;color:var(--muted);line-height:1.7" id="ss-meta"></div>
-    <div id="ss-cur-status" style="display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border)">No status yet</div>
+  <div style="padding:12px 14px 10px;border-bottom:1px solid var(--border);background:var(--surface)">
+    <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px">
+      <div style="font-size:18px;font-weight:900;letter-spacing:-.3px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="ss-name"></div>
+      <button onclick="copyToClip('name')" title="Copy name" style="flex-shrink:0;background:var(--surface3);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--accent)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">📋 Name</button>
+      <button onclick="copyToClip('phone')" title="Copy phone" style="flex-shrink:0;background:var(--surface3);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--accent)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">📋 Phone</button>
+    </div>
+    <!-- Detailed info grid -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-bottom:8px" id="ss-info-grid">
+      <!-- filled by renderStatusScreen -->
+    </div>
+    <div id="ss-cur-status" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border)">No status yet</div>
+    <span id="ss-altered-badge" style="display:none;margin-left:7px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(168,85,247,.18);color:#c084fc;border:1px solid rgba(168,85,247,.35)">🔄 Altered</span>
   </div>
 
   <!-- Call & Survey actions -->
@@ -753,33 +771,55 @@ create index if not exists idx_logs_sheet      on public.call_logs(sheet_name);
 create index if not exists idx_logs_by         on public.call_logs(logged_by);
 
 -- ------------------------------------------------
--- 6. REALTIME
+-- 6. REALTIME (idempotent — safe to re-run)
 -- ------------------------------------------------
-alter publication supabase_realtime add table public.contacts;
-alter publication supabase_realtime add table public.call_logs;
+do $$ begin
+  alter publication supabase_realtime add table public.contacts;
+exception when others then null; end $$;
+do $$ begin
+  alter publication supabase_realtime add table public.call_logs;
+exception when others then null; end $$;
 
 -- ------------------------------------------------
 -- 8. FAST STAT FUNCTIONS (avoid bulk row loading)
 -- ------------------------------------------------
 create or replace function public.get_sheet_stats(p_sheet text)
-returns table(status text, cnt bigint, today_cnt bigint)
+returns table(status text, cnt bigint, today_cnt bigint, altered_today bigint)
 language sql security definer stable set search_path = public as $$
-  select coalesce(call_status,'') as status,
-         count(*) as cnt,
-         count(*) filter (where updated_at::date = current_date) as today_cnt
-  from public.contacts where sheet_name = p_sheet
-  group by call_status;
+  select
+    coalesce(c.call_status,'') as status,
+    count(*) as cnt,
+    count(*) filter (where c.updated_at::date = current_date) as today_cnt,
+    (select count(distinct sal.contact_id)
+     from public.status_alter_log sal
+     where sal.sheet_name = p_sheet and sal.altered_at::date = current_date) as altered_today
+  from public.contacts c where c.sheet_name = p_sheet
+  group by c.call_status;
 $$;
 
 create or replace function public.get_all_stats()
-returns table(sheet text, status text, cnt bigint, today_cnt bigint)
+returns table(sheet text, status text, cnt bigint, today_cnt bigint, altered_today bigint)
 language sql security definer stable set search_path = public as $$
-  select sheet_name as sheet,
-         coalesce(call_status,'') as status,
-         count(*) as cnt,
-         count(*) filter (where updated_at::date = current_date) as today_cnt
-  from public.contacts
-  group by sheet_name, call_status;
+  select
+    c.sheet_name as sheet,
+    coalesce(c.call_status,'') as status,
+    count(*) as cnt,
+    count(*) filter (where c.updated_at::date = current_date) as today_cnt,
+    (select count(distinct sal.contact_id)
+     from public.status_alter_log sal
+     where sal.sheet_name = c.sheet_name and sal.altered_at::date = current_date) as altered_today
+  from public.contacts c
+  group by c.sheet_name, c.call_status;
+$$;
+
+-- Real-time total calls counter
+create or replace function public.get_total_calls()
+returns table(total_calls bigint, today_calls bigint)
+language sql security definer stable set search_path = public as $$
+  select
+    count(*) as total_calls,
+    count(*) filter (where logged_at::date = current_date) as today_calls
+  from public.call_logs;
 $$;
 
 -- ------------------------------------------------
@@ -793,6 +833,21 @@ create table if not exists public.settings (
 );
 alter table public.settings enable row level security;
 
+-- Profiles RLS (drop first so re-runs never fail with 42710)
+drop policy if exists "profiles_self"      on public.profiles;
+drop policy if exists "profiles_admin_all" on public.profiles;
+drop policy if exists "contacts_read_own_sheet"  on public.contacts;
+drop policy if exists "contacts_update_own_sheet" on public.contacts;
+drop policy if exists "contacts_insert_admin"     on public.contacts;
+drop policy if exists "logs_read_admin" on public.call_logs;
+drop policy if exists "logs_read_own"   on public.call_logs;
+drop policy if exists "logs_insert"     on public.call_logs;
+drop policy if exists "settings_read"        on public.settings;
+drop policy if exists "settings_admin_write" on public.settings;
+drop policy if exists "alter_log_read_admin" on public.status_alter_log;
+drop policy if exists "alter_log_read_own"   on public.status_alter_log;
+drop policy if exists "alter_log_insert"     on public.status_alter_log;
+
 -- All authenticated users can read settings
 create policy "settings_read" on public.settings
   for select using (auth.role() = 'authenticated');
@@ -801,15 +856,54 @@ create policy "settings_read" on public.settings
 create policy "settings_admin_write" on public.settings
   for all using (public.is_admin());
 
-alter publication supabase_realtime add table public.settings;
+-- ------------------------------------------------
+-- 10. STATUS ALTER LOG TABLE
+-- Tracks every time a contact's status is changed
+-- from one non-empty status to a different status.
+-- ------------------------------------------------
+create table if not exists public.status_alter_log (
+  id bigserial primary key,
+  contact_id bigint references public.contacts(id) on delete cascade,
+  sheet_name text not null,
+  contact_name text,
+  phone text,
+  prev_status text not null,
+  new_status text not null,
+  altered_by uuid references auth.users(id),
+  altered_by_name text,
+  altered_at timestamptz default now()
+);
+alter table public.status_alter_log enable row level security;
 
--- Seed default custom statuses (run once)
+create policy "alter_log_read_admin" on public.status_alter_log
+  for select using (public.is_admin());
+
+create policy "alter_log_read_own" on public.status_alter_log
+  for select using (altered_by = auth.uid());
+
+create policy "alter_log_insert" on public.status_alter_log
+  for insert with check (altered_by = auth.uid());
+
+create index if not exists idx_alter_log_contact on public.status_alter_log(contact_id);
+create index if not exists idx_alter_log_sheet   on public.status_alter_log(sheet_name);
+create index if not exists idx_alter_log_at      on public.status_alter_log(altered_at);
+
+do $$ begin
+  alter publication supabase_realtime add table public.settings;
+exception when others then null; end $$;
+do $$ begin
+  alter publication supabase_realtime add table public.status_alter_log;
+exception when others then null; end $$;
+
+-- ------------------------------------------------
+-- 11. SETTINGS — seed default custom statuses
+-- ------------------------------------------------
 insert into public.settings (key, value)
 values ('custom_statuses', '["Callback Scheduled","Language Barrier","Deceased","Duplicate"]'::jsonb)
 on conflict (key) do nothing;
 
 -- ------------------------------------------------
--- 7. AUTO-PROFILE TRIGGER
+-- 12. AUTO-PROFILE TRIGGER
 -- Automatically creates a profile row when a new
 -- auth user is created. Role + assigned_sheet are
 -- read from raw_user_meta_data set at sign-up.
@@ -884,7 +978,11 @@ let curFilter   = 'all';
 let sortAsc     = true;
 let contact     = null;    // currently open
 let rtChannel   = null;    // realtime subscription
+let rtTotalChannel = null; // separate channel for total-calls badge
 let adminData   = { logs:[], profiles:[], statsBySheet:{} };
+let alteredContactIds = new Set(); // tracks contacts whose status was changed after being set
+let alteredTodayCount = 0; // from DB via get_sheet_stats altered_today column
+let totalCallsAllTime = 0; // from get_total_calls()
 
 // ============================================================
 // INIT
@@ -980,6 +1078,7 @@ async function doLogin() {
 async function doLogout() {
   if (sb) await sb.auth.signOut();
   if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; }
+  if (rtTotalChannel) { sb.removeChannel(rtTotalChannel); rtTotalChannel = null; }
   currentUser = null; userProfile = null; allContacts = [];
   showScr('setup-screen');
   loadCfgIntoForm();
@@ -1116,12 +1215,21 @@ async function loadEnumeratorData() {
       if (!se && sd) {
         sheetStats = {};
         totalContactCount = 0;
+        alteredTodayCount = 0;
         sd.forEach(r => {
           sheetStats[r.status] = { count: Number(r.cnt), today: Number(r.today_cnt) };
           totalContactCount += Number(r.cnt);
+          // altered_today is the same value on every row — grab it once
+          if (Number(r.altered_today) > alteredTodayCount) alteredTodayCount = Number(r.altered_today);
         });
         statsOk = true;
       }
+    } catch(e) {}
+
+    // Load total calls badge
+    try {
+      const { data: tc } = await sb.rpc('get_total_calls');
+      if (tc && tc[0]) totalCallsAllTime = Number(tc[0].total_calls);
     } catch(e) {}
 
     setLoader('Loading contacts…', 50);
@@ -1196,11 +1304,12 @@ async function loadAdminData() {
         adminData.statsBySheet = {};
         sd.forEach(r => {
           if (!adminData.statsBySheet[r.sheet])
-            adminData.statsBySheet[r.sheet] = { total:0, byStatus:{}, todayTotal:0 };
+            adminData.statsBySheet[r.sheet] = { total:0, byStatus:{}, todayTotal:0, alteredToday:0 };
           const s = adminData.statsBySheet[r.sheet];
           s.byStatus[r.status] = { count: Number(r.cnt), today: Number(r.today_cnt) };
           s.total += Number(r.cnt);
           s.todayTotal += Number(r.today_cnt);
+          if (Number(r.altered_today) > s.alteredToday) s.alteredToday = Number(r.altered_today);
         });
         statsOk = true;
       }
@@ -1240,6 +1349,8 @@ async function loadAdminData() {
 // ============================================================
 function subscribeRealtime(sheet) {
   if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; }
+  if (rtTotalChannel) { sb.removeChannel(rtTotalChannel); rtTotalChannel = null; }
+
   rtChannel = sb.channel('contacts-'+sheet)
     .on('postgres_changes', {
       event: 'UPDATE', schema: 'public', table: 'contacts',
@@ -1263,10 +1374,25 @@ function subscribeRealtime(sheet) {
       }
     })
     .subscribe();
+
+  // Separate channel: update total-calls badge on every new log entry
+  rtTotalChannel = sb.channel('total-calls-enum')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'call_logs' }, async () => {
+      try {
+        const { data: tc } = await sb.rpc('get_total_calls');
+        if (tc && tc[0]) {
+          totalCallsAllTime = Number(tc[0].total_calls);
+          renderTodayPills();
+        }
+      } catch(e) {}
+    })
+    .subscribe();
 }
 
 function subscribeRealtimeAdmin() {
   if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; }
+  if (rtTotalChannel) { sb.removeChannel(rtTotalChannel); rtTotalChannel = null; }
+
   rtChannel = sb.channel('admin-all')
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'contacts' }, payload => {
       const idx = adminData.contacts.findIndex(c => c.id === payload.new.id);
@@ -1283,6 +1409,26 @@ function subscribeRealtimeAdmin() {
         renderCustomStGrid();
         toast('🔄 Custom statuses updated', 'ok');
       }
+    })
+    .subscribe();
+
+  // Total calls badge realtime for admin
+  rtTotalChannel = sb.channel('total-calls-admin')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'call_logs' }, async () => {
+      try {
+        const { data: tc } = await sb.rpc('get_total_calls');
+        if (tc && tc[0]) {
+          totalCallsAllTime = Number(tc[0].total_calls);
+          // Update the admin hero sub text to reflect live total
+          const heroSub = document.getElementById('admin-hero-sub');
+          if (heroSub) {
+            const cur = heroSub.textContent;
+            // replace trailing "· X total calls" or append
+            heroSub.textContent = cur.replace(/ · \d[\d,]* total calls/, '')
+              + ` · ${totalCallsAllTime.toLocaleString()} total calls`;
+          }
+        }
+      } catch(e) {}
     })
     .subscribe();
 }
@@ -1393,49 +1539,86 @@ function renderEnumChart() {
 }
 
 function renderEnumBreakdowns() {
-  // Today's breakdown — from sheetStats.today counts
+  // ── TODAY'S BREAKDOWN ──
   const todayCounts = {};
   let todayTotal = 0;
   Object.entries(sheetStats).filter(([s])=>s!=='').forEach(([s,v]) => {
     if (v.today > 0) { todayCounts[s] = v.today; todayTotal += v.today; }
   });
+  const todayAltered = alteredTodayCount || alteredContactIds.size;
+  const todayGrand   = todayTotal + todayAltered;
+
   const tdEl = document.getElementById('enum-today-bd');
   if (tdEl) {
-    if (!todayTotal) {
+    if (!todayGrand) {
       tdEl.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No calls logged today yet</div>';
     } else {
-      tdEl.innerHTML = Object.entries(todayCounts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => {
-        const pct = Math.round(n/todayTotal*100);
+      const altRow = todayAltered > 0 ? `<div class="sb-row" style="background:rgba(168,85,247,.06)">
+        <span class="sb-label" style="color:#c084fc">🔄 Altered</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:${Math.round(todayAltered/todayGrand*100)}%;background:#a855f7"></div></div>
+        <span style="font-size:11px;color:#c084fc;min-width:36px;text-align:right">${Math.round(todayAltered/todayGrand*100)}%</span>
+        <span class="sb-count" style="color:#c084fc">${todayAltered}</span>
+      </div>` : '';
+      tdEl.innerHTML = altRow + Object.entries(todayCounts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => {
+        const pct = Math.round(n/todayGrand*100);
         const col = STATUS_COLORS[s] || COLORS[0];
         return `<div class="sb-row">
           <span class="sb-label">${STATUS_ICONS[s]||'🔵'} ${esc(s)}</span>
           <div class="sb-bar-wrap"><div class="sb-bar" style="width:${pct}%;background:${col}"></div></div>
+          <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">${pct}%</span>
           <span class="sb-count" style="color:${col}">${n}</span>
         </div>`;
       }).join('');
     }
   }
 
-  // Overall breakdown — from sheetStats counts
+  // ── OVERALL BREAKDOWN ──
   const overallCounts = {};
-  let overallTotal = 0;
+  let overallLogged = 0;
   Object.entries(sheetStats).filter(([s])=>s!=='').forEach(([s,v]) => {
-    overallCounts[s] = v.count; overallTotal += v.count;
+    overallCounts[s] = v.count; overallLogged += v.count;
   });
+  const alteredCount = alteredContactIds.size;
+  const pending      = Math.max(0, totalContactCount - overallLogged);
+  const grandDenom   = totalContactCount || 1;
+
+  const enumTotalBadge = document.getElementById('enum-overall-total-badge');
+  if (enumTotalBadge) enumTotalBadge.textContent = (overallLogged + alteredCount).toLocaleString() + ' logged';
+
   const ovEl = document.getElementById('enum-overall-bd');
   if (ovEl) {
-    if (!overallTotal) {
+    if (!overallLogged && !alteredCount) {
       ovEl.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No data yet</div>';
     } else {
-      ovEl.innerHTML = Object.entries(overallCounts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => {
-        const pct = Math.round(n/overallTotal*100);
-        const col = STATUS_COLORS[s] || COLORS[0];
-        return `<div class="sb-row">
-          <span class="sb-label">${STATUS_ICONS[s]||'🔵'} ${esc(s)}</span>
-          <div class="sb-bar-wrap"><div class="sb-bar" style="width:${pct}%;background:${col}"></div></div>
-          <span class="sb-count" style="color:${col}">${n}</span>
-        </div>`;
-      }).join('');
+      const totalRow = `<div class="sb-row" style="background:rgba(59,125,216,.07);border-bottom:2px solid var(--border)">
+        <span class="sb-label" style="font-weight:700;color:var(--text)">📋 Total Contacts</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:100%;background:var(--accent)"></div></div>
+        <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">100%</span>
+        <span class="sb-count" style="color:var(--accent2);font-size:14px;font-weight:900;min-width:32px">${totalContactCount.toLocaleString()}</span>
+      </div>`;
+      const pendingRow = pending > 0 ? `<div class="sb-row">
+        <span class="sb-label" style="color:var(--muted)">⏳ Pending</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:${Math.round(pending/grandDenom*100)}%;background:var(--muted)"></div></div>
+        <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">${Math.round(pending/grandDenom*100)}%</span>
+        <span class="sb-count" style="color:var(--muted)">${pending.toLocaleString()}</span>
+      </div>` : '';
+      const altRow2 = alteredCount > 0 ? `<div class="sb-row" style="background:rgba(168,85,247,.06)">
+        <span class="sb-label" style="color:#c084fc">🔄 Altered</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:${Math.round(alteredCount/grandDenom*100)}%;background:#a855f7"></div></div>
+        <span style="font-size:11px;color:#c084fc;min-width:36px;text-align:right">${Math.round(alteredCount/grandDenom*100)}%</span>
+        <span class="sb-count" style="color:#c084fc">${alteredCount}</span>
+      </div>` : '';
+      ovEl.innerHTML = totalRow + pendingRow + altRow2 +
+        Object.entries(overallCounts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => {
+          const pct = Math.round(n/grandDenom*100);
+          const col = STATUS_COLORS[s] || COLORS[0];
+          return `<div class="sb-row">
+            <span class="sb-label">${STATUS_ICONS[s]||'🔵'} ${esc(s)}</span>
+            <div class="sb-bar-wrap"><div class="sb-bar" style="width:${pct}%;background:${col}"></div></div>
+            <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">${pct}%</span>
+            <span class="sb-count" style="color:${col}">${n}</span>
+          </div>`;
+        }).join('');
     }
   }
 }
@@ -1445,20 +1628,25 @@ function renderTodayPills() {
   const todayOk    = sheetStats['Successful']?.today || 0;
   document.getElementById('tp-today').textContent = todayTotal;
   document.getElementById('tp-ok').textContent    = todayOk;
+  // Update total calls badge if element exists
+  const tcEl = document.getElementById('tp-total-calls');
+  if (tcEl) tcEl.textContent = totalCallsAllTime.toLocaleString();
 }
 
 // ============================================================
 // CALL LIST
 // ============================================================
 function renderClSummary() {
-  const t    = allContacts.length;
-  const pend = allContacts.filter(c => !c.call_status).length;
-  const ok   = allContacts.filter(c => c.call_status === 'Successful').length;
-  const fail = allContacts.filter(c => c.call_status && c.call_status !== 'Successful').length;
-  document.getElementById('cls-total').textContent = t.toLocaleString();
-  document.getElementById('cls-pend').textContent  = pend.toLocaleString();
-  document.getElementById('cls-ok').textContent    = ok.toLocaleString();
-  document.getElementById('cls-fail').textContent  = fail.toLocaleString();
+  const t       = allContacts.length;
+  const pend    = allContacts.filter(c => !c.call_status).length;
+  const ok      = allContacts.filter(c => c.call_status === 'Successful').length;
+  const fail    = allContacts.filter(c => c.call_status && c.call_status !== 'Successful').length;
+  const altered = alteredContactIds.size;
+  document.getElementById('cls-total').textContent   = t.toLocaleString();
+  document.getElementById('cls-pend').textContent    = pend.toLocaleString();
+  document.getElementById('cls-ok').textContent      = ok.toLocaleString();
+  document.getElementById('cls-altered').textContent = altered.toLocaleString();
+  document.getElementById('cls-fail').textContent    = fail.toLocaleString();
 }
 
 function renderTodayStrip() {
@@ -1497,7 +1685,14 @@ function filteredContacts() {
     (c.phone||'').includes(q) ||
     (c.county||'').toLowerCase().includes(q) ||
     (c.ward||'').toLowerCase().includes(q) ||
-    (c.national_id||'').includes(q)
+    (c.national_id||'').toLowerCase().includes(q) ||
+    (c.yob||'').toString().includes(q) ||
+    (c.gender||'').toLowerCase().includes(q) ||
+    (c.teen_mum||'').toLowerCase().includes(q) ||
+    (c.pwds||'').toLowerCase().includes(q) ||
+    (c.refugee||'').toLowerCase().includes(q) ||
+    (c.call_status||'').toLowerCase().includes(q) ||
+    String(c.row_num||'').includes(q)
   );
   if (curFilter === 'pending')    out = out.filter(c => !c.call_status);
   if (curFilter === 'successful') out = out.filter(c => c.call_status === 'Successful');
@@ -1560,8 +1755,29 @@ function renderStatusScreen() {
   const pos = statusNavList.findIndex(c => c.id === contact.id);
 
   document.getElementById('ss-name').textContent = contact.name || '';
-  document.getElementById('ss-meta').innerHTML =
-    `📱 ${esc(contact.phone||'—')} &nbsp;·&nbsp; 📍 ${esc(contact.county||'')}, ${esc(contact.ward||'')} &nbsp;·&nbsp; 🗓️ Born ${esc(contact.yob||'—')}`;
+
+  // Build detailed info grid
+  const infoGrid = document.getElementById('ss-info-grid');
+  if (infoGrid) {
+    const fields = [
+      { ico:'📱', label:'Phone',    val: contact.phone    || '—' },
+      { ico:'🗓️', label:'Born',     val: contact.yob      || '—' },
+      { ico:'📍', label:'County',   val: contact.county   || '—' },
+      { ico:'🗺️', label:'Ward',     val: contact.ward     || '—' },
+      { ico:'👤', label:'Gender',   val: contact.gender   || '—' },
+      { ico:'🪪', label:'ID',       val: contact.national_id || '—' },
+      { ico:'👶', label:'Teen Mum', val: contact.teen_mum || '—' },
+      { ico:'♿', label:'PWDs',     val: contact.pwds     || '—' },
+      { ico:'🏕️', label:'Refugee',  val: contact.refugee  || '—' },
+      { ico:'🔢', label:'Row #',    val: contact.row_num  || '—' },
+    ];
+    infoGrid.innerHTML = fields.map(f => `
+      <div style="display:flex;align-items:center;gap:4px;padding:3px 0;border-bottom:1px solid var(--border2)">
+        <span style="font-size:11px;flex-shrink:0">${f.ico}</span>
+        <span style="font-size:10px;color:var(--muted);min-width:52px;flex-shrink:0">${f.label}</span>
+        <span style="font-size:11px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(String(f.val))}</span>
+      </div>`).join('');
+  }
 
   const cs = document.getElementById('ss-cur-status');
   const curSt = contact.call_status || '';
@@ -1579,6 +1795,10 @@ function renderStatusScreen() {
     : curSt === 'Successful' ? 'rgba(34,197,94,.3)'
     : customStatuses.includes(curSt) ? 'rgba(168,85,247,.35)'
     : 'rgba(249,115,22,.3)';
+
+  // Show altered badge if this contact was changed
+  const altBadge = document.getElementById('ss-altered-badge');
+  if (altBadge) altBadge.style.display = alteredContactIds.has(contact.id) ? 'inline-flex' : 'none';
 
   const digits = (contact.phone||'').replace(/\s+/g,'').replace(/[^\d+]/g,'');
   const cb = document.getElementById('ss-call-btn');
@@ -1636,6 +1856,11 @@ async function setSt(st) {
   if (idx !== -1) { allContacts[idx].call_status = st; allContacts[idx].updated_at = new Date().toISOString(); }
   contact.call_status = st;
 
+  // Track altered contacts: if it had a previous status and now gets a different one
+  if (prevStatus && newStatus && prevStatus !== newStatus) {
+    alteredContactIds.add(savedContact.id);
+  }
+
   // Update sheetStats optimistically
   if (prevStatus !== newStatus) {
     if (sheetStats[prevStatus]) { sheetStats[prevStatus].count = Math.max(0, sheetStats[prevStatus].count-1); sheetStats[prevStatus].today = Math.max(0, sheetStats[prevStatus].today-1); }
@@ -1667,6 +1892,17 @@ async function setSt(st) {
         status: st, logged_by: currentUser.id,
         logged_by_name: userProfile?.full_name || userProfile?.assigned_sheet || currentUser.email,
         logged_at: now
+      });
+    }
+    // If status was changed from one non-empty value to another, log it as an alteration
+    if (prevStatus && newStatus && prevStatus !== newStatus) {
+      await sb.from('status_alter_log').insert({
+        contact_id: savedContact.id, sheet_name: savedContact.sheet_name,
+        contact_name: savedContact.name, phone: savedContact.phone,
+        prev_status: prevStatus, new_status: newStatus,
+        altered_by: currentUser.id,
+        altered_by_name: userProfile?.full_name || userProfile?.assigned_sheet || currentUser.email,
+        altered_at: now
       });
     }
     setSyncDot('ok');
@@ -1741,7 +1977,17 @@ function refreshAdminStats() {
   document.getElementById('adm-day-total').textContent = todayLogs.length;
   const todayCounts = {};
   todayLogs.forEach(l => { if(l.status) todayCounts[l.status]=(todayCounts[l.status]||0)+1; });
-  renderBreakdown('adm-today-breakdown', todayCounts, todayLogs.length);
+
+  // Admin today altered: contacts logged more than once today with different statuses
+  const todayContactMap = {};
+  todayLogs.forEach(l => {
+    if (!l.contact_id) return;
+    if (!todayContactMap[l.contact_id]) todayContactMap[l.contact_id] = new Set();
+    if (l.status) todayContactMap[l.contact_id].add(l.status);
+  });
+  const todayAlteredCount = Object.values(todayContactMap).filter(s => s.size > 1).length;
+
+  renderBreakdown('adm-today-breakdown', todayCounts, todayLogs.length + todayAlteredCount, todayAlteredCount, null, false);
 
   // Today per-enumerator
   const enumHtml = sheets.map(sn => {
@@ -1758,12 +2004,30 @@ function refreshAdminStats() {
 
   // OVERALL breakdown
   const overallCounts = {};
+  let grandDoneForBreakdown = 0;
   sheets.forEach(sn => {
     Object.entries((stats[sn]?.byStatus||{})).filter(([k])=>k!=='').forEach(([st,v])=>{
       overallCounts[st] = (overallCounts[st]||0) + v.count;
+      grandDoneForBreakdown += v.count;
     });
   });
-  renderBreakdown('adm-overall-breakdown', overallCounts, grandDone);
+  // Admin altered count: count from logs where same contact has multiple different statuses
+  const contactLogMap = {};
+  logs.forEach(l => {
+    if (!l.contact_id) return;
+    if (!contactLogMap[l.contact_id]) contactLogMap[l.contact_id] = new Set();
+    if (l.status) contactLogMap[l.contact_id].add(l.status);
+  });
+  const adminAlteredCount = Object.values(contactLogMap).filter(s => s.size > 1).length;
+  const adminTotalCallsIncAltered = grandDoneForBreakdown + adminAlteredCount;
+
+  // Update total row
+  const admTotalN = document.getElementById('adm-overall-total-n');
+  const admTotalBadge = document.getElementById('adm-overall-total-calls');
+  if (admTotalN) admTotalN.textContent = adminTotalCallsIncAltered.toLocaleString();
+  if (admTotalBadge) admTotalBadge.textContent = adminTotalCallsIncAltered.toLocaleString() + ' calls';
+
+  renderBreakdown('adm-overall-breakdown', overallCounts, adminTotalCallsIncAltered, adminAlteredCount, grandTotal, true);
 
   // ENUMERATORS cards
   const eHtml = sheets.map(sn => {
@@ -1796,20 +2060,51 @@ function refreshAdminStats() {
 }
 
 
-function renderBreakdown(elId, counts, total) {
+// renderBreakdown — shared by admin today + overall tabs
+// showSummary=true adds Total + Pending rows at top (overall only)
+function renderBreakdown(elId, counts, total, alteredCount, totalContacts, showSummary) {
   const el = document.getElementById(elId);
   if (!el) return;
-  if (!Object.keys(counts).length) {
+  if (!Object.keys(counts).length && !alteredCount) {
     el.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No data yet</div>';
     return;
   }
   const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-  el.innerHTML = sorted.map(([s,n]) => {
-    const pct = total ? Math.round(n/total*100) : 0;
+  const grandTotal = total || 1;
+
+  let topRows = '';
+  if (showSummary) {
+    const logged  = Object.values(counts).reduce((s,n)=>s+n,0);
+    const pending = (totalContacts||0) - logged;
+    topRows = `
+      <div class="sb-row" style="background:rgba(59,125,216,.07);border-bottom:2px solid var(--border)">
+        <span class="sb-label" style="font-weight:700;color:var(--text)">📋 Total Contacts</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:100%;background:var(--accent)"></div></div>
+        <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">100%</span>
+        <span class="sb-count" style="color:var(--accent2);font-size:14px;font-weight:900;min-width:32px">${(totalContacts||0).toLocaleString()}</span>
+      </div>
+      ${pending > 0 ? `<div class="sb-row" style="background:rgba(59,125,216,.04)">
+        <span class="sb-label" style="color:var(--muted)">⏳ Pending</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:${totalContacts ? Math.round(pending/totalContacts*100) : 0}%;background:var(--muted)"></div></div>
+        <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">${totalContacts ? Math.round(pending/totalContacts*100) : 0}%</span>
+        <span class="sb-count" style="color:var(--muted)">${pending.toLocaleString()}</span>
+      </div>` : ''}`;
+  }
+
+  const alteredRow = (alteredCount > 0) ? `<div class="sb-row" style="background:rgba(168,85,247,.06)">
+    <span class="sb-label" style="color:#c084fc">🔄 Altered</span>
+    <div class="sb-bar-wrap"><div class="sb-bar" style="width:${Math.round(alteredCount/grandTotal*100)}%;background:#a855f7"></div></div>
+    <span style="font-size:11px;color:#c084fc;min-width:36px;text-align:right">${Math.round(alteredCount/grandTotal*100)}%</span>
+    <span class="sb-count" style="color:#c084fc">${alteredCount}</span>
+  </div>` : '';
+
+  el.innerHTML = topRows + alteredRow + sorted.map(([s,n]) => {
+    const pct = Math.round(n/grandTotal*100);
     const col = STATUS_COLORS[s] || COLORS[0];
     return `<div class="sb-row">
       <span class="sb-label">${STATUS_ICONS[s]||'🔵'} ${esc(s)}</span>
       <div class="sb-bar-wrap"><div class="sb-bar" style="width:${pct}%;background:${col}"></div></div>
+      <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">${pct}%</span>
       <span class="sb-count" style="color:${col}">${n}</span>
     </div>`;
   }).join('');
@@ -1966,8 +2261,8 @@ async function exportAdminExcel() {
     });
 
     const wb   = XLSX.utils.book_new();
-    const hdr  = ['#','Name','Gender','Teen Mum','Phone Number','ID','Year of Birth','PWDs','Refugee','Ward','County','Call Status','Last Updated'];
-    const cols = [{wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},{wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18},{wch:22}];
+    const hdr  = ['DB ID','#','Name','Gender','Teen Mum','Phone Number','National ID','Year of Birth','PWDs','Refugee','Ward','County','Call Status','Last Updated'];
+    const cols = [{wch:10},{wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},{wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18},{wch:22}];
 
     const STATUS_BG = {
       'Successful':    'C6EFCE',
@@ -2009,7 +2304,7 @@ async function exportAdminExcel() {
 
       const rows = sheets[sn];
       const data = [hdr, ...rows.map(r => [
-        r.row_num, r.name, r.gender, r.teen_mum,
+        r.id, r.row_num, r.name, r.gender, r.teen_mum,
         r.phone, r.national_id, r.yob, r.pwds, r.refugee,
         r.ward, r.county, r.call_status || '',
         r.updated_at ? new Date(r.updated_at).toLocaleString() : ''
@@ -2063,22 +2358,25 @@ function exportExcel() {
   });
 
   const wb = XLSX.utils.book_new();
-  const hdr = ['#','Name','Gender','Teen Mum','Phone Number','ID','Year of Birth','PWDs','Refugee','Ward','County','Call Status'];
+  const hdr = ['DB ID','#','Name','Gender','Teen Mum','Phone Number','National ID','Year of Birth','PWDs','Refugee','Ward','County','Call Status','Last Updated','Altered'];
 
   Object.entries(sheets).forEach(([sn, rows]) => {
     rows.sort((a,b) => a.row_num - b.row_num);
     const data = [hdr, ...rows.map(r => [
-      r.row_num, r.name, r.gender, r.teen_mum,
+      r.id, r.row_num, r.name, r.gender, r.teen_mum,
       r.phone, r.national_id, r.yob, r.pwds, r.refugee,
-      r.ward, r.county, r.call_status||''
+      r.ward, r.county, r.call_status||'',
+      r.updated_at ? new Date(r.updated_at).toLocaleString() : '',
+      alteredContactIds.has(r.id) ? 'Yes' : ''
     ])];
     const ws = XLSX.utils.aoa_to_sheet(data);
-    ws['!cols'] = [{wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},{wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18}];
+    ws['!cols'] = [{wch:10},{wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},{wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18},{wch:22},{wch:8}];
     rows.forEach((r,ri) => {
-      if (r.call_status === 'Successful') {
+      const bg = r.call_status === 'Successful' ? 'C6EFCE' : alteredContactIds.has(r.id) ? 'E8D5FF' : null;
+      if (bg) {
         hdr.forEach((_,ci) => {
           const ref = XLSX.utils.encode_cell({r:ri+1,c:ci});
-          if (ws[ref]) ws[ref].s = { fill:{ fgColor:{rgb:'FFCDB2'} } };
+          if (ws[ref]) ws[ref].s = { fill:{ fgColor:{rgb:bg} } };
         });
       }
     });
@@ -2094,6 +2392,18 @@ function exportExcel() {
 // HELPERS
 // ============================================================
 function todayStr() { return new Date().toISOString().slice(0,10); }
+
+function copyToClip(field) {
+  if (!contact) return;
+  let val = '';
+  if (field === 'name')  val = contact.name  || '';
+  if (field === 'phone') val = contact.phone || '';
+  if (!val) { toast('Nothing to copy', 'warn'); return; }
+  navigator.clipboard.writeText(val).then(
+    () => toast(`📋 Copied ${field}: ${val}`, 'ok'),
+    () => { /* fallback */ const ta = document.createElement('textarea'); ta.value = val; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); toast(`📋 Copied ${field}`, 'ok'); }
+  );
+}
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
