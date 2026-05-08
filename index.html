@@ -192,6 +192,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .sbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px 6px;border-radius:11px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:11px;font-weight:600;color:var(--text);transition:all .15s;text-align:center;line-height:1.3;font-family:var(--font)}
 .sbtn:active{transform:scale(.96)}
 .sbtn-ico{font-size:18px}
+.sbtn.active-status{box-shadow:0 0 0 2px currentColor,0 0 12px rgba(255,255,255,.08);opacity:1;transform:scale(1.03)}
+.sbtn.ok.active-status{background:rgba(34,197,94,.18);border-color:var(--green);color:var(--green)}
+.sbtn.fail.active-status{background:rgba(239,68,68,.18);border-color:var(--danger);color:#f87171}
+.sbtn.warn.active-status{background:rgba(245,158,11,.18);border-color:var(--warn);color:#fbbf24}
+.sbtn.custom-active{background:rgba(168,85,247,.18);border-color:#a855f7 !important;color:#c084fc !important;box-shadow:0 0 0 2px #a855f7,0 0 12px rgba(168,85,247,.15);transform:scale(1.03)}
 .sbtn.ok{border-color:var(--salmon)55;color:var(--salmon)}
 .sbtn.ok:hover{background:rgba(249,115,22,.12)}
 .sbtn.fail{border-color:var(--danger)55;color:#f87171}
@@ -207,18 +212,33 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 @keyframes pulse{from{opacity:1}to{opacity:.3}}
 
 /* ============ TOAST ============ */
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(16px);background:#1e3a5f;color:#93c5fd;padding:8px 18px;border-radius:24px;font-size:12px;font-weight:600;opacity:0;transition:all .26s;z-index:300;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 40px);text-align:center;border:1px solid #2d5a9a55;backdrop-filter:blur(10px)}
+.toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-20px);background:#1e3a5f;color:#93c5fd;padding:10px 22px;border-radius:24px;font-size:13px;font-weight:700;opacity:0;transition:all .26s;z-index:500;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 40px);text-align:center;border:1px solid #2d5a9a55;backdrop-filter:blur(10px);box-shadow:0 4px 24px rgba(0,0,0,.4)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.ok-toast{background:#14532d;color:#86efac;border-color:#166534}
 .toast.warn-toast{background:#451a03;color:#fdba74;border-color:#78350f}
 .toast.err-toast{background:#450a0a;color:#fca5a5;border-color:#7f1d1d}
+#status-screen.active{display:flex;flex-direction:column}
 
 /* ============ LOADING OVERLAY ============ */
-.full-loader{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:500}
-.full-loader.hide{display:none}
-.loader-spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .75s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loader-txt{font-size:13px;color:var(--muted);font-weight:500}
+.full-loader{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:500;transition:opacity .5s}
+.full-loader.hide{opacity:0;pointer-events:none}
+.full-loader.gone{display:none}
+.loader-ring-wrap{position:relative;width:130px;height:130px}
+.loader-ring-svg{width:130px;height:130px;transform:rotate(-90deg)}
+.loader-ring-track{fill:none;stroke:var(--border);stroke-width:8}
+.loader-ring-fill{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;stroke-dasharray:339.3;stroke-dashoffset:339.3;transition:stroke-dashoffset .35s ease,stroke .3s}
+.loader-ring-fill.done{stroke:var(--green)}
+.loader-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.loader-pct{font-size:30px;font-weight:900;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;transition:color .3s}
+.loader-pct.done{color:var(--green)}
+.loader-pct-sym{font-size:13px;font-weight:700;color:var(--muted)}
+.loader-txt{font-size:12px;color:var(--muted);font-weight:600;text-align:center;max-width:220px;line-height:1.5;min-height:18px}
+.loader-sub{font-size:10px;color:var(--border);font-weight:500;text-align:center;min-height:14px}
+/* Export progress overlay */
+.export-loader{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:600}
+.export-loader.vis{display:flex}
+.export-done-ico{font-size:56px;animation:pop .35s cubic-bezier(.175,.885,.32,1.275) both}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
 
 /* ============ CONFIG MODAL ============ */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;align-items:center;justify-content:center;padding:20px}
@@ -245,8 +265,34 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
 <!-- ====================== FULL SCREEN LOADER ====================== -->
 <div class="full-loader" id="full-loader">
-  <div class="loader-spinner"></div>
+  <div class="loader-ring-wrap">
+    <svg class="loader-ring-svg" viewBox="0 0 110 110">
+      <circle class="loader-ring-track" cx="55" cy="55" r="46"/>
+      <circle class="loader-ring-fill" id="loader-ring-fill" cx="55" cy="55" r="46"/>
+    </svg>
+    <div class="loader-ring-center">
+      <div class="loader-pct" id="loader-pct">0</div>
+      <div class="loader-pct-sym">%</div>
+    </div>
+  </div>
   <div class="loader-txt" id="loader-txt">Initializing…</div>
+  <div class="loader-sub" id="loader-sub"></div>
+</div>
+
+<!-- ====================== EXPORT PROGRESS OVERLAY ====================== -->
+<div class="export-loader" id="export-loader">
+  <div class="loader-ring-wrap">
+    <svg class="loader-ring-svg" viewBox="0 0 110 110">
+      <circle class="loader-ring-track" cx="55" cy="55" r="46"/>
+      <circle class="loader-ring-fill" id="export-ring-fill" cx="55" cy="55" r="46"/>
+    </svg>
+    <div class="loader-ring-center">
+      <div class="loader-pct" id="export-pct">0</div>
+      <div class="loader-pct-sym">%</div>
+    </div>
+  </div>
+  <div class="loader-txt" id="export-txt">Fetching contacts…</div>
+  <div class="loader-sub" id="export-sub"></div>
 </div>
 
 <!-- ====================== SETUP / LOGIN SCREEN ====================== -->
@@ -303,24 +349,23 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="stat-c c-ok"><div class="stat-v" id="sv-ok" style="color:var(--salmon)">0</div><div class="stat-l">Successful</div></div>
   </div>
 
-  <!-- Today's Breakdown -->
-  <div class="sec-hdr">📅 Today's Breakdown</div>
+  <!-- Progress Donut Chart -->
   <div style="padding:0 14px 10px">
-    <div class="status-breakdown" id="enum-today-bd">
-      <div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No calls logged today yet</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:16px">
+      <div style="position:relative;width:110px;height:110px;flex-shrink:0">
+        <div id="enum-donut" style="width:110px;height:110px;border-radius:50%;background:var(--surface2)"></div>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+          <div id="enum-pct-big" style="font-size:22px;font-weight:900;line-height:1;letter-spacing:-1px">0%</div>
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:1px">Complete</div>
+        </div>
+      </div>
+      <div id="enum-chart-legend" style="flex:1;display:flex;flex-direction:column;gap:5px;font-size:11px;min-width:0"></div>
     </div>
   </div>
 
-  <!-- Overall Breakdown -->
-  <div class="sec-hdr">📊 Overall Breakdown</div>
-  <div style="padding:0 14px 10px">
-    <div class="status-breakdown" id="enum-overall-bd">
-      <div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No data yet</div>
-    </div>
-  </div>
-
+  <!-- My Call List — above breakdown -->
   <div class="sec-hdr">📋 My Call List</div>
-  <div style="padding:0 14px 90px">
+  <div style="padding:0 14px 10px">
     <div class="agent-card" onclick="openMyList()" style="border-color:var(--accent)44">
       <div style="display:flex;align-items:center;gap:10px">
         <div class="av" id="dash-av" style="background:var(--accent)">ME</div>
@@ -331,6 +376,22 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
           <div class="pbar-txt"><span id="dash-logged">0 logged</span><span id="dash-pct">0%</span></div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Today's Breakdown -->
+  <div class="sec-hdr">📅 Today's Breakdown</div>
+  <div style="padding:0 14px 10px">
+    <div class="status-breakdown" id="enum-today-bd">
+      <div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No calls logged today yet</div>
+    </div>
+  </div>
+
+  <!-- Overall Breakdown -->
+  <div class="sec-hdr">📊 Overall Breakdown</div>
+  <div style="padding:0 14px 90px">
+    <div class="status-breakdown" id="enum-overall-bd">
+      <div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No data yet</div>
     </div>
   </div>
 
@@ -347,7 +408,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="tb-brand" style="background:linear-gradient(90deg,#a855f7,#3b7dd8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">⚡ Admin Panel</div>
     <span class="rt-badge">🟢 Live</span>
     <span class="tb-badge">Admin</span>
-    <button class="btn-sm" onclick="exportExcel()">⬇️ Export</button>
+    <button class="btn-sm" id="admin-export-btn" onclick="exportAdminExcel()" style="background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--green);font-weight:700">⬇️ Export All</button>
     <button class="btn-sm" style="background:#1c0808;border-color:#7f1d1d55;color:#fca5a5;font-weight:700" onclick="doLogout()">🚪 Sign Out</button>
   </div>
 
@@ -470,36 +531,52 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   </div>
 </div>
 
-<!-- ====================== STATUS BOTTOM SHEET ====================== -->
-<div class="overlay" id="overlay" onclick="closeSh(event)">
-  <div class="bsheet">
-    <div class="handle"></div>
-    <div class="sh-hdr">
-      <div class="sh-name" id="sh-name"></div>
-      <div class="sh-meta" id="sh-meta"></div>
-      <div class="cur-status" id="cur-status">No status yet</div>
+<!-- ====================== STATUS SCREEN ====================== -->
+<div id="status-screen" class="screen">
+  <!-- Top nav bar with Prev/Next -->
+  <div class="top-bar" style="gap:6px">
+    <button class="btn-sm" id="ss-prev" onclick="goStatusPrev()" style="padding:6px 10px">◀ Prev</button>
+    <div style="flex:1;text-align:center;font-size:12px;font-weight:700;color:var(--muted)" id="ss-pos">1 of 100</div>
+    <button class="btn-sm" id="ss-next" onclick="goStatusNext()" style="padding:6px 10px">Next ▶</button>
+    <div class="sync-dot" id="ss-sync-dot" title="Sync status" style="width:14px;height:14px"></div>
+  </div>
+
+  <!-- Contact info -->
+  <div style="padding:13px 14px;border-bottom:1px solid var(--border);background:var(--surface)">
+    <div style="font-size:19px;font-weight:900;margin-bottom:4px;letter-spacing:-.3px" id="ss-name"></div>
+    <div style="font-size:11px;color:var(--muted);line-height:1.7" id="ss-meta"></div>
+    <div id="ss-cur-status" style="display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border)">No status yet</div>
+  </div>
+
+  <!-- Call & Survey actions -->
+  <div style="display:flex;gap:7px;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border)">
+    <a id="ss-call-btn" href="#" class="btn-call" style="flex:1">📞 Call Now</a>
+    <button class="btn-survey" onclick="openSurvey()" style="flex:1">📋 Open Survey</button>
+  </div>
+
+  <!-- Status buttons — scrollable -->
+  <div style="overflow-y:auto;flex:1;padding-bottom:24px">
+    <div class="sgrid" style="padding-top:8px" id="builtin-sgrid">
+      <button class="sbtn ok"   id="sbtn-Successful"    onclick="setSt('Successful')"><span class="sbtn-ico">✅</span>Successful</button>
+      <button class="sbtn fail" id="sbtn-Not Reachable" onclick="setSt('Not Reachable')"><span class="sbtn-ico">📵</span>Not Reachable</button>
+      <button class="sbtn fail" id="sbtn-No Answer"     onclick="setSt('No Answer')"><span class="sbtn-ico">🔕</span>No Answer</button>
+      <button class="sbtn fail" id="sbtn-Wrong Number"  onclick="setSt('Wrong Number')"><span class="sbtn-ico">🔢</span>Wrong Number</button>
+      <button class="sbtn fail" id="sbtn-Out of Service" onclick="setSt('Out of Service')"><span class="sbtn-ico">⛔</span>Out of Service</button>
+      <button class="sbtn warn" id="sbtn-Did Not Attend" onclick="setSt('Did Not Attend')"><span class="sbtn-ico">🚶</span>Did Not Attend</button>
+      <button class="sbtn warn" id="sbtn-Call Later"    onclick="setSt('Call Later')"><span class="sbtn-ico">📅</span>Call Later</button>
     </div>
-    <div class="sh-actions">
-      <a id="call-btn" href="#" class="btn-call">📞 Call Now</a>
-      <button class="btn-survey" onclick="openSurvey()">📋 Open Survey</button>
-    </div>
-    <div class="sgrid" id="sgrid">
-      <button class="sbtn ok"   onclick="setSt('Successful')"><span class="sbtn-ico">✅</span>Successful</button>
-      <button class="sbtn fail" onclick="setSt('Not Reachable')"><span class="sbtn-ico">📵</span>Not Reachable</button>
-      <button class="sbtn fail" onclick="setSt('No Answer')"><span class="sbtn-ico">🔕</span>No Answer</button>
-      <button class="sbtn fail" onclick="setSt('Wrong Number')"><span class="sbtn-ico">🔢</span>Wrong Number</button>
-      <button class="sbtn fail" onclick="setSt('Out of Service')"><span class="sbtn-ico">⛔</span>Out of Service</button>
-      <button class="sbtn warn" onclick="setSt('Did Not Attend')"><span class="sbtn-ico">🚶</span>Did Not Attend</button>
-      <button class="sbtn warn" onclick="setSt('Call Later')"><span class="sbtn-ico">📅</span>Call Later</button>
-    </div>
-    <!-- Custom statuses -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 13px 2px">
+
+    <!-- Custom statuses — editable by all -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 13px 2px">
       <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">⭐ Custom Statuses</div>
-      <button onclick="openCustomStatusEditor()" style="background:var(--surface3);border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:3px 9px;font-size:10px;cursor:pointer;font-family:var(--font)">✏️ Edit</button>
+      <button onclick="openCustomStatusEditor()" style="background:var(--surface3);border:1px solid var(--border);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:10px;cursor:pointer;font-family:var(--font)">✏️ Edit</button>
     </div>
     <div class="sgrid" id="custom-sgrid"></div>
-    <div class="sh-clear" style="padding:0 13px 8px">
-      <button class="btn-sm" style="width:100%;justify-content:center" onclick="setSt('')">🗑️ Clear Status</button>
+
+    <!-- Clear + Close -->
+    <div style="padding:4px 13px 6px;display:flex;gap:7px">
+      <button class="btn-sm" style="flex:1;justify-content:center" onclick="setSt('')">🗑️ Clear Status</button>
+      <button class="btn-sm" style="flex:1;justify-content:center;background:var(--surface2);border-color:var(--border);color:var(--text);font-weight:700" onclick="closeStatusScreen()">← Back to List</button>
     </div>
   </div>
 </div>
@@ -650,6 +727,56 @@ alter publication supabase_realtime add table public.contacts;
 alter publication supabase_realtime add table public.call_logs;
 
 -- ------------------------------------------------
+-- 8. FAST STAT FUNCTIONS (avoid bulk row loading)
+-- ------------------------------------------------
+create or replace function public.get_sheet_stats(p_sheet text)
+returns table(status text, cnt bigint, today_cnt bigint)
+language sql security definer stable set search_path = public as $$
+  select coalesce(call_status,'') as status,
+         count(*) as cnt,
+         count(*) filter (where updated_at::date = current_date) as today_cnt
+  from public.contacts where sheet_name = p_sheet
+  group by call_status;
+$$;
+
+create or replace function public.get_all_stats()
+returns table(sheet text, status text, cnt bigint, today_cnt bigint)
+language sql security definer stable set search_path = public as $$
+  select sheet_name as sheet,
+         coalesce(call_status,'') as status,
+         count(*) as cnt,
+         count(*) filter (where updated_at::date = current_date) as today_cnt
+  from public.contacts
+  group by sheet_name, call_status;
+$$;
+
+-- ------------------------------------------------
+-- 9. SETTINGS TABLE
+-- ------------------------------------------------
+create table if not exists public.settings (
+  key text primary key,
+  value jsonb,
+  updated_at timestamptz default now(),
+  updated_by uuid references auth.users(id)
+);
+alter table public.settings enable row level security;
+
+-- All authenticated users can read settings
+create policy "settings_read" on public.settings
+  for select using (auth.role() = 'authenticated');
+
+-- Only admins can write settings
+create policy "settings_admin_write" on public.settings
+  for all using (public.is_admin());
+
+alter publication supabase_realtime add table public.settings;
+
+-- Seed default custom statuses (run once)
+insert into public.settings (key, value)
+values ('custom_statuses', '["Callback Scheduled","Language Barrier","Deceased","Duplicate"]'::jsonb)
+on conflict (key) do nothing;
+
+-- ------------------------------------------------
 -- 7. AUTO-PROFILE TRIGGER
 -- Automatically creates a profile row when a new
 -- auth user is created. Role + assigned_sheet are
@@ -683,24 +810,24 @@ create trigger on_auth_user_created
 // ============================================================
 // HARDCODED CONFIG — edit only here if credentials change
 // ============================================================
-const HARDCODED_URL = '__SUPABASE_URL__';   // ← paste your Supabase URL
-const HARDCODED_KEY = '__SUPABASE_ANON_KEY__'; // ← paste your anon key
+const HARDCODED_URL = 'https://nphsjlsvfreoxsldtcpb.supabase.co';
+const HARDCODED_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5waHNqbHN2ZnJlb3hzbGR0Y3BiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNDg3OTMsImV4cCI6MjA5MzcyNDc5M30.5OXc-00KYw4gMZ-3QIUEsNfx3gb-6bB8AT88lpdThEo';
 
 // Pre-defined users: enumerators (sheet name → email/password)
 // and one admin account. Passwords are set on first provision run.
 const USERS_MANIFEST = [
   // Enumerators — sheet name must match Excel tab exactly
-  { name:'Dorothy', email:'dorothy@shofco.survey', password:'Dorothy2024!', role:'enumerator', sheet:'Dorothy' },
-  { name:'Loreene', email:'loreene@shofco.survey', password:'Loreene2024!', role:'enumerator', sheet:'Loreene' },
-  { name:'Bev',     email:'bev@shofco.survey',     password:'Bev2024!',     role:'enumerator', sheet:'Bev'     },
-  { name:'Quincy',  email:'quincy@shofco.survey',  password:'Quincy2024!',  role:'enumerator', sheet:'Quincy'  },
-  { name:'Beda',    email:'beda@shofco.survey',     password:'Beda2024!',    role:'enumerator', sheet:'Beda'    },
-  { name:'Glen',    email:'glen@shofco.survey',     password:'Glen2024!',    role:'enumerator', sheet:'Glen'    },
-  { name:'Bill',    email:'bill@shofco.survey',     password:'Bill2024!',    role:'enumerator', sheet:'Bill'    },
-  { name:'Darius',  email:'darius@shofco.survey',  password:'Darius2024!',  role:'enumerator', sheet:'Darius'  },
-  { name:'Rackel',  email:'rackel@shofco.survey',  password:'Rackel2024!',  role:'enumerator', sheet:'Rackel'  },
-  { name:'Kimari',  email:'kimari@shofco.survey',  password:'Kimari2024!',  role:'enumerator', sheet:'Kimari'  },
-  { name:'Esther',  email:'esther@shofco.survey',  password:'Esther2024!',  role:'enumerator', sheet:'Esther'  },
+  { name:'Dorothy', email:'dorothy@shofco.survey', password:'Dorothy@2024!', role:'enumerator', sheet:'Dorothy' },
+  { name:'Loreene', email:'loreene@shofco.survey', password:'Loreene@2024!', role:'enumerator', sheet:'Loreene' },
+  { name:'Bev',     email:'bev@shofco.survey',     password:'Bev@2024!',     role:'enumerator', sheet:'Bev'     },
+  { name:'Quincy',  email:'quincy@shofco.survey',  password:'Quincy@2024!',  role:'enumerator', sheet:'Quincy'  },
+  { name:'Beda',    email:'beda@shofco.survey',     password:'Beda@2024!',    role:'enumerator', sheet:'Beda'    },
+  { name:'Glen',    email:'glen@shofco.survey',     password:'Glen@2024!',    role:'enumerator', sheet:'Glen'    },
+  { name:'Bill',    email:'bill@shofco.survey',     password:'Bill@2024!',    role:'enumerator', sheet:'Bill'    },
+  { name:'Darius',  email:'darius@shofco.survey',  password:'Darius@2024!',  role:'enumerator', sheet:'Darius'  },
+  { name:'Rackel',  email:'rackel@shofco.survey',  password:'Rackel@2024!',  role:'enumerator', sheet:'Rackel'  },
+  { name:'Kimari',  email:'kimari@shofco.survey',  password:'Kimari@2024!',  role:'enumerator', sheet:'Kimari'  },
+  { name:'Esther',  email:'esther@shofco.survey',  password:'Esther@2024!',  role:'enumerator', sheet:'Esther'  },
   // Admin
   { name:'Admin',   email:'admin@shofco.survey',   password:'Admin@SHOFCO2024!', role:'admin', sheet:null },
 ];
@@ -716,12 +843,16 @@ const STATUS_COLORS= {'Successful':COLORS[1],'Not Reachable':COLORS[4],'No Answe
 let sb          = null;    // supabase client
 let currentUser = null;    // auth user
 let userProfile = null;    // profile row
-let allContacts = [];      // full list for current sheet (enumerator) or all (admin)
+let allContacts = [];      // contacts loaded so far for call list
+let sheetStats  = {};      // {status: {count, today}} — fast stats from RPC
+let totalContactCount = 0; // total in sheet (from RPC, instant)
+let contactsFullyLoaded = false;
+let customStatuses = ['Callback Scheduled','Language Barrier','Deceased','Duplicate'];
 let curFilter   = 'all';
 let sortAsc     = true;
 let contact     = null;    // currently open
 let rtChannel   = null;    // realtime subscription
-let adminData   = { contacts:[], logs:[], profiles:[] };
+let adminData   = { logs:[], profiles:[], statsBySheet:{} };
 
 // ============================================================
 // INIT
@@ -736,7 +867,7 @@ async function init() {
     return;
   }
 
-  setLoader('Connecting…');
+  setLoader('Connecting…', 3);
 
   try {
     sb = supabase.createClient(cfg.url, cfg.key);
@@ -758,7 +889,7 @@ async function init() {
 
 async function loadUserAndRoute(user) {
   currentUser = user;
-  setLoader('Loading profile…');
+  setLoader('Loading profile…', 10);
   const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
   userProfile = profile;
 
@@ -768,6 +899,9 @@ async function loadUserAndRoute(user) {
     showScr('setup-screen');
     return;
   }
+
+  // Load shared settings from Supabase
+  await loadSettings();
 
   if (profile.role === 'admin') {
     await loadAdminData();
@@ -801,7 +935,7 @@ async function doLogin() {
     const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
     if (error) throw error;
     btn.disabled = false; btn.textContent = 'Sign In →';
-    setLoader('Loading your data…');
+    setLoader('Loading your data…', 12);
     showScr('setup-screen'); // hide while loading
     document.getElementById('full-loader').classList.remove('hide');
     await loadUserAndRoute(data.user);
@@ -938,72 +1072,134 @@ async function provisionAllUsers() {
 
 
 async function loadEnumeratorData() {
-  setLoader('Loading contacts…');
+  setLoader('Connecting…', 5);
   const sheet = userProfile.assigned_sheet;
-  if (!sheet) {
-    toast('⚠️ No sheet assigned to your account', 'warn');
+  if (!sheet) { toast('⚠️ No sheet assigned', 'warn'); hideLoader(); showScr('setup-screen'); return; }
+
+  try {
+    setLoader('Loading stats…', 20);
+    let statsOk = false;
+    try {
+      const { data: sd, error: se } = await sb.rpc('get_sheet_stats', { p_sheet: sheet });
+      if (!se && sd) {
+        sheetStats = {};
+        totalContactCount = 0;
+        sd.forEach(r => {
+          sheetStats[r.status] = { count: Number(r.cnt), today: Number(r.today_cnt) };
+          totalContactCount += Number(r.cnt);
+        });
+        statsOk = true;
+      }
+    } catch(e) {}
+
+    setLoader('Loading contacts…', 50);
+    const { data: first, error: firstErr } = await sb.from('contacts')
+      .select('*').eq('sheet_name', sheet)
+      .order('row_num', { ascending: true }).range(0, 199);
+    if (firstErr) throw firstErr;
+
+    allContacts = first || [];
+    contactsFullyLoaded = allContacts.length < 200;
+
+    if (!statsOk) {
+      setLoader('Counting records…', 65);
+      const { count } = await sb.from('contacts').select('*', { count:'exact', head:true }).eq('sheet_name', sheet);
+      totalContactCount = count || allContacts.length;
+      sheetStats = {};
+      allContacts.forEach(c => {
+        const k = c.call_status || '';
+        if (!sheetStats[k]) sheetStats[k] = { count:0, today:0 };
+        sheetStats[k].count++;
+      });
+    }
+
+    setLoader('Almost ready…', 85);
+    document.getElementById('user-badge').textContent = sheet;
+    document.getElementById('dash-av').textContent = sheet.slice(0,2).toUpperCase();
+    document.getElementById('dash-av').style.background = COLORS[hashStr(sheet) % COLORS.length];
+    document.getElementById('dash-name').textContent = sheet + "'s List";
+
+    subscribeRealtime(sheet);
+    setLoader('Ready!', 100);
+    await new Promise(r => setTimeout(r, 500));
+    hideLoader();
+    showDash();
+
+    if (!contactsFullyLoaded) loadRemainingContacts(sheet, 200);
+
+  } catch(err) {
     hideLoader();
     showScr('setup-screen');
-    return;
+    toast('❌ Load failed: ' + (err.message||'check connection'), 'err');
   }
-
-  const { data, error } = await sb.from('contacts')
-    .select('*')
-    .eq('sheet_name', sheet)
-    .order('row_num', { ascending: true });
-
-  if (error) { toast('Error loading contacts: '+error.message, 'err'); hideLoader(); return; }
-  allContacts = data || [];
-
-  document.getElementById('user-badge').textContent = sheet;
-  const initials = sheet.slice(0,2).toUpperCase();
-  document.getElementById('dash-av').textContent = initials;
-  document.getElementById('dash-av').style.background = COLORS[hashStr(sheet) % COLORS.length];
-  document.getElementById('dash-name').textContent = sheet + "'s List";
-
-  subscribeRealtime(sheet);
-  hideLoader();
-  showDash();
 }
 
-// ============================================================
-// ADMIN DATA LOAD  (paginated — handles 30,000+ contacts)
-// ============================================================
-async function loadAllContactsPaginated() {
-  let all = [];
-  let from = 0;
+async function loadRemainingContacts(sheet, startFrom) {
+  let offset = startFrom;
   const PAGE = 1000;
   while (true) {
-    setLoader(`Loading contacts… ${all.length.toLocaleString()}`);
     const { data, error } = await sb.from('contacts')
-      .select('*').order('sheet_name').order('row_num')
-      .range(from, from + PAGE - 1);
-    if (error) throw error;
-    if (!data || data.length === 0) break;
-    all = all.concat(data);
+      .select('*').eq('sheet_name', sheet)
+      .order('row_num', { ascending: true })
+      .range(offset, offset + PAGE - 1);
+    if (error || !data || data.length === 0) break;
+    allContacts = [...allContacts, ...data];
+    offset += data.length;
+    if (document.getElementById('calllist-screen').classList.contains('active')) {
+      renderList(); renderMini(); renderClSummary();
+    }
     if (data.length < PAGE) break;
-    from += PAGE;
   }
-  return all;
+  contactsFullyLoaded = true;
 }
 
 async function loadAdminData() {
-  setLoader('Loading contacts… 0');
+  setLoader('Loading stats…', 10);
   try {
-    const [allC, logsRes, profilesRes] = await Promise.all([
-      loadAllContactsPaginated(),
-      sb.from('call_logs').select('*').order('logged_at',{ascending:false}).limit(50000),
-      sb.from('profiles').select('*').eq('role','enumerator')
+    let statsOk = false;
+    try {
+      setLoader('Fetching sheet stats…', 25);
+      const { data: sd, error: se } = await sb.rpc('get_all_stats');
+      if (!se && sd) {
+        adminData.statsBySheet = {};
+        sd.forEach(r => {
+          if (!adminData.statsBySheet[r.sheet])
+            adminData.statsBySheet[r.sheet] = { total:0, byStatus:{}, todayTotal:0 };
+          const s = adminData.statsBySheet[r.sheet];
+          s.byStatus[r.status] = { count: Number(r.cnt), today: Number(r.today_cnt) };
+          s.total += Number(r.cnt);
+          s.todayTotal += Number(r.today_cnt);
+        });
+        statsOk = true;
+      }
+    } catch(e) {}
+
+    setLoader('Loading profiles & logs…', 55);
+    const [profilesRes, logsRes] = await Promise.all([
+      sb.from('profiles').select('*').eq('role','enumerator'),
+      sb.from('call_logs').select('*').order('logged_at',{ascending:false}).limit(5000)
     ]);
-    adminData.contacts = allC;
-    adminData.logs     = logsRes.data  || [];
+
     adminData.profiles = profilesRes.data || [];
+    adminData.logs     = logsRes.data || [];
+
+    if (!statsOk) {
+      adminData.statsBySheet = {};
+      adminData.profiles.forEach(p => {
+        if (p.assigned_sheet)
+          adminData.statsBySheet[p.assigned_sheet] = { total:0, byStatus:{}, todayTotal:0 };
+      });
+    }
+
+    setLoader('Ready!', 100);
     subscribeRealtimeAdmin();
+    await new Promise(r => setTimeout(r, 500));
     hideLoader();
     showAdminPanel();
   } catch(err) {
-    toast('Error loading: '+(err.message||err), 'err');
     hideLoader();
+    showScr('setup-screen');
+    toast('❌ Load failed: ' + (err.message||'check connection'), 'err');
   }
 }
 
@@ -1024,7 +1220,15 @@ function subscribeRealtime(sheet) {
       renderClSummary();
       updateDashCard();
       renderEnumBreakdowns();
+      renderEnumChart();
       toast('🔄 Contact updated', 'ok');
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, payload => {
+      if (payload.new?.key === 'custom_statuses' && payload.new?.value) {
+        customStatuses = payload.new.value;
+        renderCustomStGrid();
+        toast('🔄 Custom statuses updated by admin', 'ok');
+      }
     })
     .subscribe();
 }
@@ -1040,6 +1244,13 @@ function subscribeRealtimeAdmin() {
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'call_logs' }, payload => {
       adminData.logs.unshift(payload.new);
       refreshAdminStats();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, payload => {
+      if (payload.new?.key === 'custom_statuses' && payload.new?.value) {
+        customStatuses = payload.new.value;
+        renderCustomStGrid();
+        toast('🔄 Custom statuses updated', 'ok');
+      }
     })
     .subscribe();
 }
@@ -1059,6 +1270,7 @@ function showDash() {
   updateDashCard();
   renderTodayPills();
   renderEnumBreakdowns();
+  renderEnumChart();
 }
 
 function showAdminPanel() {
@@ -1082,29 +1294,79 @@ function openMyList() {
 // DASHBOARD — ENUMERATOR
 // ============================================================
 function updateDashCard() {
-  const t    = allContacts.length;
-  const done = allContacts.filter(c => c.call_status).length;
-  const ok   = allContacts.filter(c => c.call_status === 'Successful').length;
+  const t    = totalContactCount;
+  const done = Object.entries(sheetStats).filter(([s])=>s!=='').reduce((sum,[,v])=>sum+v.count,0);
+  const ok   = sheetStats['Successful']?.count || 0;
   const pct  = t ? Math.round(done/t*100) : 0;
 
   document.getElementById('sv-total').textContent = t.toLocaleString();
   document.getElementById('sv-done').textContent  = done.toLocaleString();
   document.getElementById('sv-ok').textContent    = ok.toLocaleString();
-  document.getElementById('dash-meta').textContent = `${t.toLocaleString()} contacts · ${done} logged`;
-  document.getElementById('dash-logged').textContent = done + ' logged';
+  document.getElementById('dash-meta').textContent = `${t.toLocaleString()} contacts · ${done.toLocaleString()} logged`;
+  document.getElementById('dash-logged').textContent = done.toLocaleString() + ' logged';
   document.getElementById('dash-pct').textContent    = pct + '%';
   document.getElementById('dash-pbar').style.width   = pct + '%';
+  renderEnumChart();
   renderEnumBreakdowns();
 }
 
-function renderEnumBreakdowns() {
-  const today = todayStr();
+function renderEnumChart() {
+  const t = totalContactCount;
+  const donut = document.getElementById('enum-donut');
+  const legend = document.getElementById('enum-chart-legend');
+  const pctEl = document.getElementById('enum-pct-big');
+  if (!donut || !legend || !t) return;
 
-  // Today's breakdown
+  // Count by status
+  // Build counts from sheetStats (instant, no allContacts needed)
+  const colorMap = {
+    'Pending':'#1e3a5f','Successful':'#22c55e','Not Reachable':'#ef4444',
+    'No Answer':'#f97316','Wrong Number':'#f59e0b','Out of Service':'#dc2626',
+    'Did Not Attend':'#8b5cf6','Call Later':'#06b6d4',
+  };
+
+  const done = Object.entries(sheetStats).filter(([s])=>s!=='').reduce((sum,[,v])=>sum+v.count,0);
+  const pct  = t ? Math.round(done/t*100) : 0;
+  pctEl.textContent = pct + '%';
+
+  const pending = t - done;
+  const segments = [
+    ...(pending > 0 ? [['Pending', pending]] : []),
+    ...Object.entries(sheetStats).filter(([s])=>s!=='').map(([s,v])=>[s,v.count]).sort((a,b)=>b[1]-a[1])
+  ];
+
+  let angle = 0;
+  const gradParts = segments.map(([s,n]) => {
+    const end = angle + (n/t)*360;
+    const col = colorMap[s] || '#3b7dd8';
+    const part = `${col} ${angle.toFixed(2)}deg ${end.toFixed(2)}deg`;
+    angle = end; return part;
+  });
+
+  donut.style.background = `conic-gradient(${gradParts.join(', ')})`;
+  donut.style.webkitMask = 'radial-gradient(farthest-side, transparent 54%, #000 55%)';
+  donut.style.mask = 'radial-gradient(farthest-side, transparent 54%, #000 55%)';
+
+  legend.innerHTML = segments.map(([s,n]) => {
+    const col = colorMap[s] || '#3b7dd8';
+    const p = Math.round(n/t*100);
+    const icon = STATUS_ICONS[s] || (s==='Pending' ? '⏳' : '⭐');
+    return `<div style="display:flex;align-items:center;gap:5px;min-width:0">
+      <div style="width:8px;height:8px;border-radius:2px;background:${col};flex-shrink:0"></div>
+      <span style="color:var(--muted);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px">${icon} ${esc(s)}</span>
+      <span style="font-weight:700;font-size:11px">${n.toLocaleString()}</span>
+      <span style="color:var(--muted);font-size:10px;min-width:28px;text-align:right">${p}%</span>
+    </div>`;
+  }).join('');
+}
+
+function renderEnumBreakdowns() {
+  // Today's breakdown — from sheetStats.today counts
   const todayCounts = {};
-  allContacts.filter(c => c.updated_at && c.updated_at.slice(0,10) === today && c.call_status)
-    .forEach(c => { todayCounts[c.call_status] = (todayCounts[c.call_status]||0)+1; });
-  const todayTotal = Object.values(todayCounts).reduce((a,b)=>a+b,0);
+  let todayTotal = 0;
+  Object.entries(sheetStats).filter(([s])=>s!=='').forEach(([s,v]) => {
+    if (v.today > 0) { todayCounts[s] = v.today; todayTotal += v.today; }
+  });
   const tdEl = document.getElementById('enum-today-bd');
   if (tdEl) {
     if (!todayTotal) {
@@ -1122,11 +1384,12 @@ function renderEnumBreakdowns() {
     }
   }
 
-  // Overall breakdown
+  // Overall breakdown — from sheetStats counts
   const overallCounts = {};
-  allContacts.filter(c => c.call_status)
-    .forEach(c => { overallCounts[c.call_status] = (overallCounts[c.call_status]||0)+1; });
-  const overallTotal = Object.values(overallCounts).reduce((a,b)=>a+b,0);
+  let overallTotal = 0;
+  Object.entries(sheetStats).filter(([s])=>s!=='').forEach(([s,v]) => {
+    overallCounts[s] = v.count; overallTotal += v.count;
+  });
   const ovEl = document.getElementById('enum-overall-bd');
   if (ovEl) {
     if (!overallTotal) {
@@ -1146,10 +1409,9 @@ function renderEnumBreakdowns() {
 }
 
 function renderTodayPills() {
-  const today = todayStr();
-  const todayCount = allContacts.filter(c => c.updated_at && c.updated_at.slice(0,10) === today && c.call_status).length;
-  const todayOk    = allContacts.filter(c => c.updated_at && c.updated_at.slice(0,10) === today && c.call_status === 'Successful').length;
-  document.getElementById('tp-today').textContent = todayCount;
+  const todayTotal = Object.values(sheetStats).reduce((s,v)=>s+v.today,0);
+  const todayOk    = sheetStats['Successful']?.today || 0;
+  document.getElementById('tp-today').textContent = todayTotal;
   document.getElementById('tp-ok').textContent    = todayOk;
 }
 
@@ -1249,88 +1511,151 @@ function renderList() {
 }
 
 // ============================================================
-// STATUS SHEET
+// STATUS SCREEN
 // ============================================================
+let statusNavList = []; // filtered contacts for navigation
+
 function openSh(cid) {
   contact = allContacts.find(c => c.id === cid);
   if (!contact) return;
+  statusNavList = filteredContacts();
+  renderStatusScreen();
+  showScr('status-screen');
+}
 
-  document.getElementById('sh-name').textContent = contact.name || '';
-  document.getElementById('sh-meta').textContent =
-    `📱 ${contact.phone||'—'}  ·  📍 ${contact.county||''}, ${contact.ward||''}  ·  🗓️ Born ${contact.yob||'—'}`;
+function renderStatusScreen() {
+  if (!contact) return;
+  const pos = statusNavList.findIndex(c => c.id === contact.id);
 
-  const cs = document.getElementById('cur-status');
-  cs.textContent = contact.call_status || 'No status yet';
-  cs.style.color = contact.call_status === 'Successful' ? 'var(--green)'
-    : contact.call_status ? 'var(--warn)' : 'var(--muted)';
+  document.getElementById('ss-name').textContent = contact.name || '';
+  document.getElementById('ss-meta').innerHTML =
+    `📱 ${esc(contact.phone||'—')} &nbsp;·&nbsp; 📍 ${esc(contact.county||'')}, ${esc(contact.ward||'')} &nbsp;·&nbsp; 🗓️ Born ${esc(contact.yob||'—')}`;
+
+  const cs = document.getElementById('ss-cur-status');
+  const curSt = contact.call_status || '';
+  const icon = STATUS_ICONS[curSt] || (customStatuses.includes(curSt) ? '⭐' : '');
+  cs.innerHTML = curSt ? `${icon ? icon+' ' : ''}${esc(curSt)}` : 'No status yet';
+  cs.style.background = !curSt ? 'var(--surface2)'
+    : curSt === 'Successful' ? 'rgba(34,197,94,.15)'
+    : customStatuses.includes(curSt) ? 'rgba(168,85,247,.15)'
+    : 'rgba(249,115,22,.15)';
+  cs.style.color = !curSt ? 'var(--muted)'
+    : curSt === 'Successful' ? 'var(--green)'
+    : customStatuses.includes(curSt) ? '#c084fc'
+    : 'var(--salmon)';
+  cs.style.borderColor = !curSt ? 'var(--border)'
+    : curSt === 'Successful' ? 'rgba(34,197,94,.3)'
+    : customStatuses.includes(curSt) ? 'rgba(168,85,247,.35)'
+    : 'rgba(249,115,22,.3)';
 
   const digits = (contact.phone||'').replace(/\s+/g,'').replace(/[^\d+]/g,'');
-  const cb = document.getElementById('call-btn');
-  if (digits) { cb.href = 'tel:'+digits; cb.style.opacity='1'; cb.style.pointerEvents=''; }
-  else { cb.href = '#'; cb.style.opacity='.35'; cb.style.pointerEvents='none'; }
+  const cb = document.getElementById('ss-call-btn');
+  if (digits) { cb.href='tel:'+digits; cb.style.opacity='1'; cb.style.pointerEvents=''; }
+  else { cb.href='#'; cb.style.opacity='.35'; cb.style.pointerEvents='none'; }
 
-  document.getElementById('overlay').classList.add('vis');
+  document.getElementById('ss-pos').textContent = pos>=0 ? `${pos+1} of ${statusNavList.length}` : '';
+  document.getElementById('ss-prev').disabled = pos <= 0;
+  document.getElementById('ss-next').disabled = pos >= statusNavList.length - 1;
+
+  // Highlight active built-in status button
+  document.querySelectorAll('#builtin-sgrid .sbtn').forEach(btn => btn.classList.remove('active-status'));
+  if (curSt) {
+    const activeBtn = document.getElementById('sbtn-' + curSt);
+    if (activeBtn) activeBtn.classList.add('active-status');
+  }
+
   renderCustomStGrid();
 }
 
-function closeSh(e) {
-  if (e.target === document.getElementById('overlay'))
-    document.getElementById('overlay').classList.remove('vis');
+function goStatusPrev() {
+  const pos = statusNavList.findIndex(c => c.id === contact.id);
+  if (pos > 0) {
+    contact = allContacts.find(c => c.id === statusNavList[pos-1].id) || statusNavList[pos-1];
+    renderStatusScreen();
+  }
 }
+
+function goStatusNext() {
+  const pos = statusNavList.findIndex(c => c.id === contact.id);
+  if (pos < statusNavList.length - 1) {
+    contact = allContacts.find(c => c.id === statusNavList[pos+1].id) || statusNavList[pos+1];
+    renderStatusScreen();
+  } else {
+    closeStatusScreen(); // reached end of list
+  }
+}
+
+function closeStatusScreen() {
+  showScr('calllist-screen');
+  renderList(); renderMini(); renderClSummary();
+}
+
+function closeSh(e) {} // kept for compat
 
 async function setSt(st) {
   if (!contact) return;
-  document.getElementById('overlay').classList.remove('vis');
 
-  const prevStatus = contact.call_status;
+  const savedContact = { ...contact }; // snapshot before advance
+  const prevStatus = savedContact.call_status || '';
+  const newStatus  = st || '';
+
+  // Optimistic update in allContacts
+  const idx = allContacts.findIndex(c => c.id === savedContact.id);
+  if (idx !== -1) { allContacts[idx].call_status = st; allContacts[idx].updated_at = new Date().toISOString(); }
   contact.call_status = st;
-  contact.updated_at  = new Date().toISOString();
 
-  // Optimistic UI update
-  renderList();
-  renderMini();
-  renderClSummary();
-  renderTodayStrip();
-  updateDashCard();
-  renderTodayPills();
+  // Update sheetStats optimistically
+  if (prevStatus !== newStatus) {
+    if (sheetStats[prevStatus]) { sheetStats[prevStatus].count = Math.max(0, sheetStats[prevStatus].count-1); sheetStats[prevStatus].today = Math.max(0, sheetStats[prevStatus].today-1); }
+    if (!sheetStats[newStatus]) sheetStats[newStatus] = {count:0,today:0};
+    if (newStatus) { sheetStats[newStatus].count++; sheetStats[newStatus].today++; }
+    updateDashCard();
+  }
 
+  // Update status badge immediately
+  renderStatusScreen();
   setSyncDot('syncing');
+  toast(st ? `${STATUS_ICONS[st]||'⭐'} ${st}` : '🗑️ Status cleared', st==='Successful'?'ok':'warn');
 
+  // Auto-advance to next contact after 650ms if status was set
+  if (st) setTimeout(() => goStatusNext(), 650);
+
+  // Save to Supabase (use snapshot so advance doesn't corrupt)
   try {
+    const now = new Date().toISOString();
     const { error: upErr } = await sb.from('contacts')
-      .update({ call_status: st, updated_at: new Date().toISOString(), updated_by: currentUser.id })
-      .eq('id', contact.id);
+      .update({ call_status: st, updated_at: now, updated_by: currentUser.id })
+      .eq('id', savedContact.id);
     if (upErr) throw upErr;
 
-    // Log the change (only if status actually set)
     if (st) {
       await sb.from('call_logs').insert({
-        contact_id: contact.id,
-        sheet_name: contact.sheet_name,
-        contact_name: contact.name,
-        phone: contact.phone,
-        status: st,
-        logged_by: currentUser.id,
+        contact_id: savedContact.id, sheet_name: savedContact.sheet_name,
+        contact_name: savedContact.name, phone: savedContact.phone,
+        status: st, logged_by: currentUser.id,
         logged_by_name: userProfile?.full_name || userProfile?.assigned_sheet || currentUser.email,
-        logged_at: new Date().toISOString()
+        logged_at: now
       });
     }
-
     setSyncDot('ok');
-    toast(st ? '✅ ' + st : '🗑️ Status cleared', 'ok');
   } catch(e) {
     // Rollback
-    contact.call_status = prevStatus;
-    renderList(); renderMini();
+    if (idx !== -1) { allContacts[idx].call_status = prevStatus; }
+    if (sheetStats[newStatus]) sheetStats[newStatus].count = Math.max(0, sheetStats[newStatus].count-1);
+    if (!sheetStats[prevStatus]) sheetStats[prevStatus] = {count:0,today:0};
+    if (prevStatus) sheetStats[prevStatus].count++;
+    updateDashCard();
     setSyncDot('error');
     toast('⚠️ Sync failed: ' + e.message, 'err');
   }
 }
 
 function setSyncDot(state) {
+  const cls = 'sync-dot' + (state==='syncing' ? ' syncing' : state==='error' ? ' error' : '');
   const d = document.getElementById('sync-dot');
-  if (!d) return;
-  d.className = 'sync-dot' + (state==='syncing' ? ' syncing' : state==='error' ? ' error' : '');
+  if (d) d.className = cls;
+  const d2 = document.getElementById('ss-sync-dot');
+  if (d2) d2.className = cls;
 }
 
 function openSurvey() {
@@ -1358,82 +1683,86 @@ function adminTab(tab, btn) {
 }
 
 function refreshAdminStats() {
-  const contacts = adminData.contacts;
-  const logs     = adminData.logs;
-  const today    = todayStr();
-  const total    = contacts.length;
-  const done     = contacts.filter(c => c.call_status).length;
-  const todayLogs= logs.filter(l => l.logged_at && l.logged_at.slice(0,10) === today);
+  const stats  = adminData.statsBySheet || {};
+  const logs   = adminData.logs;
+  const today  = todayStr();
+  const sheets = adminData.profiles.map(p => p.assigned_sheet).filter(Boolean).sort();
 
-  document.getElementById('adm-total').textContent = total.toLocaleString();
-  document.getElementById('adm-done').textContent  = done.toLocaleString();
-  document.getElementById('adm-today').textContent = todayLogs.length.toLocaleString();
+  // Grand totals from statsBySheet
+  let grandTotal=0, grandDone=0, grandToday=0;
+  sheets.forEach(sn => {
+    const s = stats[sn] || {total:0,byStatus:{},todayTotal:0};
+    grandTotal += s.total;
+    grandDone  += Object.entries(s.byStatus).filter(([k])=>k!=='').reduce((sum,[,v])=>sum+v.count,0);
+    grandToday += s.todayTotal;
+  });
+
+  document.getElementById('adm-total').textContent = grandTotal.toLocaleString();
+  document.getElementById('adm-done').textContent  = grandDone.toLocaleString();
+  document.getElementById('adm-today').textContent = grandToday.toLocaleString();
   document.getElementById('admin-hero-sub').textContent =
-    `${total.toLocaleString()} total contacts · ${done.toLocaleString()} logged · ${todayLogs.length} today`;
+    `${grandTotal.toLocaleString()} total · ${grandDone.toLocaleString()} logged · ${grandToday} today`;
 
-  // TODAY breakdown
+  // TODAY breakdown from logs
+  const todayLogs = logs.filter(l => l.logged_at?.slice(0,10) === today);
   document.getElementById('adm-day-date').textContent = new Date().toLocaleDateString('en-KE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('adm-day-total').textContent = todayLogs.length;
   const todayCounts = {};
   todayLogs.forEach(l => { if(l.status) todayCounts[l.status]=(todayCounts[l.status]||0)+1; });
   renderBreakdown('adm-today-breakdown', todayCounts, todayLogs.length);
 
-  // Build sheet list from profiles (guarantees all enumerators show even if no contacts yet)
-  const sheets = adminData.profiles && adminData.profiles.length > 0
-    ? adminData.profiles.map(p => p.assigned_sheet).filter(Boolean).sort()
-    : [...new Set(contacts.map(c => c.sheet_name))].sort();
+  // Today per-enumerator
   const enumHtml = sheets.map(sn => {
-    const n = todayLogs.filter(l => l.sheet_name === sn).length;
-    if (!n) return '';
+    const s = stats[sn] || {todayTotal:0};
+    if (!s.todayTotal) return '';
     return `<div class="perf-card" style="margin-bottom:7px">
       <div style="display:flex;align-items:center;gap:10px;padding:9px 13px">
         <div class="pc-av" style="background:${COLORS[hashStr(sn)%COLORS.length]}">${sn.slice(0,2).toUpperCase()}</div>
         <div style="flex:1"><div class="pc-name">${esc(sn)}</div></div>
-        <div class="pc-today">${n} calls</div>
-      </div>
-    </div>`;
+        <div class="pc-today">${s.todayTotal} calls</div>
+      </div></div>`;
   }).join('');
   document.getElementById('adm-today-enum').innerHTML = enumHtml || '<div class="empty">No calls logged today</div>';
 
   // OVERALL breakdown
   const overallCounts = {};
-  contacts.filter(c=>c.call_status).forEach(c => { overallCounts[c.call_status]=(overallCounts[c.call_status]||0)+1; });
-  renderBreakdown('adm-overall-breakdown', overallCounts, done);
+  sheets.forEach(sn => {
+    Object.entries((stats[sn]?.byStatus||{})).filter(([k])=>k!=='').forEach(([st,v])=>{
+      overallCounts[st] = (overallCounts[st]||0) + v.count;
+    });
+  });
+  renderBreakdown('adm-overall-breakdown', overallCounts, grandDone);
 
   // ENUMERATORS cards
   const eHtml = sheets.map(sn => {
-    const sc    = contacts.filter(c => c.sheet_name === sn);
-    const t     = sc.length;
-    const d     = sc.filter(c => c.call_status).length;
-    const ok    = sc.filter(c => c.call_status==='Successful').length;
-    const pct   = t ? Math.round(d/t*100) : 0;
-    const tday  = logs.filter(l => l.sheet_name === sn && l.logged_at?.slice(0,10) === today).length;
-    const col   = COLORS[hashStr(sn)%COLORS.length];
-    const breakdown = {};
-    sc.filter(c=>c.call_status).forEach(c => { breakdown[c.call_status]=(breakdown[c.call_status]||0)+1; });
-    const bRows = Object.entries(breakdown).map(([s,n]) =>
-      `<div class="pc-stat-row"><span class="pc-stat-label">${STATUS_ICONS[s]||'🔵'} ${esc(s)}</span><span class="pc-stat-val">${n}</span></div>`
-    ).join('');
+    const s   = stats[sn] || {total:0,byStatus:{},todayTotal:0};
+    const t   = s.total;
+    const d   = Object.entries(s.byStatus).filter(([k])=>k!=='').reduce((sum,[,v])=>sum+v.count,0);
+    const ok  = s.byStatus['Successful']?.count || 0;
+    const pct = t ? Math.round(d/t*100) : 0;
+    const col = COLORS[hashStr(sn)%COLORS.length];
+    const bRows = Object.entries(s.byStatus).filter(([k])=>k!=='').sort((a,b)=>b[1].count-a[1].count)
+      .map(([st,v]) => `<div class="pc-stat-row"><span class="pc-stat-label">${STATUS_ICONS[st]||'🔵'} ${esc(st)}</span><span class="pc-stat-val">${v.count.toLocaleString()}</span></div>`).join('');
     return `<div class="perf-card">
       <div class="pc-hdr" onclick="this.nextElementSibling.classList.toggle('open')">
         <div class="pc-av" style="background:${col}">${sn.slice(0,2).toUpperCase()}</div>
         <div class="pc-name">${esc(sn)}</div>
-        <div class="pc-today" style="margin-right:6px">Today: ${tday}</div>
+        <div class="pc-today" style="margin-right:6px">Today: ${s.todayTotal}</div>
         <div class="pc-total">${pct}%</div>
       </div>
       <div class="pc-body">
-        <div class="pc-stat-row"><span class="pc-stat-label">Total contacts</span><span class="pc-stat-val">${t.toLocaleString()}</span></div>
+        <div class="pc-stat-row"><span class="pc-stat-label">Total</span><span class="pc-stat-val">${t.toLocaleString()}</span></div>
         <div class="pc-stat-row"><span class="pc-stat-label">Logged</span><span class="pc-stat-val">${d.toLocaleString()}</span></div>
-        <div class="pc-stat-row"><span class="pc-stat-label">Successful</span><span class="pc-stat-val" style="color:var(--green)">${ok}</span></div>
+        <div class="pc-stat-row"><span class="pc-stat-label">Successful</span><span class="pc-stat-val" style="color:var(--green)">${ok.toLocaleString()}</span></div>
         <div class="pc-stat-row"><span class="pc-stat-label">Progress</span><span class="pc-stat-val">${pct}%</span></div>
-        <div class="pc-stat-row"><span class="pc-stat-label">Today</span><span class="pc-stat-val" style="color:var(--accent2)">${tday}</span></div>
-        <div style="margin-top:7px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding-bottom:4px">Status breakdown</div>
-        ${bRows || '<div style="font-size:11px;color:var(--muted)">No statuses set yet</div>'}
+        <div class="pc-stat-row"><span class="pc-stat-label">Today</span><span class="pc-stat-val" style="color:var(--accent2)">${s.todayTotal}</span></div>
+        ${bRows ? `<div style="margin-top:7px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding-bottom:4px">Breakdown</div>${bRows}` : ''}
       </div>
     </div>`;
   }).join('');
-  document.getElementById('adm-enum-cards').innerHTML = eHtml;
+  document.getElementById('adm-enum-cards').innerHTML = eHtml || '<div class="empty">No enumerators found</div>';
 }
+
 
 function renderBreakdown(elId, counts, total) {
   const el = document.getElementById(elId);
@@ -1516,6 +1845,179 @@ async function seedContacts() {
 }
 
 // ============================================================
+// EXPORT OVERLAY HELPERS
+// ============================================================
+function showExportLoader() {
+  setExportPct(0, 'Preparing…', '');
+  document.getElementById('export-loader').classList.add('vis');
+}
+function hideExportLoader() {
+  setTimeout(() => {
+    document.getElementById('export-loader').classList.remove('vis');
+    setExportPct(0, 'Fetching contacts…', '');
+  }, 1800);
+}
+function setExportPct(pct, txt, sub) {
+  pct = Math.max(0, Math.min(100, Math.round(pct)));
+  const CIRC = 289.0;
+  const offset = CIRC - (pct / 100) * CIRC;
+  const ring = document.getElementById('export-ring-fill');
+  const num  = document.getElementById('export-pct');
+  if (ring) { ring.style.strokeDasharray = CIRC; ring.style.strokeDashoffset = offset; }
+  if (num)  num.textContent = pct;
+  if (pct >= 100) {
+    if (ring) ring.classList.add('done'); else if(ring) ring.classList.remove('done');
+    if (num)  num.classList.add('done');
+  } else {
+    if (ring) ring.classList.remove('done');
+    if (num)  num.classList.remove('done');
+  }
+  if (txt !== undefined) document.getElementById('export-txt').textContent = txt;
+  if (sub !== undefined) document.getElementById('export-sub').textContent = sub;
+}
+
+// ============================================================
+// ADMIN EXPORT — fetches ALL contacts across ALL sheets live
+// ============================================================
+async function exportAdminExcel() {
+  const btn = document.getElementById('admin-export-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Exporting…'; }
+
+  showExportLoader();
+  setExportPct(2, 'Counting contacts…', '');
+
+  try {
+    // Get total count first so we can show real progress
+    const { count: totalCount } = await sb.from('contacts')
+      .select('*', { count: 'exact', head: true });
+
+    setExportPct(8, 'Fetching contacts…', `0 of ${(totalCount||0).toLocaleString()}`);
+
+    let allRows = [];
+    const PAGE = 1000;
+    let offset = 0;
+
+    while (true) {
+      const { data, error } = await sb.from('contacts')
+        .select('*')
+        .order('sheet_name', { ascending: true })
+        .order('row_num',    { ascending: true })
+        .range(offset, offset + PAGE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      allRows = [...allRows, ...data];
+      offset += data.length;
+
+      // Progress: 8–75% = fetching phase
+      const fetchPct = totalCount
+        ? 8 + Math.round((allRows.length / totalCount) * 67)
+        : Math.min(75, 8 + allRows.length / 10);
+      setExportPct(fetchPct, 'Fetching contacts…',
+        `${allRows.length.toLocaleString()} of ${(totalCount||'?').toLocaleString()}`);
+
+      if (data.length < PAGE) break;
+    }
+
+    if (!allRows.length) {
+      hideExportLoader();
+      toast('No contacts in database', 'warn');
+      return;
+    }
+
+    setExportPct(76, 'Building workbook…', `${allRows.length.toLocaleString()} contacts`);
+
+    // Group by sheet
+    const sheets = {};
+    allRows.forEach(c => {
+      if (!sheets[c.sheet_name]) sheets[c.sheet_name] = [];
+      sheets[c.sheet_name].push(c);
+    });
+
+    const wb   = XLSX.utils.book_new();
+    const hdr  = ['#','Name','Gender','Teen Mum','Phone Number','ID','Year of Birth','PWDs','Refugee','Ward','County','Call Status','Last Updated'];
+    const cols = [{wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},{wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18},{wch:22}];
+
+    const STATUS_BG = {
+      'Successful':    'C6EFCE',
+      'Not Reachable': 'FFCCCC',
+      'No Answer':     'FFCCCC',
+      'Wrong Number':  'FFCCCC',
+      'Out of Service':'FFCCCC',
+      'Did Not Attend':'FFF2CC',
+      'Call Later':    'FFF2CC',
+    };
+
+    const sortedSheets = Object.keys(sheets).sort();
+
+    // Summary sheet
+    setExportPct(80, 'Building summary…', '');
+    const summaryData = [
+      ['SHOFCO Survey — Full Export', '', '', '', `Generated: ${new Date().toLocaleString()}`],
+      [],
+      ['Enumerator', 'Total Contacts', 'Logged', 'Successful', 'Pending', 'Other', 'Completion %'],
+    ];
+    sortedSheets.forEach(sn => {
+      const rows    = sheets[sn];
+      const total   = rows.length;
+      const logged  = rows.filter(r => r.call_status).length;
+      const ok      = rows.filter(r => r.call_status === 'Successful').length;
+      const pending = rows.filter(r => !r.call_status).length;
+      const other   = logged - ok;
+      summaryData.push([sn, total, logged, ok, pending, other,
+        total ? Math.round(logged / total * 100) + '%' : '0%']);
+    });
+    const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
+    summaryWs['!cols'] = [{wch:18},{wch:16},{wch:10},{wch:12},{wch:10},{wch:10},{wch:14}];
+    XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
+
+    // One sheet per enumerator — 80–95%
+    sortedSheets.forEach((sn, si) => {
+      const sheetPct = 80 + Math.round(((si + 1) / sortedSheets.length) * 15);
+      setExportPct(sheetPct, `Building sheet: ${sn}`, `${si+1} of ${sortedSheets.length}`);
+
+      const rows = sheets[sn];
+      const data = [hdr, ...rows.map(r => [
+        r.row_num, r.name, r.gender, r.teen_mum,
+        r.phone, r.national_id, r.yob, r.pwds, r.refugee,
+        r.ward, r.county, r.call_status || '',
+        r.updated_at ? new Date(r.updated_at).toLocaleString() : ''
+      ])];
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      ws['!cols'] = cols;
+      rows.forEach((r, ri) => {
+        const bg = STATUS_BG[r.call_status] || (r.call_status ? 'E8E8F4' : null);
+        if (bg) {
+          hdr.forEach((_, ci) => {
+            const ref = XLSX.utils.encode_cell({ r: ri + 1, c: ci });
+            if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+            ws[ref].s = { fill: { fgColor: { rgb: bg } } };
+          });
+        }
+      });
+      XLSX.utils.book_append_sheet(wb, ws, sn.slice(0, 31));
+    });
+
+    setExportPct(97, 'Saving file…', '');
+    await new Promise(r => setTimeout(r, 120)); // allow repaint
+
+    const fn = `SHOFCO_AllSheets_${todayStr()}.xlsx`;
+    XLSX.writeFile(wb, fn);
+
+    // 100% — done!
+    setExportPct(100, '✅ Downloaded!',
+      `${allRows.length.toLocaleString()} contacts · ${sortedSheets.length} sheets`);
+    hideExportLoader();
+
+  } catch(err) {
+    setExportPct(0, '❌ Export failed', err.message || String(err));
+    setTimeout(() => document.getElementById('export-loader').classList.remove('vis'), 2500);
+    toast('❌ Export failed: ' + (err.message || err), 'err');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '⬇️ Export All'; }
+  }
+}
+
+// ============================================================
 // EXPORT TO EXCEL
 // ============================================================
 function exportExcel() {
@@ -1575,53 +2077,122 @@ function toast(msg, type='info') {
   clearTimeout(t._t);
   t._t = setTimeout(() => t.classList.remove('show'), 3000);
 }
-function setLoader(txt) {
-  document.getElementById('loader-txt').textContent = txt;
-  document.getElementById('full-loader').classList.remove('hide');
+function setLoader(txt, pct) {
+  const el = document.getElementById('full-loader');
+  el.classList.remove('gone');
+  el.classList.remove('hide');
+  if (txt) document.getElementById('loader-txt').textContent = txt;
+  if (pct !== undefined) setLoaderPct(pct);
+}
+function setLoaderPct(pct) {
+  pct = Math.max(0, Math.min(100, Math.round(pct)));
+  const CIRC = 289.0; // 2 * PI * 46
+  const offset = CIRC - (pct / 100) * CIRC;
+  const ring = document.getElementById('loader-ring-fill');
+  const num  = document.getElementById('loader-pct');
+  if (ring) { ring.style.strokeDasharray = CIRC; ring.style.strokeDashoffset = offset; }
+  if (num)  { num.textContent = pct; }
+  if (pct >= 100) {
+    if (ring) ring.classList.add('done');
+    if (num)  num.classList.add('done');
+    document.getElementById('loader-txt').textContent = 'Ready!';
+  }
+}
+function setLoaderSub(txt) {
+  const el = document.getElementById('loader-sub');
+  if (el) el.textContent = txt || '';
 }
 function hideLoader() {
-  document.getElementById('full-loader').classList.add('hide');
+  const el = document.getElementById('full-loader');
+  el.classList.add('hide');
+  setTimeout(() => el.classList.add('gone'), 520);
+  // reset for next use
+  setTimeout(() => {
+    el.classList.remove('hide','gone');
+    setLoaderPct(0);
+    const ring = document.getElementById('loader-ring-fill');
+    const num  = document.getElementById('loader-pct');
+    if (ring) ring.classList.remove('done');
+    if (num)  num.classList.remove('done');
+    document.getElementById('loader-txt').textContent = '';
+    setLoaderSub('');
+    el.classList.add('gone');
+  }, 600);
 }
 
 // ============================================================
-// CUSTOM STATUSES
+// SETTINGS (custom statuses — stored in Supabase, synced across devices)
 // ============================================================
-const CS_KEY = 'shofco_custom_statuses';
-const CS_DEFAULTS = ['Callback Scheduled','Language Barrier','Deceased','Duplicate'];
+async function loadSettings() {
+  try {
+    const { data, error } = await Promise.race([
+      sb.from('settings').select('value').eq('key','custom_statuses').single(),
+      new Promise((_,r) => setTimeout(() => r(new Error('timeout')), 3000))
+    ]);
+    if (!error && data?.value) customStatuses = data.value;
+  } catch(e) { /* use defaults silently */ }
+}
 
 function getCustomSt() {
-  try { return JSON.parse(localStorage.getItem(CS_KEY)) || [...CS_DEFAULTS]; }
-  catch(e) { return [...CS_DEFAULTS]; }
+  return customStatuses;
 }
 
 function renderCustomStGrid() {
   const grid = document.getElementById('custom-sgrid');
   if (!grid) return;
   const customs = getCustomSt();
-  grid.innerHTML = customs.filter(s=>s.trim()).map(s =>
-    `<button class="sbtn" style="border-color:var(--purple)44;color:#c084fc" onclick="setSt(${JSON.stringify(s)})">
+  const curSt = contact ? (contact.call_status || '') : '';
+  grid.innerHTML = customs.filter(s => s && s.trim()).map(s => {
+    const isActive = curSt === s;
+    const activeStyle = isActive ? '' : 'border-color:var(--purple)44;color:#c084fc';
+    return `<button class="sbtn${isActive ? ' custom-active' : ''}" style="${activeStyle}" data-custom-status="${esc(s)}">
       <span class="sbtn-ico">⭐</span>${esc(s)}
-    </button>`
-  ).join('');
+    </button>`;
+  }).join('');
+
+  // Attach click handlers via event delegation (avoids JSON quoting issues)
+  grid.querySelectorAll('[data-custom-status]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      setSt(this.getAttribute('data-custom-status'));
+    });
+  });
 }
 
 function openCustomStatusEditor() {
   const customs = getCustomSt();
   const wrap = document.getElementById('cs-inputs');
-  wrap.innerHTML = customs.map((s,i) => `
+  wrap.innerHTML = [0,1,2,3].map(i => `
     <div class="form-row">
       <label class="form-label">Custom Status ${i+1}</label>
-      <input id="cs-${i}" class="form-input" type="text" value="${esc(s)}" placeholder="e.g. Callback Scheduled" maxlength="40">
+      <input id="cs-${i}" class="form-input" type="text" value="${esc(customs[i]||'')}" placeholder="e.g. Callback Scheduled" maxlength="40">
     </div>`).join('');
   document.getElementById('custom-status-modal').classList.add('vis');
 }
 
-function saveCustomStatuses() {
-  const vals = [0,1,2,3].map(i => (document.getElementById('cs-'+i)?.value||'').trim());
-  localStorage.setItem(CS_KEY, JSON.stringify(vals));
-  document.getElementById('custom-status-modal').classList.remove('vis');
-  renderCustomStGrid();
-  toast('✅ Custom statuses saved', 'ok');
+async function saveCustomStatuses() {
+  const vals = [0,1,2,3].map(i => (document.getElementById('cs-'+i)?.value||'').trim()).filter(s=>s);
+  const saveBtn = document.querySelector('#custom-status-modal .btn-primary');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '⏳ Saving…'; }
+
+  try {
+    const { error } = await sb.from('settings').upsert({
+      key: 'custom_statuses',
+      value: vals,
+      updated_at: new Date().toISOString(),
+      updated_by: currentUser.id
+    }, { onConflict: 'key' });
+
+    if (error) throw error;
+
+    customStatuses = vals;
+    document.getElementById('custom-status-modal').classList.remove('vis');
+    renderCustomStGrid();
+    toast('✅ Custom statuses saved & synced', 'ok');
+  } catch(err) {
+    toast('❌ Save failed: ' + (err.message || err), 'err');
+  } finally {
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Save'; }
+  }
 }
 
 // ============================================================
