@@ -57,9 +57,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .tb-badge.enum{background:#0a1f14;color:var(--green);border-color:var(--green)44}
 .btn-ico{background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;padding:4px;border-radius:7px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .btn-ico:hover{background:var(--surface2);color:var(--text)}
-.btn-sm{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:6px 11px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:transform .08s,opacity .08s,border-color .08s,color .08s,background .08s;font-family:var(--font);white-space:nowrap;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+.btn-sm{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:6px 11px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;font-family:var(--font);white-space:nowrap}
 .btn-sm:hover{border-color:var(--accent);color:var(--accent2)}
-.btn-sm:active{transform:scale(.95);opacity:.82}
 
 /* ============ DASHBOARD (ENUMERATOR) ============ */
 #dashboard-screen{padding-bottom:24px}
@@ -143,7 +142,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .pc-stat-val{font-weight:700}
 
 /* ============ CALL LIST SCREEN ============ */
-#calllist-screen{padding-bottom:92px}
+#calllist-screen{padding-bottom:72px}
 .cl-summary{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 14px}
 .cl-summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .cls-item{background:var(--surface2);border-radius:8px;padding:7px 8px;text-align:center}
@@ -181,10 +180,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .b-pend{background:rgba(59,125,216,.12);color:var(--accent2);border-color:rgba(59,125,216,.25)}
 .empty{text-align:center;padding:48px 24px;color:var(--muted)}
 .empty-ico{font-size:40px;margin-bottom:8px}
-.bbar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:10px 14px;display:flex;gap:8px;z-index:100}
-.bbar .btn-sm{padding:16px 10px !important;font-size:15px !important;font-weight:700 !important;border-radius:14px !important;justify-content:center;min-height:54px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.bbar .btn-sm:active{transform:scale(.96);opacity:.82}
-#calllist-screen{padding-bottom:92px}
+.bbar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 14px;display:flex;gap:7px;z-index:100}
 
 /* ============ STATUS SHEET ============ */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:flex-end}
@@ -204,7 +200,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 13px}
 .sgrid>.sbtn:last-child:nth-child(odd){grid-column:1/-1}
 .sbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px 6px;border-radius:11px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:11px;font-weight:600;color:var(--text);transition:all .15s;text-align:center;line-height:1.3;font-family:var(--font)}
-.sbtn:active{transform:scale(.94);opacity:.8}
+.sbtn:active{transform:scale(.96)}
 .sbtn-ico{font-size:18px}
 .sbtn.active-status{box-shadow:0 0 0 2px currentColor,0 0 12px rgba(255,255,255,.08);opacity:1;transform:scale(1.03)}
 .sbtn.ok.active-status{background:rgba(34,197,94,.18);border-color:var(--green);color:var(--green)}
@@ -609,7 +605,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <!-- filled by renderStatusScreen -->
     </div>
     <div id="ss-cur-status" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border)">No status yet</div>
-    <span id="ss-altered-badge" style="display:none;margin-left:7px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(168,85,247,.18);color:#c084fc;border:1px solid rgba(168,85,247,.35)">🔄 Altered</span>
+    <span id="ss-altered-badge" style="display:none;margin-left:7px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(168,85,247,.18);color:#c084fc;border:1px solid rgba(168,85,247,.35)">🔄 Altered <span id="ss-altered-count"></span></span>
   </div>
 
   <!-- Call & Survey actions -->
@@ -638,36 +634,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="sgrid" id="custom-sgrid"></div>
 
     <!-- Clear + Close -->
-    <div style="padding:8px 13px 10px;display:flex;gap:8px">
-      <button class="btn-sm" style="flex:1;justify-content:center;padding:14px 10px;font-size:14px;font-weight:700;border-radius:12px;touch-action:manipulation"
-        ontouchstart="this.style.background='rgba(239,68,68,.18)';this.style.borderColor='var(--danger)';this.style.transform='scale(.95)'"
-        ontouchend="this.style.background='';this.style.borderColor='';this.style.transform=''"
-        onmousedown="this.style.background='rgba(239,68,68,.18)';this.style.borderColor='var(--danger)';this.style.transform='scale(.95)'"
-        onmouseup="this.style.background='';this.style.borderColor='';this.style.transform=''"
-        onclick="setSt('')">🗑️ Clear Status</button>
-      <button id="back-to-list-btn" class="btn-sm" style="flex:1;justify-content:center;padding:14px 10px;font-size:14px;font-weight:700;border-radius:12px;background:var(--surface2);border-color:var(--border);color:var(--text);touch-action:manipulation"
-        ontouchstart="this.style.background='rgba(59,125,216,.25)';this.style.borderColor='var(--accent)';this.style.color='var(--accent2)';this.style.transform='scale(.95)'"
-        ontouchend="this.style.background='var(--surface2)';this.style.borderColor='var(--border)';this.style.color='var(--text)';this.style.transform=''"
-        onmousedown="this.style.background='rgba(59,125,216,.25)';this.style.borderColor='var(--accent)';this.style.color='var(--accent2)';this.style.transform='scale(.95)'"
-        onmouseup="this.style.background='var(--surface2)';this.style.borderColor='var(--border)';this.style.color='var(--text)';this.style.transform=''"
-        onclick="closeStatusScreen()">← Back to List</button>
+    <div style="padding:4px 13px 6px;display:flex;gap:7px">
+      <button class="btn-sm" style="flex:1;justify-content:center" onclick="setSt('')">🗑️ Clear Status</button>
+      <button class="btn-sm" style="flex:1;justify-content:center;background:var(--surface2);border-color:var(--border);color:var(--text);font-weight:700" onclick="closeStatusScreen()">← Back to List</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-
-<!-- ====================== CALL LIST LOADER ====================== -->
-<div id="cl-loader" style="display:none;position:fixed;inset:0;background:rgba(8,12,24,.95);z-index:500;flex-direction:column;align-items:center;justify-content:center;gap:18px;backdrop-filter:blur(6px)">
-  <div style="font-size:42px;animation:clpop .3s cubic-bezier(.175,.885,.32,1.275)">📋</div>
-  <div style="font-size:18px;font-weight:800;letter-spacing:-.3px;color:var(--text)">Loading your call list</div>
-  <div style="width:240px;background:var(--surface2);border-radius:8px;height:10px;overflow:hidden;border:1px solid var(--border)">
-    <div id="cl-loader-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#a855f7);border-radius:8px;transition:width .05s linear"></div>
-  </div>
-  <div id="cl-loader-pct" style="font-size:28px;font-weight:900;color:var(--accent2);letter-spacing:-1px;min-width:80px;text-align:center">0%</div>
-  <div id="cl-loader-txt" style="font-size:12px;color:var(--muted);font-weight:600">Preparing…</div>
-</div>
-<style>@keyframes clpop{from{transform:scale(0)}to{transform:scale(1)}}</style>
 
 <!-- ====================== CUSTOM STATUS EDITOR ====================== -->
 <div class="modal-overlay" id="custom-status-modal">
@@ -1017,6 +991,7 @@ let rtChannel   = null;    // realtime subscription
 let rtTotalChannel = null; // separate channel for total-calls badge
 let adminData   = { logs:[], profiles:[], statsBySheet:{} };
 let alteredContactIds = new Set(); // tracks contacts whose status was changed after being set
+let alterCountMap     = new Map();  // contact_id → number of times status was altered (from DB)
 let alteredTodayCount = 0; // from DB via get_sheet_stats altered_today column
 let totalCallsAllTime = 0; // from get_total_calls()
 let totalAlteredAllTime = 0; // total altered entries ever, from get_total_calls()
@@ -1034,7 +1009,7 @@ async function init() {
     return;
   }
 
-  setLoader('Connecting…', 1);
+  setLoader('Connecting…', 3);
 
   try {
     sb = supabase.createClient(cfg.url, cfg.key);
@@ -1056,7 +1031,7 @@ async function init() {
 
 async function loadUserAndRoute(user) {
   currentUser = user;
-  setLoader('Loading profile…', 8);
+  setLoader('Loading profile…', 10);
   const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
   userProfile = profile;
 
@@ -1240,12 +1215,12 @@ async function provisionAllUsers() {
 
 
 async function loadEnumeratorData() {
-  setLoader('Connecting…', 1);
+  setLoader('Connecting…', 5);
   const sheet = userProfile.assigned_sheet;
   if (!sheet) { toast('⚠️ No sheet assigned', 'warn'); hideLoader(); showScr('setup-screen'); return; }
 
   try {
-    setLoader('Loading stats…', 18);
+    setLoader('Loading stats…', 20);
     let statsOk = false;
     try {
       const { data: sd, error: se } = await sb.rpc('get_sheet_stats', { p_sheet: sheet });
@@ -1272,7 +1247,7 @@ async function loadEnumeratorData() {
       }
     } catch(e) {}
 
-    setLoader('Loading contacts…', 45);
+    setLoader('Loading contacts…', 50);
     const { data: first, error: firstErr } = await sb.from('contacts')
       .select('*').eq('sheet_name', sheet)
       .order('row_num', { ascending: true }).range(0, 199);
@@ -1282,7 +1257,7 @@ async function loadEnumeratorData() {
     contactsFullyLoaded = allContacts.length < 200;
 
     if (!statsOk) {
-      setLoader('Counting records…', 62);
+      setLoader('Counting records…', 65);
       const { count } = await sb.from('contacts').select('*', { count:'exact', head:true }).eq('sheet_name', sheet);
       totalContactCount = count || allContacts.length;
       sheetStats = {};
@@ -1293,7 +1268,7 @@ async function loadEnumeratorData() {
       });
     }
 
-    setLoader('Almost ready…', 82);
+    setLoader('Almost ready…', 85);
     document.getElementById('user-badge').textContent = sheet;
     document.getElementById('dash-av').textContent = sheet.slice(0,2).toUpperCase();
     document.getElementById('dash-av').style.background = COLORS[hashStr(sheet) % COLORS.length];
@@ -1301,6 +1276,26 @@ async function loadEnumeratorData() {
 
     subscribeRealtime(sheet);
     setLoader('Ready!', 100);
+
+    // Load alter counts from DB so they survive page reloads
+    sb.from('status_alter_log')
+      .select('contact_id')
+      .eq('sheet_name', sheet)
+      .then(({ data: alLogs }) => {
+        if (alLogs && alLogs.length) {
+          alLogs.forEach(l => {
+            if (l.contact_id) {
+              alterCountMap.set(l.contact_id, (alterCountMap.get(l.contact_id) || 0) + 1);
+              alteredContactIds.add(l.contact_id);
+            }
+          });
+          // Refresh list so alt badges show immediately
+          if (document.getElementById('calllist-screen').classList.contains('active')) {
+            renderList(); renderClSummary();
+          }
+        }
+      }).catch(() => {});
+
     await new Promise(r => setTimeout(r, 500));
     hideLoader();
     showDash();
@@ -1437,7 +1432,10 @@ function subscribeRealtime(sheet) {
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'status_alter_log',
         filter: `sheet_name=eq.${sheet}` }, async payload => {
-      if (payload.new?.contact_id) alteredContactIds.add(payload.new.contact_id);
+      if (payload.new?.contact_id) {
+        alteredContactIds.add(payload.new.contact_id);
+        alterCountMap.set(payload.new.contact_id, (alterCountMap.get(payload.new.contact_id) || 0) + 1);
+      }
       alteredTodayCount = alteredContactIds.size;
       await refreshEnumTotals();
       renderTodayPills(); renderEnumBreakdowns(); renderClSummary();
@@ -1493,17 +1491,10 @@ function subscribeRealtimeAdmin() {
 // ============================================================
 // SCREEN MANAGEMENT
 // ============================================================
-let _activeScr = null;
 function showScr(id) {
-  if (_activeScr && _activeScr !== id) {
-    const prev = document.getElementById(_activeScr);
-    if (prev) prev.classList.remove('active');
-  }
-  const next = document.getElementById(id);
-  if (next) next.classList.add('active');
-  _activeScr = id;
-  // scroll without forcing layout — defer until after paint
-  requestAnimationFrame(() => window.scrollTo(0, 0));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
 }
 
 function showDash() {
@@ -1521,56 +1512,15 @@ function showAdminPanel() {
 }
 
 function openMyList() {
-  const loader  = document.getElementById('cl-loader');
-  const bar     = document.getElementById('cl-loader-bar');
-  const pctEl   = document.getElementById('cl-loader-pct');
-  const txtEl   = document.getElementById('cl-loader-txt');
-  let clPct = 0;
-  let clRAF = null;
-
-  function animateTo(target, onDone) {
-    if (clRAF) cancelAnimationFrame(clRAF);
-    function step() {
-      if (clPct < target) {
-        const gap = target - clPct;
-        clPct = Math.min(clPct + (gap > 20 ? 4 : gap > 5 ? 2 : 1), target);
-        bar.style.width = clPct + '%';
-        pctEl.textContent = clPct + '%';
-      }
-      if (clPct < target) { clRAF = requestAnimationFrame(step); }
-      else if (onDone) onDone();
-    }
-    clRAF = requestAnimationFrame(step);
-  }
-
-  loader.style.display = 'flex';
-  clPct = 1; bar.style.width = '1%'; pctEl.textContent = '1%';
-  txtEl.textContent = 'Preparing…';
-
-  animateTo(25, () => {
-    txtEl.textContent = 'Setting filters…';
-    curFilter = 'all';
-    document.getElementById('srch').value = '';
-    document.querySelectorAll('.ftab').forEach(t => t.classList.toggle('active', t.dataset.f === 'all'));
-    document.getElementById('cl-title').textContent = (userProfile?.assigned_sheet || 'My') + "'s List";
-
-    animateTo(55, () => {
-      txtEl.textContent = 'Calculating stats…';
-      renderMini(); renderClSummary(); renderTodayStrip();
-
-      animateTo(80, () => {
-        txtEl.textContent = 'Rendering contacts…';
-        requestAnimationFrame(() => {
-          renderList();
-          animateTo(100, () => {
-            txtEl.textContent = 'Done!';
-            showScr('calllist-screen');
-            setTimeout(() => { loader.style.display = 'none'; clPct = 0; bar.style.width = '0%'; pctEl.textContent = '0%'; }, 200);
-          });
-        });
-      });
-    });
-  });
+  curFilter = 'all';
+  document.getElementById('srch').value = '';
+  document.querySelectorAll('.ftab').forEach(t => t.classList.toggle('active', t.dataset.f === 'all'));
+  document.getElementById('cl-title').textContent = (userProfile?.assigned_sheet || 'My') + "'s List";
+  showScr('calllist-screen');
+  renderMini();
+  renderClSummary();
+  renderTodayStrip();
+  renderList();
 }
 
 // ============================================================
@@ -1813,18 +1763,22 @@ function renderList() {
     return;
   }
   list.innerHTML = rows.map((c,i) => {
-    const isOk  = c.call_status === 'Successful';
-    const hasSt = !!c.call_status;
-    const cls   = isOk ? 's-ok' : (hasSt ? 's-done' : '');
-    const bcls  = isOk ? 'b-ok' : (hasSt ? 'b-fail' : 'b-pend');
-    const label = c.call_status || 'Pending';
+    const isOk   = c.call_status === 'Successful';
+    const hasSt  = !!c.call_status;
+    const cls    = isOk ? 's-ok' : (hasSt ? 's-done' : '');
+    const bcls   = isOk ? 'b-ok' : (hasSt ? 'b-fail' : 'b-pend');
+    const label  = c.call_status || 'Pending';
+    const altCnt = alterCountMap.get(c.id) || 0;
+    const altChip = altCnt > 0
+      ? `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;background:rgba(168,85,247,.18);color:#c084fc;border:1px solid rgba(168,85,247,.35);white-space:nowrap;margin-right:4px">alt ×${altCnt}</span>`
+      : '';
     return `<div class="ccard ${cls}" data-cid="${c.id}" onclick="openSh(${c.id})" style="animation-delay:${Math.min(i,15)*12}ms">
       <div class="cnum">${c.row_num}</div>
       <div class="cinfo">
         <div class="cname">${esc(c.name||'')}</div>
         <div class="cdet">📱 ${esc(c.phone||'')} &nbsp;·&nbsp; 📍 ${esc(c.county||'')}, ${esc(c.ward||'')}</div>
       </div>
-      <div class="cbadge ${bcls}">${esc(label)}</div>
+      ${altChip}<div class="cbadge ${bcls}">${esc(label)}</div>
     </div>`;
   }).join('');
 }
@@ -1888,9 +1842,18 @@ function renderStatusScreen() {
     : customStatuses.includes(curSt) ? 'rgba(168,85,247,.35)'
     : 'rgba(249,115,22,.3)';
 
-  // Show altered badge if this contact was changed
+  // Show altered badge with count if this contact was changed
   const altBadge = document.getElementById('ss-altered-badge');
-  if (altBadge) altBadge.style.display = alteredContactIds.has(contact.id) ? 'inline-flex' : 'none';
+  const altCount = alterCountMap.get(contact.id) || 0;
+  if (altBadge) {
+    if (altCount > 0) {
+      altBadge.style.display = 'inline-flex';
+      const countEl = document.getElementById('ss-altered-count');
+      if (countEl) countEl.textContent = '×' + altCount;
+    } else {
+      altBadge.style.display = 'none';
+    }
+  }
 
   const digits = (contact.phone||'').replace(/\s+/g,'').replace(/[^\d+]/g,'');
   const cb = document.getElementById('ss-call-btn');
@@ -1930,21 +1893,8 @@ function goStatusNext() {
 }
 
 function closeStatusScreen() {
-  // Hide status screen instantly without touching other screens first
-  const ss = document.getElementById('status-screen');
-  const cl = document.getElementById('calllist-screen');
-  if (ss) ss.classList.remove('active');
-  if (cl) cl.classList.add('active');
-  _activeScr = 'calllist-screen';
-  // Defer ALL render work to after the browser has painted the switch
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      renderList();
-      renderMini();
-      renderClSummary();
-      window.scrollTo(0, 0);
-    });
-  });
+  showScr('calllist-screen');
+  renderList(); renderMini(); renderClSummary();
 }
 
 function closeSh(e) {} // kept for compat
@@ -1964,6 +1914,7 @@ async function setSt(st) {
   // Track altered contacts: if it had a previous status and now gets a different one
   if (prevStatus && newStatus && prevStatus !== newStatus) {
     alteredContactIds.add(savedContact.id);
+    alterCountMap.set(savedContact.id, (alterCountMap.get(savedContact.id) || 0) + 1);
   }
 
   // Update sheetStats optimistically
@@ -2392,6 +2343,23 @@ async function exportAdminExcel() {
 
     setExportPct(76, 'Building workbook…', `${allRows.length.toLocaleString()} contacts`);
 
+    // Fetch alter counts for all contacts
+    const adminAlterMap = new Map();
+    try {
+      let altOffset = 0;
+      while (true) {
+        const { data: altData } = await sb.from('status_alter_log')
+          .select('contact_id')
+          .range(altOffset, altOffset + 4999);
+        if (!altData || altData.length === 0) break;
+        altData.forEach(l => {
+          if (l.contact_id) adminAlterMap.set(l.contact_id, (adminAlterMap.get(l.contact_id) || 0) + 1);
+        });
+        if (altData.length < 5000) break;
+        altOffset += altData.length;
+      }
+    } catch(e) { /* proceed without alter counts */ }
+
     // Group by sheet
     const sheets = {};
     allRows.forEach(c => {
@@ -2400,8 +2368,8 @@ async function exportAdminExcel() {
     });
 
     const wb   = XLSX.utils.book_new();
-    const hdr  = ['DB ID','#','Name','Gender','Teen Mum','Phone Number','National ID','Year of Birth','PWDs','Refugee','Ward','County','Call Status','Last Updated'];
-    const cols = [{wch:10},{wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},{wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18},{wch:22}];
+    const hdr  = ['DB ID','#','Name','Gender','Teen Mum','Phone Number','National ID','Year of Birth','PWDs','Refugee','Ward','County','Call Status','Last Updated','Altered'];
+    const cols = [{wch:10},{wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},{wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18},{wch:22},{wch:12}];
 
     const STATUS_BG = {
       'Successful':    'C6EFCE',
@@ -2446,7 +2414,8 @@ async function exportAdminExcel() {
         r.id, r.row_num, r.name, r.gender, r.teen_mum,
         r.phone, r.national_id, r.yob, r.pwds, r.refugee,
         r.ward, r.county, r.call_status || '',
-        r.updated_at ? new Date(r.updated_at).toLocaleString() : ''
+        r.updated_at ? new Date(r.updated_at).toLocaleString() : '',
+        (() => { const n = adminAlterMap.get(r.id) || 0; return n > 0 ? `Yes ×${n}` : (r.call_status ? 'No' : 'Pending'); })()
       ])];
       const ws = XLSX.utils.aoa_to_sheet(data);
       ws['!cols'] = cols;
@@ -2506,7 +2475,7 @@ function exportExcel() {
       r.phone, r.national_id, r.yob, r.pwds, r.refugee,
       r.ward, r.county, r.call_status||'',
       r.updated_at ? new Date(r.updated_at).toLocaleString() : '',
-      alteredContactIds.has(r.id) ? 'Yes' : ''
+      (() => { const n = alterCountMap.get(r.id) || 0; return n > 0 ? `Yes ×${n}` : (r.call_status ? 'No' : 'Pending'); })()
     ])];
     const ws = XLSX.utils.aoa_to_sheet(data);
     ws['!cols'] = [{wch:10},{wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},{wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18},{wch:22},{wch:8}];
@@ -2565,40 +2534,19 @@ function setLoader(txt, pct) {
   if (txt) document.getElementById('loader-txt').textContent = txt;
   if (pct !== undefined) setLoaderPct(pct);
 }
-let _loaderPctCurrent = 0;
-let _loaderPctRAF = null;
-function setLoaderPct(targetPct) {
-  targetPct = Math.max(0, Math.min(100, Math.round(targetPct)));
-  if (_loaderPctRAF) cancelAnimationFrame(_loaderPctRAF);
-  const CIRC = 289.0;
+function setLoaderPct(pct) {
+  pct = Math.max(0, Math.min(100, Math.round(pct)));
+  const CIRC = 289.0; // 2 * PI * 46
+  const offset = CIRC - (pct / 100) * CIRC;
   const ring = document.getElementById('loader-ring-fill');
   const num  = document.getElementById('loader-pct');
-  if (_loaderPctCurrent === 0 && targetPct > 0) _loaderPctCurrent = 1;
-  function step() {
-    if (_loaderPctCurrent < targetPct) {
-      const gap = targetPct - _loaderPctCurrent;
-      const inc = gap > 20 ? 3 : gap > 5 ? 2 : 1;
-      _loaderPctCurrent = Math.min(_loaderPctCurrent + inc, targetPct);
-    }
-    const offset = CIRC - (_loaderPctCurrent / 100) * CIRC;
-    if (ring) { ring.style.strokeDasharray = CIRC; ring.style.strokeDashoffset = offset; }
-    if (num)  num.textContent = _loaderPctCurrent;
-    if (_loaderPctCurrent >= 100) {
-      if (ring) ring.classList.add('done');
-      if (num)  num.classList.add('done');
-      const txt = document.getElementById('loader-txt');
-      if (txt) txt.textContent = 'Ready!';
-      return;
-    }
-    if (_loaderPctCurrent < targetPct) {
-      _loaderPctRAF = requestAnimationFrame(step);
-    }
+  if (ring) { ring.style.strokeDasharray = CIRC; ring.style.strokeDashoffset = offset; }
+  if (num)  { num.textContent = pct; }
+  if (pct >= 100) {
+    if (ring) ring.classList.add('done');
+    if (num)  num.classList.add('done');
+    document.getElementById('loader-txt').textContent = 'Ready!';
   }
-  _loaderPctRAF = requestAnimationFrame(step);
-}
-function resetLoaderPct() {
-  _loaderPctCurrent = 0;
-  if (_loaderPctRAF) { cancelAnimationFrame(_loaderPctRAF); _loaderPctRAF = null; }
 }
 function setLoaderSub(txt) {
   const el = document.getElementById('loader-sub');
@@ -2610,13 +2558,12 @@ function hideLoader() {
   setTimeout(() => el.classList.add('gone'), 520);
   // reset for next use
   setTimeout(() => {
-    resetLoaderPct();
     el.classList.remove('hide','gone');
-    const CIRC = 289.0;
+    setLoaderPct(0);
     const ring = document.getElementById('loader-ring-fill');
     const num  = document.getElementById('loader-pct');
-    if (ring) { ring.classList.remove('done'); ring.style.strokeDashoffset = CIRC; }
-    if (num)  { num.classList.remove('done'); num.textContent = '0'; }
+    if (ring) ring.classList.remove('done');
+    if (num)  num.classList.remove('done');
     document.getElementById('loader-txt').textContent = '';
     setLoaderSub('');
     el.classList.add('gone');
