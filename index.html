@@ -57,7 +57,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .tb-badge.enum{background:#0a1f14;color:var(--green);border-color:var(--green)44}
 .btn-ico{background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;padding:4px;border-radius:7px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .btn-ico:hover{background:var(--surface2);color:var(--text)}
-.btn-sm{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:6px 11px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;font-family:var(--font);white-space:nowrap}
+.btn-sm{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:9px 14px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;font-family:var(--font);white-space:nowrap}
 .btn-sm:hover{border-color:var(--accent);color:var(--accent2)}
 
 /* ============ DASHBOARD (ENUMERATOR) ============ */
@@ -142,7 +142,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .pc-stat-val{font-weight:700}
 
 /* ============ CALL LIST SCREEN ============ */
-#calllist-screen{padding-bottom:72px}
+#calllist-screen{padding-bottom:80px}
+#dashboard-screen{padding-bottom:80px}
+#status-screen .scrollable-area{padding-bottom:80px}
 .cl-summary{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 14px}
 .cl-summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .cls-item{background:var(--surface2);border-radius:8px;padding:7px 8px;text-align:center}
@@ -165,8 +167,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .ftab{white-space:nowrap;padding:6px 4px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .15s;font-family:var(--font);text-align:center;overflow:hidden;text-overflow:ellipsis}
 .ftab.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .clist{padding:7px 14px}
-.ccard{background:var(--surface);border:1px solid var(--border);border-radius:9px;margin-bottom:6px;padding:10px 12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px}
-.ccard:hover{border-color:var(--muted)}
+.ccard{background:var(--surface);border:1px solid var(--border);border-radius:9px;margin-bottom:6px;padding:10px 12px;cursor:pointer;transition:border-color .1s,background .1s;display:flex;align-items:center;gap:10px;will-change:auto}
+.ccard:active{opacity:.8}
 .ccard.s-ok{border-color:#ea580c55;background:rgba(234,88,12,.07)}
 .ccard.s-done{opacity:.7}
 .ccard.s-last{border-color:var(--accent)88 !important;background:rgba(59,125,216,.06) !important;box-shadow:0 0 0 1px var(--accent)22}
@@ -180,7 +182,21 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .b-pend{background:rgba(59,125,216,.12);color:var(--accent2);border-color:rgba(59,125,216,.25)}
 .empty{text-align:center;padding:48px 24px;color:var(--muted)}
 .empty-ico{font-size:40px;margin-bottom:8px}
-.bbar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 14px;display:flex;gap:7px;z-index:100}
+/* Floating bottom bar — always visible, never scrolls away */
+.bbar{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(17,24,39,0.93);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  padding:10px 14px max(14px, env(safe-area-inset-bottom));
+  display:flex;gap:8px;z-index:200;
+  box-shadow:0 -4px 28px rgba(0,0,0,.4);
+}
+.bbar .btn-sm{
+  flex:1;justify-content:center;
+  min-height:50px;font-size:14px;font-weight:700;
+  padding:12px 14px;border-radius:12px;
+}
 
 /* ============ STATUS SHEET ============ */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:flex-end}
@@ -230,7 +246,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 #status-screen.active{display:flex;flex-direction:column}
 
 /* ============ LOADING OVERLAY ============ */
-.full-loader{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:500;transition:opacity .5s}
+.full-loader{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:500;transition:opacity .15s}
 .full-loader.hide{opacity:0;pointer-events:none}
 .full-loader.gone{display:none}
 .loader-ring-wrap{position:relative;width:130px;height:130px}
@@ -239,7 +255,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .loader-ring-fill{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;stroke-dasharray:339.3;stroke-dashoffset:339.3;transition:stroke-dashoffset .35s ease,stroke .3s}
 .loader-ring-fill.done{stroke:var(--green)}
 .loader-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
-.loader-pct{font-size:30px;font-weight:900;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;transition:color .3s}
 .loader-pct.done{color:var(--green)}
 .loader-pct-sym{font-size:13px;font-weight:700;color:var(--muted)}
 .loader-txt{font-size:12px;color:var(--muted);font-weight:600;text-align:center;max-width:220px;line-height:1.5;min-height:18px}
@@ -266,9 +281,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   .cl-summary-grid{grid-template-columns:repeat(5,1fr)}
 }
 
-/* Fade in rows */
-.ccard{animation:faderow .2s ease both}
-@keyframes faderow{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* Back to List — stays highlighted once pressed */
+.btn-back-active{background:rgba(59,125,216,.22) !important;border-color:var(--accent) !important;color:var(--accent2) !important;box-shadow:0 0 0 2px rgba(59,125,216,.25)}
+
+/* Screens fade in */
+.screen.active{display:block;animation:screenIn .1s ease both}
+@keyframes screenIn{from{opacity:.7}to{opacity:1}}
+#status-screen.active{display:flex;flex-direction:column;animation:screenIn .08s ease both}
+
+/* Smoother loader percentage count-up */
+.loader-pct{font-size:30px;font-weight:900;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;transition:color .3s;font-feature-settings:'tnum'}
 </style>
 </head>
 <body>
@@ -587,9 +609,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <div id="status-screen" class="screen">
   <!-- Top nav bar with Prev/Next -->
   <div class="top-bar" style="gap:6px">
-    <button class="btn-sm" id="ss-prev" onclick="goStatusPrev()" style="padding:6px 10px">◀ Prev</button>
+    <button class="btn-sm" id="ss-prev" onclick="goStatusPrev()" style="padding:7px 12px;font-size:13px">◀ Prev</button>
     <div style="flex:1;text-align:center;font-size:12px;font-weight:700;color:var(--muted)" id="ss-pos">1 of 100</div>
-    <button class="btn-sm" id="ss-next" onclick="goStatusNext()" style="padding:6px 10px">Next ▶</button>
+    <button class="btn-sm" id="ss-next" onclick="goStatusNext()" style="padding:7px 12px;font-size:13px">Next ▶</button>
     <div class="sync-dot" id="ss-sync-dot" title="Sync status" style="width:14px;height:14px"></div>
   </div>
 
@@ -636,7 +658,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <!-- Clear + Close -->
     <div style="padding:4px 13px 6px;display:flex;gap:7px">
       <button class="btn-sm" style="flex:1;justify-content:center" onclick="setSt('')">🗑️ Clear Status</button>
-      <button class="btn-sm" style="flex:1;justify-content:center;background:var(--surface2);border-color:var(--border);color:var(--text);font-weight:700" onclick="closeStatusScreen()">← Back to List</button>
+      <button class="btn-sm" id="back-to-list-btn" style="flex:1;justify-content:center;font-weight:700" onclick="backToListPressed()">← Back to List</button>
     </div>
   </div>
 </div>
@@ -1031,7 +1053,8 @@ async function init() {
 
 async function loadUserAndRoute(user) {
   currentUser = user;
-  setLoader('Loading profile…', 10);
+  setLoader('Loading profile…', 1);
+  animateLoader(1, 10, 300, null);
   const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
   userProfile = profile;
 
@@ -1215,12 +1238,17 @@ async function provisionAllUsers() {
 
 
 async function loadEnumeratorData() {
-  setLoader('Connecting…', 5);
+  // Start loader at 1 and animate to 15 while connecting
+  setLoader('Connecting…', 1);
+  animateLoader(1, 15, 400, null);
+
   const sheet = userProfile.assigned_sheet;
   if (!sheet) { toast('⚠️ No sheet assigned', 'warn'); hideLoader(); showScr('setup-screen'); return; }
 
   try {
-    setLoader('Loading stats…', 20);
+    // Phase 1: Stats (15 → 35)
+    setLoader('Loading stats…', 15);
+    animateLoader(15, 35, 600, null);
     let statsOk = false;
     try {
       const { data: sd, error: se } = await sb.rpc('get_sheet_stats', { p_sheet: sheet });
@@ -1231,14 +1259,13 @@ async function loadEnumeratorData() {
         sd.forEach(r => {
           sheetStats[r.status] = { count: Number(r.cnt), today: Number(r.today_cnt) };
           totalContactCount += Number(r.cnt);
-          // altered_today is the same value on every row — grab it once
           if (Number(r.altered_today) > alteredTodayCount) alteredTodayCount = Number(r.altered_today);
         });
         statsOk = true;
       }
     } catch(e) {}
 
-    // Load total calls badge
+    // Load total calls badge (background)
     try {
       const { data: tc } = await sb.rpc('get_total_calls');
       if (tc && tc[0]) {
@@ -1247,7 +1274,9 @@ async function loadEnumeratorData() {
       }
     } catch(e) {}
 
-    setLoader('Loading contacts…', 50);
+    // Phase 2: Contacts (35 → 70)
+    setLoader('Loading contacts…', 35);
+    animateLoader(35, 70, 800, null);
     const { data: first, error: firstErr } = await sb.from('contacts')
       .select('*').eq('sheet_name', sheet)
       .order('row_num', { ascending: true }).range(0, 199);
@@ -1257,7 +1286,9 @@ async function loadEnumeratorData() {
     contactsFullyLoaded = allContacts.length < 200;
 
     if (!statsOk) {
-      setLoader('Counting records…', 65);
+      // Phase 2b: Count fallback (70 → 82)
+      setLoader('Counting records…', 70);
+      animateLoader(70, 82, 400, null);
       const { count } = await sb.from('contacts').select('*', { count:'exact', head:true }).eq('sheet_name', sheet);
       totalContactCount = count || allContacts.length;
       sheetStats = {};
@@ -1268,39 +1299,35 @@ async function loadEnumeratorData() {
       });
     }
 
-    setLoader('Almost ready…', 85);
+    // Phase 3: Finalizing (82 → 100) — fires showDash at exactly 100
+    setLoader('Almost ready…', 82);
     document.getElementById('user-badge').textContent = sheet;
     document.getElementById('dash-av').textContent = sheet.slice(0,2).toUpperCase();
     document.getElementById('dash-av').style.background = COLORS[hashStr(sheet) % COLORS.length];
     document.getElementById('dash-name').textContent = sheet + "'s List";
-
     subscribeRealtime(sheet);
-    setLoader('Ready!', 100);
 
-    // Load alter counts from DB so they survive page reloads
-    sb.from('status_alter_log')
-      .select('contact_id')
-      .eq('sheet_name', sheet)
-      .then(({ data: alLogs }) => {
-        if (alLogs && alLogs.length) {
-          alLogs.forEach(l => {
-            if (l.contact_id) {
-              alterCountMap.set(l.contact_id, (alterCountMap.get(l.contact_id) || 0) + 1);
-              alteredContactIds.add(l.contact_id);
+    // Count linearly 82→100, then immediately open dashboard
+    animateLoader(82, 100, 350, () => {
+      hideLoader();
+      showDash();
+      // Background: load alter counts and remaining contacts
+      sb.from('status_alter_log').select('contact_id').eq('sheet_name', sheet)
+        .then(({ data: alLogs }) => {
+          if (alLogs?.length) {
+            alLogs.forEach(l => {
+              if (l.contact_id) {
+                alterCountMap.set(l.contact_id, (alterCountMap.get(l.contact_id) || 0) + 1);
+                alteredContactIds.add(l.contact_id);
+              }
+            });
+            if (document.getElementById('calllist-screen').classList.contains('active')) {
+              renderList(); renderClSummary();
             }
-          });
-          // Refresh list so alt badges show immediately
-          if (document.getElementById('calllist-screen').classList.contains('active')) {
-            renderList(); renderClSummary();
           }
-        }
-      }).catch(() => {});
-
-    await new Promise(r => setTimeout(r, 500));
-    hideLoader();
-    showDash();
-
-    if (!contactsFullyLoaded) loadRemainingContacts(sheet, 200);
+        }).catch(() => {});
+      if (!contactsFullyLoaded) loadRemainingContacts(sheet, 200);
+    });
 
   } catch(err) {
     hideLoader();
@@ -1329,11 +1356,13 @@ async function loadRemainingContacts(sheet, startFrom) {
 }
 
 async function loadAdminData() {
-  setLoader('Loading stats…', 10);
+  setLoader('Loading stats…', 1);
+  animateLoader(1, 25, 500, null);
   try {
     let statsOk = false;
     try {
       setLoader('Fetching sheet stats…', 25);
+      animateLoader(25, 55, 700, null);
       const { data: sd, error: se } = await sb.rpc('get_all_stats');
       if (!se && sd) {
         adminData.statsBySheet = {};
@@ -1351,6 +1380,7 @@ async function loadAdminData() {
     } catch(e) {}
 
     setLoader('Loading profiles & logs…', 55);
+    animateLoader(55, 85, 600, null);
     const [profilesRes, logsRes] = await Promise.all([
       sb.from('profiles').select('*').eq('role','enumerator'),
       sb.from('call_logs').select('*').order('logged_at',{ascending:false}).limit(5000)
@@ -1367,11 +1397,12 @@ async function loadAdminData() {
       });
     }
 
-    setLoader('Ready!', 100);
     subscribeRealtimeAdmin();
-    await new Promise(r => setTimeout(r, 500));
-    hideLoader();
-    showAdminPanel();
+    // Count 85→100 linearly, open admin panel exactly at 100
+    animateLoader(85, 100, 300, () => {
+      hideLoader();
+      showAdminPanel();
+    });
   } catch(err) {
     hideLoader();
     showScr('setup-screen');
@@ -1489,11 +1520,14 @@ function subscribeRealtimeAdmin() {
 }
 
 // ============================================================
-// SCREEN MANAGEMENT
+// SCREEN MANAGEMENT — zero-delay instant switching
 // ============================================================
+const SCREENS = ['setup-screen','dashboard-screen','admin-screen','calllist-screen','status-screen'];
 function showScr(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  SCREENS.forEach(sid => {
+    const el = document.getElementById(sid);
+    if (el) el.className = el.className.replace(' active','').replace('active','').trim() + (sid === id ? ' active' : '');
+  });
   window.scrollTo(0, 0);
 }
 
@@ -1762,25 +1796,29 @@ function renderList() {
     list.innerHTML = `<div class="empty"><div class="empty-ico">🔍</div>No contacts match</div>`;
     return;
   }
-  list.innerHTML = rows.map((c,i) => {
-    const isOk   = c.call_status === 'Successful';
-    const hasSt  = !!c.call_status;
-    const cls    = isOk ? 's-ok' : (hasSt ? 's-done' : '');
-    const bcls   = isOk ? 'b-ok' : (hasSt ? 'b-fail' : 'b-pend');
-    const label  = c.call_status || 'Pending';
+
+  // Build HTML for ALL rows but without animation delays for speed
+  const html = rows.map(c => {
+    const isOk  = c.call_status === 'Successful';
+    const hasSt = !!c.call_status;
+    const cls   = isOk ? 's-ok' : (hasSt ? 's-done' : '');
+    const bcls  = isOk ? 'b-ok' : (hasSt ? 'b-fail' : 'b-pend');
+    const label = c.call_status || 'Pending';
     const altCnt = alterCountMap.get(c.id) || 0;
     const altChip = altCnt > 0
       ? `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;background:rgba(168,85,247,.18);color:#c084fc;border:1px solid rgba(168,85,247,.35);white-space:nowrap;margin-right:4px">alt ×${altCnt}</span>`
       : '';
-    return `<div class="ccard ${cls}" data-cid="${c.id}" onclick="openSh(${c.id})" style="animation-delay:${Math.min(i,15)*12}ms">
+    return `<div class="ccard ${cls}" onclick="openSh(${c.id})">
       <div class="cnum">${c.row_num}</div>
       <div class="cinfo">
         <div class="cname">${esc(c.name||'')}</div>
-        <div class="cdet">📱 ${esc(c.phone||'')} &nbsp;·&nbsp; 📍 ${esc(c.county||'')}, ${esc(c.ward||'')}</div>
+        <div class="cdet">📱 ${esc(c.phone||'')} · 📍 ${esc(c.county||'')}, ${esc(c.ward||'')}</div>
       </div>
       ${altChip}<div class="cbadge ${bcls}">${esc(label)}</div>
     </div>`;
   }).join('');
+
+  list.innerHTML = html;
 }
 
 // ============================================================
@@ -1792,6 +1830,9 @@ function openSh(cid) {
   contact = allContacts.find(c => c.id === cid);
   if (!contact) return;
   statusNavList = filteredContacts();
+  // Reset back-to-list button color for new contact
+  const btn = document.getElementById('back-to-list-btn');
+  if (btn) btn.classList.remove('btn-back-active');
   renderStatusScreen();
   showScr('status-screen');
 }
@@ -1890,6 +1931,12 @@ function goStatusNext() {
   } else {
     closeStatusScreen(); // reached end of list
   }
+}
+
+function backToListPressed() {
+  const btn = document.getElementById('back-to-list-btn');
+  if (btn) btn.classList.add('btn-back-active');
+  closeStatusScreen();
 }
 
 function closeStatusScreen() {
@@ -2527,16 +2574,63 @@ function toast(msg, type='info') {
   clearTimeout(t._t);
   t._t = setTimeout(() => t.classList.remove('show'), 3000);
 }
-function setLoader(txt, pct) {
+// ============================================================
+// LOADER — Linear 1→100 counter, fires action AT 100 instantly
+// ============================================================
+let _loaderAnimId = null; // cancel any running animation
+
+function animateLoader(startPct, endPct, durationMs, onReach100) {
+  // Cancel any existing animation
+  if (_loaderAnimId) { cancelAnimationFrame(_loaderAnimId); _loaderAnimId = null; }
+
   const el = document.getElementById('full-loader');
-  el.classList.remove('gone');
-  el.classList.remove('hide');
-  if (txt) document.getElementById('loader-txt').textContent = txt;
-  if (pct !== undefined) setLoaderPct(pct);
+  el.classList.remove('gone', 'hide');
+  const ring = document.getElementById('loader-ring-fill');
+  const num  = document.getElementById('loader-pct');
+  if (ring) { ring.classList.remove('done'); }
+  if (num)  { num.classList.remove('done'); }
+
+  // Set ring transition to near-instant so it tracks the counter smoothly
+  if (ring) ring.style.transition = 'stroke-dashoffset .03s linear, stroke .2s';
+
+  // Clamp
+  startPct = Math.max(1, Math.min(100, Math.round(startPct)));
+  endPct   = Math.max(startPct, Math.min(100, Math.round(endPct)));
+
+  let current = startPct;
+  _setLoaderNum(current);
+
+  const startTime = performance.now();
+  const totalSteps = endPct - startPct;
+  if (totalSteps <= 0) {
+    _setLoaderNum(endPct);
+    if (endPct >= 100 && onReach100) onReach100();
+    return;
+  }
+
+  function tick(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / durationMs, 1);
+    // Linear — counts 1, 2, 3, 4 ... cleanly
+    const next = Math.round(startPct + totalSteps * progress);
+    if (next !== current) {
+      current = next;
+      _setLoaderNum(current);
+    }
+    if (progress < 1) {
+      _loaderAnimId = requestAnimationFrame(tick);
+    } else {
+      _loaderAnimId = null;
+      // Hit 100 — fire action IMMEDIATELY, no wait
+      if (endPct >= 100 && onReach100) onReach100();
+    }
+  }
+  _loaderAnimId = requestAnimationFrame(tick);
 }
-function setLoaderPct(pct) {
+
+function _setLoaderNum(pct) {
   pct = Math.max(0, Math.min(100, Math.round(pct)));
-  const CIRC = 289.0; // 2 * PI * 46
+  const CIRC = 289.0;
   const offset = CIRC - (pct / 100) * CIRC;
   const ring = document.getElementById('loader-ring-fill');
   const num  = document.getElementById('loader-pct');
@@ -2548,26 +2642,44 @@ function setLoaderPct(pct) {
     document.getElementById('loader-txt').textContent = 'Ready!';
   }
 }
+
+// Legacy wrappers so existing calls still work
+function animateLoaderFast(start, end, durationMs, onDone) {
+  animateLoader(start, end, durationMs, onDone);
+}
+function animateLoaderPctTo(target, durationMs) {
+  const num = document.getElementById('loader-pct');
+  const current = parseInt(num?.textContent || '0', 10);
+  if (current >= target) return;
+  animateLoader(current, target, durationMs, null);
+}
+
+function setLoader(txt, pct) {
+  const el = document.getElementById('full-loader');
+  el.classList.remove('gone', 'hide');
+  if (txt) document.getElementById('loader-txt').textContent = txt;
+  if (pct !== undefined) _setLoaderNum(pct);
+}
+function setLoaderPct(pct) { _setLoaderNum(pct); }
 function setLoaderSub(txt) {
   const el = document.getElementById('loader-sub');
   if (el) el.textContent = txt || '';
 }
 function hideLoader() {
+  if (_loaderAnimId) { cancelAnimationFrame(_loaderAnimId); _loaderAnimId = null; }
   const el = document.getElementById('full-loader');
   el.classList.add('hide');
-  setTimeout(() => el.classList.add('gone'), 520);
-  // reset for next use
   setTimeout(() => {
-    el.classList.remove('hide','gone');
-    setLoaderPct(0);
+    el.classList.add('gone');
+    el.classList.remove('hide');
+    _setLoaderNum(0);
     const ring = document.getElementById('loader-ring-fill');
     const num  = document.getElementById('loader-pct');
     if (ring) ring.classList.remove('done');
     if (num)  num.classList.remove('done');
     document.getElementById('loader-txt').textContent = '';
     setLoaderSub('');
-    el.classList.add('gone');
-  }, 600);
+  }, 150);
 }
 
 // ============================================================
