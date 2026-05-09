@@ -107,14 +107,24 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .day-date{font-size:11px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-bottom:2px}
 .day-total{font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1;margin-bottom:3px}
 .day-sub{font-size:12px;color:var(--muted)}
-.status-breakdown{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px}
-.sb-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;padding:10px 13px 7px;border-bottom:1px solid var(--border)}
-.sb-row{display:flex;align-items:center;gap:8px;padding:8px 13px;border-bottom:1px solid var(--border2)}
+.status-breakdown{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.sb-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;padding:11px 14px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.sb-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:0;padding:0;border-bottom:1px solid var(--border2);transition:background .15s}
 .sb-row:last-child{border-bottom:none}
-.sb-label{flex:1;font-size:13px;font-weight:500}
-.sb-bar-wrap{width:90px;background:var(--surface2);border-radius:3px;height:5px}
-.sb-bar{height:5px;border-radius:3px;transition:width .4s}
-.sb-count{font-size:12px;font-weight:700;min-width:28px;text-align:right}
+.sb-row-main{display:flex;align-items:center;gap:9px;padding:9px 14px;flex:1}
+.sb-row-right{display:flex;align-items:center;gap:7px;padding:9px 14px 9px 0;flex-shrink:0}
+.sb-label{font-size:12.5px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-bar-wrap{width:70px;background:var(--surface2);border-radius:4px;height:6px;flex-shrink:0}
+.sb-bar{height:6px;border-radius:4px;transition:width .5s ease}
+.sb-pct{font-size:10.5px;font-weight:700;color:var(--muted);min-width:30px;text-align:right}
+.sb-pill{font-size:11px;font-weight:800;min-width:34px;text-align:center;padding:2px 8px;border-radius:20px;border:1px solid}
+.sb-row-hdr{background:linear-gradient(90deg,rgba(59,125,216,.1),transparent);border-bottom:2px solid var(--border) !important}
+.sb-row-hdr .sb-label{font-weight:800;font-size:13px}
+.sb-row-complete{background:linear-gradient(90deg,rgba(16,185,129,.07),transparent)}
+.sb-row-complete-alt{background:linear-gradient(90deg,rgba(168,85,247,.07),transparent)}
+.sb-row-pending{background:linear-gradient(90deg,rgba(100,116,139,.06),transparent)}
+.sb-row-altered{background:linear-gradient(90deg,rgba(168,85,247,.05),transparent)}
+.sb-divider{height:1px;background:linear-gradient(90deg,var(--border),transparent);margin:0 14px}
 
 /* Enumerator perf cards */
 .perf-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:9px;overflow:hidden}
@@ -814,12 +824,12 @@ $$;
 
 -- Real-time total calls counter
 create or replace function public.get_total_calls()
-returns table(total_calls bigint, today_calls bigint)
+returns table(total_calls bigint, today_calls bigint, total_altered bigint)
 language sql security definer stable set search_path = public as $$
   select
-    count(*) as total_calls,
-    count(*) filter (where logged_at::date = current_date) as today_calls
-  from public.call_logs;
+    (select count(*) from public.call_logs)                                                    as total_calls,
+    (select count(*) from public.call_logs where logged_at::date = current_date)               as today_calls,
+    (select count(*) from public.status_alter_log)                                             as total_altered;
 $$;
 
 -- ------------------------------------------------
@@ -983,6 +993,7 @@ let adminData   = { logs:[], profiles:[], statsBySheet:{} };
 let alteredContactIds = new Set(); // tracks contacts whose status was changed after being set
 let alteredTodayCount = 0; // from DB via get_sheet_stats altered_today column
 let totalCallsAllTime = 0; // from get_total_calls()
+let totalAlteredAllTime = 0; // total altered entries ever, from get_total_calls()
 
 // ============================================================
 // INIT
@@ -1229,7 +1240,10 @@ async function loadEnumeratorData() {
     // Load total calls badge
     try {
       const { data: tc } = await sb.rpc('get_total_calls');
-      if (tc && tc[0]) totalCallsAllTime = Number(tc[0].total_calls);
+      if (tc && tc[0]) {
+        totalCallsAllTime   = Number(tc[0].total_calls);
+        totalAlteredAllTime = Number(tc[0].total_altered || 0);
+      }
     } catch(e) {}
 
     setLoader('Loading contacts…', 50);
@@ -1347,10 +1361,21 @@ async function loadAdminData() {
 // ============================================================
 // REALTIME SUBSCRIPTIONS
 // ============================================================
+async function refreshEnumTotals() {
+  try {
+    const { data: tc } = await sb.rpc('get_total_calls');
+    if (tc && tc[0]) {
+      totalCallsAllTime   = Number(tc[0].total_calls);
+      totalAlteredAllTime = Number(tc[0].total_altered || 0);
+    }
+  } catch(e) {}
+}
+
 function subscribeRealtime(sheet) {
-  if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; }
+  if (rtChannel)      { sb.removeChannel(rtChannel);      rtChannel      = null; }
   if (rtTotalChannel) { sb.removeChannel(rtTotalChannel); rtTotalChannel = null; }
 
+  // Primary: contact updates + settings
   rtChannel = sb.channel('contacts-'+sheet)
     .on('postgres_changes', {
       event: 'UPDATE', schema: 'public', table: 'contacts',
@@ -1358,13 +1383,15 @@ function subscribeRealtime(sheet) {
     }, payload => {
       const idx = allContacts.findIndex(c => c.id === payload.new.id);
       if (idx !== -1) allContacts[idx] = payload.new;
-      renderList();
-      renderMini();
-      renderClSummary();
-      updateDashCard();
-      renderEnumBreakdowns();
-      renderEnumChart();
-      toast('🔄 Contact updated', 'ok');
+      sheetStats = {};
+      allContacts.forEach(c => {
+        const k = c.call_status || '';
+        if (!sheetStats[k]) sheetStats[k] = { count: 0, today: 0 };
+        sheetStats[k].count++;
+        if (c.updated_at && c.updated_at.slice(0,10) === todayStr()) sheetStats[k].today++;
+      });
+      renderList(); renderMini(); renderClSummary();
+      updateDashCard(); renderEnumBreakdowns(); renderEnumChart();
     })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, payload => {
       if (payload.new?.key === 'custom_statuses' && payload.new?.value) {
@@ -1375,33 +1402,55 @@ function subscribeRealtime(sheet) {
     })
     .subscribe();
 
-  // Separate channel: update total-calls badge on every new log entry
-  rtTotalChannel = sb.channel('total-calls-enum')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'call_logs' }, async () => {
-      try {
-        const { data: tc } = await sb.rpc('get_total_calls');
-        if (tc && tc[0]) {
-          totalCallsAllTime = Number(tc[0].total_calls);
-          renderTodayPills();
-        }
-      } catch(e) {}
+  // Secondary: call_logs + status_alter_log → refresh totals & breakdowns live
+  rtTotalChannel = sb.channel('logs-enum-'+sheet)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'call_logs',
+        filter: `sheet_name=eq.${sheet}` }, async () => {
+      await refreshEnumTotals();
+      renderTodayPills(); renderEnumBreakdowns();
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'status_alter_log',
+        filter: `sheet_name=eq.${sheet}` }, async payload => {
+      if (payload.new?.contact_id) alteredContactIds.add(payload.new.contact_id);
+      alteredTodayCount = alteredContactIds.size;
+      await refreshEnumTotals();
+      renderTodayPills(); renderEnumBreakdowns(); renderClSummary();
     })
     .subscribe();
 }
 
 function subscribeRealtimeAdmin() {
-  if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; }
+  if (rtChannel)      { sb.removeChannel(rtChannel);      rtChannel      = null; }
   if (rtTotalChannel) { sb.removeChannel(rtTotalChannel); rtTotalChannel = null; }
 
+  // Single unified channel — contacts, logs, alter_log, settings
   rtChannel = sb.channel('admin-all')
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'contacts' }, payload => {
-      const idx = adminData.contacts.findIndex(c => c.id === payload.new.id);
-      if (idx !== -1) adminData.contacts[idx] = payload.new;
-      refreshAdminStats();
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'contacts' }, () => {
+      // Re-fetch sheet stats so numbers stay accurate
+      sb.rpc('get_all_stats').then(({ data: sd, error: se }) => {
+        if (!se && sd) {
+          adminData.statsBySheet = {};
+          sd.forEach(r => {
+            if (!adminData.statsBySheet[r.sheet])
+              adminData.statsBySheet[r.sheet] = { total:0, byStatus:{}, todayTotal:0, alteredToday:0 };
+            const s = adminData.statsBySheet[r.sheet];
+            s.byStatus[r.status] = { count: Number(r.cnt), today: Number(r.today_cnt) };
+            s.total += Number(r.cnt);
+            s.todayTotal += Number(r.today_cnt);
+            if (Number(r.altered_today) > s.alteredToday) s.alteredToday = Number(r.altered_today);
+          });
+        }
+        refreshAdminStats();
+      });
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'call_logs' }, payload => {
-      adminData.logs.unshift(payload.new);
+      if (payload.new) adminData.logs.unshift(payload.new);
       refreshAdminStats();
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'status_alter_log' }, payload => {
+      // Refresh logs so altered counts update
+      sb.from('call_logs').select('*').order('logged_at',{ascending:false}).limit(5000)
+        .then(({ data }) => { if (data) { adminData.logs = data; refreshAdminStats(); } });
     })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, payload => {
       if (payload.new?.key === 'custom_statuses' && payload.new?.value) {
@@ -1412,25 +1461,7 @@ function subscribeRealtimeAdmin() {
     })
     .subscribe();
 
-  // Total calls badge realtime for admin
-  rtTotalChannel = sb.channel('total-calls-admin')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'call_logs' }, async () => {
-      try {
-        const { data: tc } = await sb.rpc('get_total_calls');
-        if (tc && tc[0]) {
-          totalCallsAllTime = Number(tc[0].total_calls);
-          // Update the admin hero sub text to reflect live total
-          const heroSub = document.getElementById('admin-hero-sub');
-          if (heroSub) {
-            const cur = heroSub.textContent;
-            // replace trailing "· X total calls" or append
-            heroSub.textContent = cur.replace(/ · \d[\d,]* total calls/, '')
-              + ` · ${totalCallsAllTime.toLocaleString()} total calls`;
-          }
-        }
-      } catch(e) {}
-    })
-    .subscribe();
+  rtTotalChannel = null; // unused — everything on one channel now
 }
 
 // ============================================================
@@ -1541,34 +1572,30 @@ function renderEnumChart() {
 function renderEnumBreakdowns() {
   // ── TODAY'S BREAKDOWN ──
   const todayCounts = {};
-  let todayTotal = 0;
+  let todayLogged = 0;
   Object.entries(sheetStats).filter(([s])=>s!=='').forEach(([s,v]) => {
-    if (v.today > 0) { todayCounts[s] = v.today; todayTotal += v.today; }
+    if (v.today > 0) { todayCounts[s] = v.today; todayLogged += v.today; }
   });
   const todayAltered = alteredTodayCount || alteredContactIds.size;
-  const todayGrand   = todayTotal + todayAltered;
+  const todayGrand   = todayLogged + todayAltered;
 
   const tdEl = document.getElementById('enum-today-bd');
   if (tdEl) {
     if (!todayGrand) {
-      tdEl.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No calls logged today yet</div>';
+      tdEl.innerHTML = '<div style="padding:16px;font-size:12px;color:var(--muted);text-align:center">No calls logged today yet</div>';
     } else {
-      const altRow = todayAltered > 0 ? `<div class="sb-row" style="background:rgba(168,85,247,.06)">
-        <span class="sb-label" style="color:#c084fc">🔄 Altered</span>
-        <div class="sb-bar-wrap"><div class="sb-bar" style="width:${Math.round(todayAltered/todayGrand*100)}%;background:#a855f7"></div></div>
-        <span style="font-size:11px;color:#c084fc;min-width:36px;text-align:right">${Math.round(todayAltered/todayGrand*100)}%</span>
-        <span class="sb-count" style="color:#c084fc">${todayAltered}</span>
-      </div>` : '';
-      tdEl.innerHTML = altRow + Object.entries(todayCounts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => {
+      let rows = mkHdrRow('📞 Total Calls Today', todayGrand, 'var(--accent2)');
+      if (todayAltered > 0) {
+        const ap = Math.round(todayAltered/todayGrand*100);
+        rows += mkRow('🔄 Altered', todayAltered, ap, '#a855f7', 'sb-row-altered', ap, '#a855f7');
+      }
+      rows += '<div class="sb-divider"></div>';
+      rows += Object.entries(todayCounts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => {
         const pct = Math.round(n/todayGrand*100);
         const col = STATUS_COLORS[s] || COLORS[0];
-        return `<div class="sb-row">
-          <span class="sb-label">${STATUS_ICONS[s]||'🔵'} ${esc(s)}</span>
-          <div class="sb-bar-wrap"><div class="sb-bar" style="width:${pct}%;background:${col}"></div></div>
-          <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">${pct}%</span>
-          <span class="sb-count" style="color:${col}">${n}</span>
-        </div>`;
+        return mkRow(`${STATUS_ICONS[s]||'🔵'} ${esc(s)}`, n, pct, col, '', pct, col);
       }).join('');
+      tdEl.innerHTML = rows;
     }
   }
 
@@ -1578,51 +1605,42 @@ function renderEnumBreakdowns() {
   Object.entries(sheetStats).filter(([s])=>s!=='').forEach(([s,v]) => {
     overallCounts[s] = v.count; overallLogged += v.count;
   });
-  const alteredCount = alteredContactIds.size;
-  const pending      = Math.max(0, totalContactCount - overallLogged);
-  const grandDenom   = totalContactCount || 1;
+  const pending    = Math.max(0, totalContactCount - overallLogged);
+  const grandDenom = totalContactCount || 1;
 
   const enumTotalBadge = document.getElementById('enum-overall-total-badge');
-  if (enumTotalBadge) enumTotalBadge.textContent = (overallLogged + alteredCount).toLocaleString() + ' logged';
+  if (enumTotalBadge) enumTotalBadge.textContent = totalCallsAllTime.toLocaleString() + ' total calls';
 
   const ovEl = document.getElementById('enum-overall-bd');
   if (ovEl) {
-    if (!overallLogged && !alteredCount) {
-      ovEl.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No data yet</div>';
+    if (!overallLogged && !totalCallsAllTime) {
+      ovEl.innerHTML = '<div style="padding:16px;font-size:12px;color:var(--muted);text-align:center">No data yet</div>';
     } else {
-      const totalRow = `<div class="sb-row" style="background:rgba(59,125,216,.07);border-bottom:2px solid var(--border)">
-        <span class="sb-label" style="font-weight:700;color:var(--text)">📋 Total Contacts</span>
-        <div class="sb-bar-wrap"><div class="sb-bar" style="width:100%;background:var(--accent)"></div></div>
-        <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">100%</span>
-        <span class="sb-count" style="color:var(--accent2);font-size:14px;font-weight:900;min-width:32px">${totalContactCount.toLocaleString()}</span>
-      </div>`;
-      const pendingRow = pending > 0 ? `<div class="sb-row">
-        <span class="sb-label" style="color:var(--muted)">⏳ Pending</span>
-        <div class="sb-bar-wrap"><div class="sb-bar" style="width:${Math.round(pending/grandDenom*100)}%;background:var(--muted)"></div></div>
-        <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">${Math.round(pending/grandDenom*100)}%</span>
-        <span class="sb-count" style="color:var(--muted)">${pending.toLocaleString()}</span>
-      </div>` : '';
-      const altRow2 = alteredCount > 0 ? `<div class="sb-row" style="background:rgba(168,85,247,.06)">
-        <span class="sb-label" style="color:#c084fc">🔄 Altered</span>
-        <div class="sb-bar-wrap"><div class="sb-bar" style="width:${Math.round(alteredCount/grandDenom*100)}%;background:#a855f7"></div></div>
-        <span style="font-size:11px;color:#c084fc;min-width:36px;text-align:right">${Math.round(alteredCount/grandDenom*100)}%</span>
-        <span class="sb-count" style="color:#c084fc">${alteredCount}</span>
-      </div>` : '';
-      ovEl.innerHTML = totalRow + pendingRow + altRow2 +
-        Object.entries(overallCounts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => {
-          const pct = Math.round(n/grandDenom*100);
-          const col = STATUS_COLORS[s] || COLORS[0];
-          return `<div class="sb-row">
-            <span class="sb-label">${STATUS_ICONS[s]||'🔵'} ${esc(s)}</span>
-            <div class="sb-bar-wrap"><div class="sb-bar" style="width:${pct}%;background:${col}"></div></div>
-            <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">${pct}%</span>
-            <span class="sb-count" style="color:${col}">${n}</span>
-          </div>`;
-        }).join('');
+      const completePct = Math.round(Math.min(overallLogged,grandDenom)/grandDenom*100);
+      let rows = mkHdrRow('📋 Total Contacts', totalContactCount, 'var(--accent2)');
+      if (overallLogged > 0)
+        rows += mkRow('✅ Complete', overallLogged, completePct, '#10b981', 'sb-row-complete', completePct, '#10b981');
+      if (totalCallsAllTime > 0)
+        rows += mkRow('🔄 Complete + Altered', totalCallsAllTime, null, '#a855f7', 'sb-row-complete-alt',
+                      Math.round(Math.min(totalCallsAllTime,grandDenom)/grandDenom*100), '#a855f7');
+      if (pending > 0) {
+        const pp = Math.round(pending/grandDenom*100);
+        rows += mkRow('⏳ Pending', pending, pp, 'var(--muted)', 'sb-row-pending', pp, null);
+      }
+      rows += '<div class="sb-divider"></div>';
+      if (totalAlteredAllTime > 0) {
+        const ap = Math.round(totalAlteredAllTime/grandDenom*100);
+        rows += mkRow('🔄 Altered Calls (All-time)', totalAlteredAllTime, ap, '#a855f7', 'sb-row-altered', ap, '#a855f7');
+      }
+      rows += Object.entries(overallCounts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => {
+        const pct = Math.round(n/grandDenom*100);
+        const col = STATUS_COLORS[s] || COLORS[0];
+        return mkRow(`${STATUS_ICONS[s]||'🔵'} ${esc(s)}`, n, pct, col, '', pct, col);
+      }).join('');
+      ovEl.innerHTML = rows;
     }
   }
 }
-
 function renderTodayPills() {
   const todayTotal = Object.values(sheetStats).reduce((s,v)=>s+v.today,0);
   const todayOk    = sheetStats['Successful']?.today || 0;
@@ -1987,7 +2005,7 @@ function refreshAdminStats() {
   });
   const todayAlteredCount = Object.values(todayContactMap).filter(s => s.size > 1).length;
 
-  renderBreakdown('adm-today-breakdown', todayCounts, todayLogs.length + todayAlteredCount, todayAlteredCount, null, false);
+  renderBreakdown('adm-today-breakdown', todayCounts, todayLogs.length, todayAlteredCount, null, false);
 
   // Today per-enumerator
   const enumHtml = sheets.map(sn => {
@@ -2019,15 +2037,16 @@ function refreshAdminStats() {
     if (l.status) contactLogMap[l.contact_id].add(l.status);
   });
   const adminAlteredCount = Object.values(contactLogMap).filter(s => s.size > 1).length;
-  const adminTotalCallsIncAltered = grandDoneForBreakdown + adminAlteredCount;
+  // allAdminLogs = total call_log entries (every alter = separate call) for Complete+Altered row
+  const allAdminLogs = logs.filter(l => l.status).length;
 
   // Update total row
   const admTotalN = document.getElementById('adm-overall-total-n');
   const admTotalBadge = document.getElementById('adm-overall-total-calls');
-  if (admTotalN) admTotalN.textContent = adminTotalCallsIncAltered.toLocaleString();
-  if (admTotalBadge) admTotalBadge.textContent = adminTotalCallsIncAltered.toLocaleString() + ' calls';
+  if (admTotalN) admTotalN.textContent = allAdminLogs.toLocaleString();
+  if (admTotalBadge) admTotalBadge.textContent = allAdminLogs.toLocaleString() + ' calls';
 
-  renderBreakdown('adm-overall-breakdown', overallCounts, adminTotalCallsIncAltered, adminAlteredCount, grandTotal, true);
+  renderBreakdown('adm-overall-breakdown', overallCounts, allAdminLogs, adminAlteredCount, grandTotal, true);
 
   // ENUMERATORS cards
   const eHtml = sheets.map(sn => {
@@ -2060,54 +2079,87 @@ function refreshAdminStats() {
 }
 
 
+// ── Row builder helpers ──────────────────────────────────────
+// Layout: label | bar  →  count | pct
+function mkRow(label, count, pct, barColor, extraClass='', barPct=null, pillColor=null) {
+  const bp = barPct !== null ? barPct : (pct !== null ? pct : 0);
+  const pillBg = pillColor ? `background:${pillColor}22;color:${pillColor};border-color:${pillColor}55` : 'background:var(--surface3);color:var(--muted);border-color:var(--border)';
+  const pctHtml = pct !== null
+    ? `<span class="sb-pct" style="color:${barColor||'var(--muted)'}">${pct}%</span>`
+    : `<span class="sb-pct"></span>`;
+  return `<div class="sb-row ${extraClass}">
+    <div class="sb-row-main">
+      <span class="sb-label">${label}</span>
+      <div class="sb-bar-wrap"><div class="sb-bar" style="width:${bp}%;background:${barColor||'var(--muted)'}"></div></div>
+    </div>
+    <div class="sb-row-right">
+      <span class="sb-pill" style="${pillBg}">${count.toLocaleString()}</span>
+      ${pctHtml}
+    </div>
+  </div>`;
+}
+
+function mkHdrRow(label, count, color) {
+  return `<div class="sb-row sb-row-hdr">
+    <div class="sb-row-main">
+      <span class="sb-label" style="color:${color||'var(--text)'}">${label}</span>
+      <div class="sb-bar-wrap"><div class="sb-bar" style="width:100%;background:${color||'var(--accent)'}"></div></div>
+    </div>
+    <div class="sb-row-right">
+      <span class="sb-pill" style="background:${color||'var(--accent)'}22;color:${color||'var(--accent2)'};border-color:${color||'var(--accent)'}44;font-size:13px;font-weight:900">${count.toLocaleString()}</span>
+      <span class="sb-pct" style="color:${color||'var(--muted)'}">100%</span>
+    </div>
+  </div>`;
+}
+
 // renderBreakdown — shared by admin today + overall tabs
-// showSummary=true adds Total + Pending rows at top (overall only)
+// showSummary=true adds Total + Complete + Pending rows at top (overall only)
+// complete        = unique contacts with a status (altered treated as one) → show %
+// completeAltered = all call_log entries (every alter = separate call)     → no %
 function renderBreakdown(elId, counts, total, alteredCount, totalContacts, showSummary) {
   const el = document.getElementById(elId);
   if (!el) return;
   if (!Object.keys(counts).length && !alteredCount) {
-    el.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No data yet</div>';
+    el.innerHTML = '<div style="padding:16px;font-size:12px;color:var(--muted);text-align:center">No data yet</div>';
     return;
   }
   const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-  const grandTotal = total || 1;
+  const logged  = Object.values(counts).reduce((s,n)=>s+n,0);
+  const allLogs = total || 0; // Complete + Altered (every log entry)
+  const denom   = totalContacts || logged || 1;
 
-  let topRows = '';
+  let rows = '';
+
   if (showSummary) {
-    const logged  = Object.values(counts).reduce((s,n)=>s+n,0);
-    const pending = (totalContacts||0) - logged;
-    topRows = `
-      <div class="sb-row" style="background:rgba(59,125,216,.07);border-bottom:2px solid var(--border)">
-        <span class="sb-label" style="font-weight:700;color:var(--text)">📋 Total Contacts</span>
-        <div class="sb-bar-wrap"><div class="sb-bar" style="width:100%;background:var(--accent)"></div></div>
-        <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">100%</span>
-        <span class="sb-count" style="color:var(--accent2);font-size:14px;font-weight:900;min-width:32px">${(totalContacts||0).toLocaleString()}</span>
-      </div>
-      ${pending > 0 ? `<div class="sb-row" style="background:rgba(59,125,216,.04)">
-        <span class="sb-label" style="color:var(--muted)">⏳ Pending</span>
-        <div class="sb-bar-wrap"><div class="sb-bar" style="width:${totalContacts ? Math.round(pending/totalContacts*100) : 0}%;background:var(--muted)"></div></div>
-        <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">${totalContacts ? Math.round(pending/totalContacts*100) : 0}%</span>
-        <span class="sb-count" style="color:var(--muted)">${pending.toLocaleString()}</span>
-      </div>` : ''}`;
+    const pending     = Math.max(0, (totalContacts||0) - logged);
+    const completePct = totalContacts ? Math.round(Math.min(logged,totalContacts)/totalContacts*100) : 0;
+    rows += mkHdrRow('📋 Total Contacts', totalContacts||0, 'var(--accent2)');
+    if (logged > 0)
+      rows += mkRow('✅ Complete', logged, completePct, '#10b981', 'sb-row-complete', completePct, '#10b981');
+    if (allLogs > 0)
+      rows += mkRow('🔄 Complete + Altered', allLogs, null, '#a855f7', 'sb-row-complete-alt',
+                    Math.round(Math.min(allLogs,denom)/denom*100), '#a855f7');
+    if (pending > 0) {
+      const pp = totalContacts ? Math.round(pending/totalContacts*100) : 0;
+      rows += mkRow('⏳ Pending', pending, pp, 'var(--muted)', 'sb-row-pending', pp, null);
+    }
+    rows += '<div class="sb-divider"></div>';
   }
 
-  const alteredRow = (alteredCount > 0) ? `<div class="sb-row" style="background:rgba(168,85,247,.06)">
-    <span class="sb-label" style="color:#c084fc">🔄 Altered</span>
-    <div class="sb-bar-wrap"><div class="sb-bar" style="width:${Math.round(alteredCount/grandTotal*100)}%;background:#a855f7"></div></div>
-    <span style="font-size:11px;color:#c084fc;min-width:36px;text-align:right">${Math.round(alteredCount/grandTotal*100)}%</span>
-    <span class="sb-count" style="color:#c084fc">${alteredCount}</span>
-  </div>` : '';
+  // Altered row (below divider, above individual statuses)
+  if (alteredCount > 0) {
+    const ap = Math.round(alteredCount/denom*100);
+    rows += mkRow('🔄 Altered', alteredCount, ap, '#a855f7', 'sb-row-altered', ap, '#a855f7');
+  }
 
-  el.innerHTML = topRows + alteredRow + sorted.map(([s,n]) => {
-    const pct = Math.round(n/grandTotal*100);
+  // Individual status rows
+  rows += sorted.map(([s,n]) => {
+    const pct = Math.round(n/denom*100);
     const col = STATUS_COLORS[s] || COLORS[0];
-    return `<div class="sb-row">
-      <span class="sb-label">${STATUS_ICONS[s]||'🔵'} ${esc(s)}</span>
-      <div class="sb-bar-wrap"><div class="sb-bar" style="width:${pct}%;background:${col}"></div></div>
-      <span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right">${pct}%</span>
-      <span class="sb-count" style="color:${col}">${n}</span>
-    </div>`;
+    return mkRow(`${STATUS_ICONS[s]||'🔵'} ${esc(s)}`, n, pct, col, '', pct, col);
   }).join('');
+
+  el.innerHTML = rows;
 }
 
 // ============================================================
