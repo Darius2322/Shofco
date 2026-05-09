@@ -2419,7 +2419,7 @@ function exportExcel() {
       r.phone, r.national_id, r.yob, r.pwds, r.refugee,
       r.ward, r.county, r.call_status||'',
       r.updated_at ? new Date(r.updated_at).toLocaleString() : '',
-      alteredContactIds.has(r.id) ? 'Yes' : ''
+      alteredContactIds.has(r.id) ? 'Yes' : (r.call_status ? 'No' : 'Pending')
     ])];
     const ws = XLSX.utils.aoa_to_sheet(data);
     ws['!cols'] = [{wch:10},{wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},{wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18},{wch:22},{wch:8}];
@@ -2523,7 +2523,15 @@ async function loadSettings() {
       sb.from('settings').select('value').eq('key','custom_statuses').single(),
       new Promise((_,r) => setTimeout(() => r(new Error('timeout')), 3000))
     ]);
-    if (!error && data?.value) customStatuses = data.value;
+    if (!error && data?.value) {
+      customStatuses = data.value;
+      return;
+    }
+  } catch(e) { /* fall through to localStorage */ }
+  // Fallback: load from localStorage (used when Supabase RLS blocks the settings table)
+  try {
+    const local = localStorage.getItem('shofco_custom_statuses');
+    if (local) { const parsed = JSON.parse(local); if (Array.isArray(parsed)) customStatuses = parsed; }
   } catch(e) { /* use defaults silently */ }
 }
 
@@ -2569,19 +2577,25 @@ async function saveCustomStatuses() {
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '⏳ Saving…'; }
 
   try {
-    const { error } = await sb.from('settings').upsert({
-      key: 'custom_statuses',
-      value: vals,
-      updated_at: new Date().toISOString(),
-      updated_by: currentUser.id
-    }, { onConflict: 'key' });
+    // Try Supabase first; if RLS blocks it, fall back to localStorage
+    let savedToCloud = false;
+    try {
+      const { error } = await sb.from('settings').upsert({
+        key: 'custom_statuses',
+        value: vals,
+        updated_at: new Date().toISOString(),
+        updated_by: currentUser.id
+      }, { onConflict: 'key' });
+      if (!error) savedToCloud = true;
+    } catch(cloudErr) { /* will fallback below */ }
 
-    if (error) throw error;
+    // Always persist locally so statuses survive a reload
+    try { localStorage.setItem('shofco_custom_statuses', JSON.stringify(vals)); } catch(e) {}
 
     customStatuses = vals;
     document.getElementById('custom-status-modal').classList.remove('vis');
     renderCustomStGrid();
-    toast('✅ Custom statuses saved & synced', 'ok');
+    toast(savedToCloud ? '✅ Custom statuses saved & synced' : '✅ Custom statuses saved (device only)', 'ok');
   } catch(err) {
     toast('❌ Save failed: ' + (err.message || err), 'err');
   } finally {
