@@ -173,6 +173,34 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .ccard.s-ok{border-color:#ea580c55;background:rgba(234,88,12,.07)}
 .ccard.s-done{opacity:.7}
 .ccard.s-last{border-color:var(--accent)88 !important;background:rgba(59,125,216,.06) !important;box-shadow:0 0 0 1px var(--accent)22}
+/* Resume bookmark highlight */
+.ccard.s-resume{
+  border-color:#f59e0b !important;
+  background:rgba(245,158,11,.07) !important;
+  box-shadow:0 0 0 2px rgba(245,158,11,.2);
+  position:relative;
+}
+.ccard.s-resume::before{
+  content:'📍 RESUME HERE';
+  position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,#f59e0b,#d97706);
+  color:#000;font-size:9px;font-weight:900;letter-spacing:.6px;
+  padding:2px 10px;border-radius:0 0 8px 8px;white-space:nowrap;
+  pointer-events:none;z-index:2;
+}
+/* Resume banner at top of call list */
+#resume-banner{
+  display:none;
+  margin:8px 14px 0;
+  background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(245,158,11,.05));
+  border:1px solid rgba(245,158,11,.4);
+  border-radius:12px;
+  padding:10px 14px;
+  cursor:pointer;
+  transition:all .15s;
+}
+#resume-banner:active{opacity:.8}
+#resume-banner.vis{display:flex;align-items:center;gap:10px}
 .cnum{font-size:10px;color:var(--muted);min-width:28px;text-align:center;font-weight:700;font-family:'JetBrains Mono',monospace}
 .cinfo{flex:1;min-width:0}
 .cname{font-size:13px;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -397,7 +425,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     </div>
     <div class="form-row">
       <label class="form-label">Password</label>
-      <input type="password" id="login-pass" class="form-input" placeholder="••••••••" autocomplete="current-password">
+      <div style="position:relative;display:flex;align-items:center">
+        <input type="password" id="login-pass" class="form-input" placeholder="••••••••" autocomplete="current-password" style="padding-right:46px">
+        <button type="button" onclick="togglePass()" id="pass-eye"
+          style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:17px;padding:5px;color:var(--muted);line-height:1;transition:color .15s"
+          title="Show / hide password">👁️</button>
+      </div>
     </div>
     <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign In →</button>
     <div class="setup-note" style="margin-top:10px;color:var(--danger)" id="login-err"></div>
@@ -650,6 +683,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <button class="ftab" data-f="pending" onclick="setFilter('pending',this)">⏳ Pending</button>
     <button class="ftab" data-f="successful" onclick="setFilter('successful',this)">✅ Successful</button>
     <button class="ftab" data-f="failed" onclick="setFilter('failed',this)">❌ Other</button>
+  </div>
+
+  <!-- Resume banner — shown when a saved position exists -->
+  <div id="resume-banner" onclick="resumeFromLastPosition()">
+    <div style="font-size:22px;line-height:1">📍</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:12px;font-weight:800;color:#f59e0b;margin-bottom:1px">Continue where you left off</div>
+      <div style="font-size:11px;color:var(--muted)" id="resume-desc">Loading…</div>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:#f59e0b;white-space:nowrap">Go ▶</div>
   </div>
 
   <div class="clist" id="clist"></div>
@@ -938,9 +981,16 @@ drop policy if exists "alter_log_insert"     on public.status_alter_log;
 create policy "settings_read" on public.settings
   for select using (auth.role() = 'authenticated');
 
--- Only admins can write settings
+-- Only admins can write shared settings (custom_statuses, etc.)
 create policy "settings_admin_write" on public.settings
   for all using (public.is_admin());
+
+-- Any authenticated user can write their OWN resume position
+-- (key = 'resume_<their-user-id>')
+drop policy if exists "settings_self_resume" on public.settings;
+create policy "settings_self_resume" on public.settings
+  for all using (key = 'resume_' || auth.uid()::text)
+  with check (key = 'resume_' || auth.uid()::text);
 
 -- ------------------------------------------------
 -- 10. STATUS ALTER LOG TABLE
@@ -1071,6 +1121,82 @@ let alterCountMap     = new Map();  // contact_id → number of times status was
 let alteredTodayCount = 0; // from DB via get_sheet_stats altered_today column
 let totalCallsAllTime = 0; // from get_total_calls()
 let totalAlteredAllTime = 0; // total altered entries ever, from get_total_calls()
+let lastResumeContactId = null; // last contact opened — for resume marker
+
+// ============================================================
+// RESUME POSITION — single marker, DB-persisted across devices
+// ============================================================
+async function saveResumePosition(contactId) {
+  if (!currentUser || !contactId) return;
+  // Bust the OLD resume card so its class is removed from cache
+  if (lastResumeContactId && lastResumeContactId !== contactId) {
+    invalidateCardCache(lastResumeContactId);
+  }
+  lastResumeContactId = contactId;
+  // Bust new card cache so it gets the s-resume class freshly
+  invalidateCardCache(contactId);
+  // Persist to Supabase so it works from any device/browser
+  try {
+    await sb.from('settings').upsert({
+      key: 'resume_' + currentUser.id,
+      value: { contact_id: contactId, saved_at: new Date().toISOString() },
+      updated_at: new Date().toISOString(),
+      updated_by: currentUser.id
+    }, { onConflict: 'key' });
+  } catch(e) { /* non-critical */ }
+}
+
+async function loadResumePosition() {
+  if (!currentUser) return;
+  try {
+    const { data } = await sb.from('settings')
+      .select('value').eq('key', 'resume_' + currentUser.id).single();
+    if (data?.value?.contact_id) {
+      // Clear any stale cached card that might have s-resume from a previous session
+      if (lastResumeContactId) invalidateCardCache(lastResumeContactId);
+      lastResumeContactId = data.value.contact_id;
+      // Bust this card's cache so it renders with the marker
+      invalidateCardCache(lastResumeContactId);
+      updateResumeBanner();
+      // Re-render so marker appears immediately
+      if (document.getElementById('calllist-screen')?.classList.contains('active')) {
+        renderList();
+      }
+    }
+  } catch(e) { /* no saved position yet */ }
+}
+
+function updateResumeBanner() {
+  const banner = document.getElementById('resume-banner');
+  const desc   = document.getElementById('resume-desc');
+  if (!banner) return;
+  if (!lastResumeContactId) { banner.classList.remove('vis'); return; }
+  const c = allContacts.find(c => c.id === lastResumeContactId);
+  if (!c) { banner.classList.remove('vis'); return; }
+  banner.classList.add('vis');
+  desc.textContent = `#${c.row_num} · ${c.name || 'Unknown'} · ${c.call_status || 'Pending'}`;
+}
+
+function resumeFromLastPosition() {
+  if (!lastResumeContactId) return;
+  const c = allContacts.find(c => c.id === lastResumeContactId);
+  if (!c) { toast('Contact not found', 'warn'); return; }
+  // Scroll to the card, then open it
+  openSh(c.id);
+  // After returning from status screen, scroll to it
+  setTimeout(() => scrollToContact(lastResumeContactId), 300);
+}
+
+function scrollToContact(cid) {
+  // Find the card in the DOM and scroll it into view
+  const cards = document.querySelectorAll('#clist .ccard');
+  for (const card of cards) {
+    if (card.getAttribute('onclick')?.includes(cid)) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      break;
+    }
+  }
+}
 
 // ============================================================
 // INIT
@@ -1132,6 +1258,16 @@ async function loadUserAndRoute(user) {
 // ============================================================
 // SUPABASE AUTH
 // ============================================================
+function togglePass() {
+  const inp = document.getElementById('login-pass');
+  const btn = document.getElementById('pass-eye');
+  if (!inp) return;
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁️';
+  btn.style.color = show ? 'var(--accent2)' : 'var(--muted)';
+}
+
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
@@ -1365,7 +1501,9 @@ async function loadEnumeratorData() {
     animateLoader(82, 100, 350, () => {
       hideLoader();
       showDash();
-      // Background: load alter counts and remaining contacts
+      // Background: load alter counts, remaining contacts, and resume position
+      loadResumePosition(); // non-blocking — will bust cache and re-render when ready
+      _cardCache.clear();   // clear any stale cached cards from previous session
       sb.from('status_alter_log').select('contact_id').eq('sheet_name', sheet)
         .then(({ data: alLogs }) => {
           if (alLogs?.length) {
@@ -1844,7 +1982,8 @@ const _cardCache = new Map(); // id → html string
 function _buildCard(c) {
   const isOk  = c.call_status === 'Successful';
   const hasSt = !!c.call_status;
-  const cls   = isOk ? 's-ok' : (hasSt ? 's-done' : '');
+  const isResume = c.id === lastResumeContactId;
+  const cls   = isResume ? 's-resume' : (isOk ? 's-ok' : (hasSt ? 's-done' : ''));
   const bcls  = isOk ? 'b-ok' : (hasSt ? 'b-fail' : 'b-pend');
   const label = c.call_status || 'Pending';
   const altCnt = alterCountMap.get(c.id) || 0;
@@ -1896,24 +2035,24 @@ let _renderToken = 0;
 function renderList() {
   const rows = filteredContacts();
   const list = document.getElementById('clist');
+  updateResumeBanner(); // refresh banner
+
   if (!rows.length) {
     list.innerHTML = `<div class="empty"><div class="empty-ico">🔍</div>No contacts match</div>`;
     return;
   }
 
-  const token = ++_renderToken; // cancel any in-progress render
-  const FIRST = 60;             // rows to paint immediately
-  const CHUNK = 200;            // rows per background chunk
+  const token = ++_renderToken;
+  const FIRST = 60;
+  const CHUNK = 200;
 
-  // Paint first batch synchronously — user sees list instantly
   list.innerHTML = rows.slice(0, FIRST).map(getCard).join('');
 
   if (rows.length <= FIRST) return;
 
-  // Append remaining in idle chunks so UI stays responsive
   let offset = FIRST;
   function appendChunk() {
-    if (_renderToken !== token) return; // superseded
+    if (_renderToken !== token) return;
     const slice = rows.slice(offset, offset + CHUNK);
     if (!slice.length) return;
     list.insertAdjacentHTML('beforeend', slice.map(getCard).join(''));
@@ -1934,6 +2073,8 @@ function openSh(cid) {
   statusNavList = filteredContacts();
   const btn = document.getElementById('back-to-list-btn');
   if (btn) btn.classList.remove('btn-back-active');
+  // Save resume position — saveResumePosition handles cache busting
+  saveResumePosition(cid); // async, non-blocking
   renderStatusScreen();
   // Slide up as overlay — call list stays rendered underneath
   const ss = document.getElementById('status-screen');
@@ -2057,8 +2198,14 @@ function closeStatusScreen(goDash) {
   if (goDash) {
     setTimeout(() => showDash(), 100);
   } else {
-    // Refresh list immediately so updated status is visible
+    // Bust resume card cache so highlight shows correctly
+    if (lastResumeContactId) invalidateCardCache(lastResumeContactId);
     renderList(); renderMini(); renderClSummary();
+    // Scroll to the resume card after render
+    setTimeout(() => {
+      const el = document.querySelector('#clist .ccard.s-resume');
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+    }, 250);
   }
 }
 
@@ -2541,27 +2688,43 @@ async function exportAdminExcel() {
     });
 
     const wb   = XLSX.utils.book_new();
-    const hdr  = ['DB ID','#','Name','Gender','Teen Mum','Phone Number','National ID','Year of Birth','PWDs','Refugee','Ward','County','Call Status','Last Updated','Altered'];
-    const cols = [{wch:10},{wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},{wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18},{wch:22},{wch:12}];
+    const hdr  = ['#', 'Name', 'Phone Number', 'Gender', 'County', 'Ward', 'Year of Birth', 'National ID', 'Teen Mum', 'PWDs', 'Refugee', 'Call Status', 'Last Updated', 'Altered'];
+    const cols = [
+      {wch:7},  // #
+      {wch:28}, // Name
+      {wch:16}, // Phone
+      {wch:9},  // Gender
+      {wch:16}, // County
+      {wch:22}, // Ward
+      {wch:8},  // YOB
+      {wch:15}, // National ID
+      {wch:10}, // Teen Mum
+      {wch:7},  // PWDs
+      {wch:9},  // Refugee
+      {wch:18}, // Call Status
+      {wch:22}, // Last Updated
+      {wch:9},  // Altered
+    ];
 
     const STATUS_BG = {
-      'Successful':    'C6EFCE',
-      'Not Reachable': 'FFCCCC',
-      'No Answer':     'FFCCCC',
-      'Wrong Number':  'FFCCCC',
-      'Out of Service':'FFCCCC',
-      'Did Not Attend':'FFF2CC',
-      'Call Later':    'FFF2CC',
+      'Successful':    'D1FAE5',
+      'Not Reachable': 'FEE2E2',
+      'No Answer':     'FEE2E2',
+      'Wrong Number':  'FEE2E2',
+      'Out of Service':'FEE2E2',
+      'Did Not Attend':'FEF3C7',
+      'Call Later':    'FEF3C7',
     };
 
     const sortedSheets = Object.keys(sheets).sort();
 
-    // Summary sheet
+    // Summary sheet with styled header
     setExportPct(80, 'Building summary…', '');
+    const summaryHdr = ['Enumerator', 'Total Contacts', 'Logged', 'Successful', 'Pending', 'Other', 'Completion %'];
     const summaryData = [
-      ['SHOFCO Survey — Full Export', '', '', '', `Generated: ${new Date().toLocaleString()}`],
+      [`SHOFCO Survey — Full Export   Generated: ${new Date().toLocaleString()}`, '', '', '', '', '', ''],
       [],
-      ['Enumerator', 'Total Contacts', 'Logged', 'Successful', 'Pending', 'Other', 'Completion %'],
+      summaryHdr,
     ];
     sortedSheets.forEach(sn => {
       const rows    = sheets[sn];
@@ -2574,7 +2737,13 @@ async function exportAdminExcel() {
         total ? Math.round(logged / total * 100) + '%' : '0%']);
     });
     const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
-    summaryWs['!cols'] = [{wch:18},{wch:16},{wch:10},{wch:12},{wch:10},{wch:10},{wch:14}];
+    summaryWs['!cols'] = [{wch:20},{wch:16},{wch:10},{wch:12},{wch:10},{wch:10},{wch:14}];
+    // Style summary header row (row index 2)
+    summaryHdr.forEach((_, ci) => {
+      const ref = XLSX.utils.encode_cell({r:2, c:ci});
+      if (!summaryWs[ref]) summaryWs[ref] = { t:'s', v: summaryHdr[ci] };
+      summaryWs[ref].s = { font:{bold:true,color:{rgb:'FFFFFF'}}, fill:{fgColor:{rgb:'1e3a5f'}}, alignment:{horizontal:'center'} };
+    });
     XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
 
     // One sheet per enumerator — 80–95%
@@ -2584,14 +2753,33 @@ async function exportAdminExcel() {
 
       const rows = sheets[sn];
       const data = [hdr, ...rows.map(r => [
-        r.id, r.row_num, r.name, r.gender, r.teen_mum,
-        r.phone, r.national_id, r.yob, r.pwds, r.refugee,
-        r.ward, r.county, r.call_status || '',
+        r.row_num,
+        r.name || '',
+        r.phone || '',
+        r.gender || '',
+        r.county || '',
+        r.ward || '',
+        r.yob || '',
+        r.national_id || '',
+        r.teen_mum || '',
+        r.pwds || '',
+        r.refugee || '',
+        r.call_status || '',
         r.updated_at ? new Date(r.updated_at).toLocaleString() : '',
-        (() => { const n = adminAlterMap.get(r.id) || 0; return n > 0 ? `Yes ×${n}` : (r.call_status ? 'No' : 'Pending'); })()
+        (() => { const n = adminAlterMap.get(r.id) || 0; return n > 0 ? `Yes ×${n}` : (r.call_status ? 'No' : '—'); })()
       ])];
       const ws = XLSX.utils.aoa_to_sheet(data);
       ws['!cols'] = cols;
+      ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+      // Uniform row heights: header 22px, all data rows 18px
+      ws['!rows'] = [{ hpx: 22 }, ...rows.map(() => ({ hpx: 18 }))];
+      // Bold dark header row
+      hdr.forEach((_, ci) => {
+        const ref = XLSX.utils.encode_cell({r:0, c:ci});
+        if (!ws[ref]) ws[ref] = { t:'s', v: hdr[ci] };
+        ws[ref].s = { font:{bold:true,color:{rgb:'FFFFFF'}}, fill:{fgColor:{rgb:'1e3a5f'}}, alignment:{horizontal:'center',wrapText:false} };
+      });
+      // Row colour coding
       rows.forEach((r, ri) => {
         const bg = STATUS_BG[r.call_status] || (r.call_status ? 'E8E8F4' : null);
         if (bg) {
@@ -2658,36 +2846,99 @@ function exportExcel() {
       });
 
       const wb = XLSX.utils.book_new();
-      const hdr = ['DB ID','#','Name','Gender','Teen Mum','Phone Number','National ID','Year of Birth','PWDs','Refugee','Ward','County','Call Status','Last Updated','Altered'];
+      // Clean headers — no duplicate DB ID column, proper readable names
+      const hdr = ['#', 'Name', 'Phone Number', 'Gender', 'County', 'Ward', 'Year of Birth', 'National ID', 'Teen Mum', 'PWDs', 'Refugee', 'Call Status', 'Last Updated', 'Altered'];
+
+      // Column widths matched to content
+      const cols = [
+        {wch:7},  // #
+        {wch:28}, // Name
+        {wch:16}, // Phone
+        {wch:9},  // Gender
+        {wch:16}, // County
+        {wch:22}, // Ward
+        {wch:8},  // YOB
+        {wch:15}, // National ID
+        {wch:10}, // Teen Mum
+        {wch:7},  // PWDs
+        {wch:9},  // Refugee
+        {wch:18}, // Call Status
+        {wch:22}, // Last Updated
+        {wch:9},  // Altered
+      ];
 
       Object.entries(sheets).forEach(([sn, rows]) => {
         rows.sort((a,b) => a.row_num - b.row_num);
         const data = [hdr, ...rows.map(r => [
-          r.id, r.row_num, r.name, r.gender, r.teen_mum,
-          r.phone, r.national_id, r.yob, r.pwds, r.refugee,
-          r.ward, r.county, r.call_status||'',
+          r.row_num,
+          r.name || '',
+          r.phone || '',
+          r.gender || '',
+          r.county || '',
+          r.ward || '',
+          r.yob || '',
+          r.national_id || '',
+          r.teen_mum || '',
+          r.pwds || '',
+          r.refugee || '',
+          r.call_status || '',
           r.updated_at ? new Date(r.updated_at).toLocaleString() : '',
-          (() => { const n = alterCountMap.get(r.id) || 0; return n > 0 ? `Yes ×${n}` : (r.call_status ? 'No' : 'Pending'); })()
+          (() => { const n = alterCountMap.get(r.id) || 0; return n > 0 ? `Yes ×${n}` : (r.call_status ? 'No' : '—'); })()
         ])];
+
         const ws = XLSX.utils.aoa_to_sheet(data);
-        ws['!cols'] = [{wch:10},{wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},{wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18},{wch:22},{wch:8}];
-        rows.forEach((r,ri) => {
-          const bg = r.call_status === 'Successful' ? 'C6EFCE' : alteredContactIds.has(r.id) ? 'E8D5FF' : null;
+        ws['!cols'] = cols;
+
+        // Freeze top row + bold header
+        ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+        // Uniform row heights: header 22px, all data rows 18px
+        ws['!rows'] = [{ hpx: 22 }, ...rows.map(() => ({ hpx: 18 }))];
+        hdr.forEach((_, ci) => {
+          const ref = XLSX.utils.encode_cell({r:0, c:ci});
+          if (!ws[ref]) ws[ref] = { t:'s', v: hdr[ci] };
+          ws[ref].s = {
+            font: { bold: true, color: { rgb: 'FFFFFF' } },
+            fill: { fgColor: { rgb: '1e3a5f' } },
+            alignment: { horizontal: 'center', vertical: 'center', wrapText: false }
+          };
+        });
+
+        // Row colour coding
+        const STATUS_BG = {
+          'Successful':     'D1FAE5', // green
+          'Not Reachable':  'FEE2E2', // red
+          'No Answer':      'FEE2E2',
+          'Wrong Number':   'FEE2E2',
+          'Out of Service': 'FEE2E2',
+          'Did Not Attend': 'FEF3C7', // yellow
+          'Call Later':     'FEF3C7',
+        };
+        rows.forEach((r, ri) => {
+          const bg = STATUS_BG[r.call_status] || (alteredContactIds.has(r.id) ? 'EDE9FE' : null);
           if (bg) {
-            hdr.forEach((_,ci) => {
-              const ref = XLSX.utils.encode_cell({r:ri+1,c:ci});
-              if (ws[ref]) ws[ref].s = { fill:{ fgColor:{rgb:bg} } };
+            hdr.forEach((_, ci) => {
+              const ref = XLSX.utils.encode_cell({r: ri+1, c: ci});
+              if (!ws[ref]) ws[ref] = { t:'s', v:'' };
+              ws[ref].s = { fill: { fgColor: { rgb: bg } } };
             });
           }
         });
-        XLSX.utils.book_append_sheet(wb, ws, sn);
+
+        XLSX.utils.book_append_sheet(wb, ws, sn.slice(0,31));
       });
 
       // Stop animation and jump to 100
       if (_exportAnimId) cancelAnimationFrame(_exportAnimId);
       setExportPct(100, 'Done!', contacts.length.toLocaleString() + ' records exported');
 
-      const fn = `Call_Status_${todayStr()}.xlsx`;
+      // Sequential counter per enumerator stored in localStorage
+      const enumName = (userProfile?.assigned_sheet || userProfile?.full_name || 'Export').replace(/\s+/g,'_');
+      const countKey = 'export_count_' + (currentUser?.id || 'anon');
+      const count = (parseInt(localStorage.getItem(countKey) || '0', 10) + 1);
+      localStorage.setItem(countKey, count);
+      const countStr = String(count).padStart(3, '0');
+      const fn = `${enumName}_CallList_${countStr}.xlsx`;
+
       setTimeout(() => {
         XLSX.writeFile(wb, fn);
         hideExportLoader();
