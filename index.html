@@ -243,7 +243,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .toast.ok-toast{background:#14532d;color:#86efac;border-color:#166534}
 .toast.warn-toast{background:#451a03;color:#fdba74;border-color:#78350f}
 .toast.err-toast{background:#450a0a;color:#fca5a5;border-color:#7f1d1d}
-#status-screen.active{display:flex;flex-direction:column}
 
 /* ============ LOADING OVERLAY ============ */
 .full-loader{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:500;transition:opacity .15s}
@@ -281,13 +280,61 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   .cl-summary-grid{grid-template-columns:repeat(5,1fr)}
 }
 
+/* ============ STATUS SCREEN — slide-up overlay ============ */
+#status-screen{
+  display:none;
+  position:fixed;inset:0;
+  z-index:300;
+  background:var(--bg);
+  flex-direction:column;
+  transform:translateY(100%);
+  transition:transform .18s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
+  /* Must NOT have overflow:hidden so bbar can be fixed */
+}
+#status-screen.active{
+  display:flex;
+  transform:translateY(0);
+}
+#status-screen .ss-content{
+  flex:1;
+  overflow-y:auto;
+  /* bottom padding = bbar height so content not hidden */
+  padding-bottom:90px;
+  /* Allow content to scroll freely */
+  -webkit-overflow-scrolling:touch;
+}
+/* Floating bbar inside the overlay — z-index above the overlay */
+.ss-bbar{
+  position:fixed !important;
+  bottom:0;left:0;right:0;
+  background:rgba(10,16,28,0.97) !important;
+  backdrop-filter:blur(24px) !important;
+  -webkit-backdrop-filter:blur(24px) !important;
+  border-top:1.5px solid rgba(59,125,216,.35) !important;
+  padding:10px 12px max(14px,env(safe-area-inset-bottom)) !important;
+  display:flex !important;
+  gap:8px !important;
+  z-index:400 !important;
+  box-shadow:0 -6px 32px rgba(0,0,0,.6) !important;
+}
+.ss-bbar .btn-sm{
+  flex:1 !important;
+  justify-content:center !important;
+  min-height:52px !important;
+  font-size:13px !important;
+  font-weight:700 !important;
+  padding:12px 6px !important;
+  border-radius:14px !important;
+  text-align:center !important;
+}
 /* Back to List — stays highlighted once pressed */
 .btn-back-active{background:rgba(59,125,216,.22) !important;border-color:var(--accent) !important;color:var(--accent2) !important;box-shadow:0 0 0 2px rgba(59,125,216,.25)}
 
 /* Screens fade in */
 .screen.active{display:block;animation:screenIn .1s ease both}
 @keyframes screenIn{from{opacity:.7}to{opacity:1}}
-#status-screen.active{display:flex;flex-direction:column;animation:screenIn .08s ease both}
+/* status-screen is an overlay — managed by its own CSS above */
 
 /* Smoother loader percentage count-up */
 .loader-pct{font-size:30px;font-weight:900;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;transition:color .3s;font-feature-settings:'tnum'}
@@ -615,51 +662,50 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="sync-dot" id="ss-sync-dot" title="Sync status" style="width:14px;height:14px"></div>
   </div>
 
-  <!-- Contact info -->
-  <div style="padding:12px 14px 10px;border-bottom:1px solid var(--border);background:var(--surface)">
-    <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px">
-      <div style="font-size:18px;font-weight:900;letter-spacing:-.3px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="ss-name"></div>
-      <button onclick="copyToClip('name')" title="Copy name" style="flex-shrink:0;background:var(--surface3);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--accent)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">📋 Name</button>
-      <button onclick="copyToClip('phone')" title="Copy phone" style="flex-shrink:0;background:var(--surface3);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--accent)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">📋 Phone</button>
+  <!-- Scrollable content -->
+  <div class="ss-content">
+    <!-- Contact info -->
+    <div style="padding:12px 14px 10px;border-bottom:1px solid var(--border);background:var(--surface)">
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px">
+        <div style="font-size:18px;font-weight:900;letter-spacing:-.3px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="ss-name"></div>
+        <button onclick="copyToClip('name')" title="Copy name" style="flex-shrink:0;background:var(--surface3);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--accent)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">📋 Name</button>
+        <button onclick="copyToClip('phone')" title="Copy phone" style="flex-shrink:0;background:var(--surface3);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--accent)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">📋 Phone</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-bottom:8px" id="ss-info-grid"></div>
+      <div id="ss-cur-status" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border)">No status yet</div>
+      <span id="ss-altered-badge" style="display:none;margin-left:7px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(168,85,247,.18);color:#c084fc;border:1px solid rgba(168,85,247,.35)">🔄 Altered <span id="ss-altered-count"></span></span>
     </div>
-    <!-- Detailed info grid -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-bottom:8px" id="ss-info-grid">
-      <!-- filled by renderStatusScreen -->
+
+    <!-- Call & Survey actions -->
+    <div style="display:flex;gap:7px;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border)">
+      <a id="ss-call-btn" href="#" class="btn-call" style="flex:1">📞 Call Now</a>
+      <button class="btn-survey" onclick="openSurvey()" style="flex:1">📋 Open Survey</button>
     </div>
-    <div id="ss-cur-status" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border)">No status yet</div>
-    <span id="ss-altered-badge" style="display:none;margin-left:7px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(168,85,247,.18);color:#c084fc;border:1px solid rgba(168,85,247,.35)">🔄 Altered <span id="ss-altered-count"></span></span>
-  </div>
 
-  <!-- Call & Survey actions -->
-  <div style="display:flex;gap:7px;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border)">
-    <a id="ss-call-btn" href="#" class="btn-call" style="flex:1">📞 Call Now</a>
-    <button class="btn-survey" onclick="openSurvey()" style="flex:1">📋 Open Survey</button>
-  </div>
-
-  <!-- Status buttons — scrollable -->
-  <div style="overflow-y:auto;flex:1;padding-bottom:24px">
+    <!-- Status buttons -->
     <div class="sgrid" style="padding-top:8px" id="builtin-sgrid">
-      <button class="sbtn ok"   id="sbtn-Successful"    onclick="setSt('Successful')"><span class="sbtn-ico">✅</span>Successful</button>
-      <button class="sbtn fail" id="sbtn-Not Reachable" onclick="setSt('Not Reachable')"><span class="sbtn-ico">📵</span>Not Reachable</button>
-      <button class="sbtn fail" id="sbtn-No Answer"     onclick="setSt('No Answer')"><span class="sbtn-ico">🔕</span>No Answer</button>
-      <button class="sbtn fail" id="sbtn-Wrong Number"  onclick="setSt('Wrong Number')"><span class="sbtn-ico">🔢</span>Wrong Number</button>
+      <button class="sbtn ok"   id="sbtn-Successful"     onclick="setSt('Successful')"><span class="sbtn-ico">✅</span>Successful</button>
+      <button class="sbtn fail" id="sbtn-Not Reachable"  onclick="setSt('Not Reachable')"><span class="sbtn-ico">📵</span>Not Reachable</button>
+      <button class="sbtn fail" id="sbtn-No Answer"      onclick="setSt('No Answer')"><span class="sbtn-ico">🔕</span>No Answer</button>
+      <button class="sbtn fail" id="sbtn-Wrong Number"   onclick="setSt('Wrong Number')"><span class="sbtn-ico">🔢</span>Wrong Number</button>
       <button class="sbtn fail" id="sbtn-Out of Service" onclick="setSt('Out of Service')"><span class="sbtn-ico">⛔</span>Out of Service</button>
       <button class="sbtn warn" id="sbtn-Did Not Attend" onclick="setSt('Did Not Attend')"><span class="sbtn-ico">🚶</span>Did Not Attend</button>
-      <button class="sbtn warn" id="sbtn-Call Later"    onclick="setSt('Call Later')"><span class="sbtn-ico">📅</span>Call Later</button>
+      <button class="sbtn warn" id="sbtn-Call Later"     onclick="setSt('Call Later')"><span class="sbtn-ico">📅</span>Call Later</button>
     </div>
 
-    <!-- Custom statuses — editable by all -->
+    <!-- Custom statuses -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 13px 2px">
       <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">⭐ Custom Statuses</div>
       <button onclick="openCustomStatusEditor()" style="background:var(--surface3);border:1px solid var(--border);color:var(--accent2);border-radius:6px;padding:3px 9px;font-size:10px;cursor:pointer;font-family:var(--font)">✏️ Edit</button>
     </div>
     <div class="sgrid" id="custom-sgrid"></div>
+  </div>
 
-    <!-- Clear + Close -->
-    <div style="padding:4px 13px 6px;display:flex;gap:7px">
-      <button class="btn-sm" style="flex:1;justify-content:center" onclick="setSt('')">🗑️ Clear Status</button>
-      <button class="btn-sm" id="back-to-list-btn" style="flex:1;justify-content:center;font-weight:700" onclick="backToListPressed()">← Back to List</button>
-    </div>
+  <!-- Floating bottom bar: 3 buttons -->
+  <div class="ss-bbar">
+    <button class="btn-sm" onclick="setSt('')">🗑️ Clear</button>
+    <button class="btn-sm" id="back-to-list-btn" style="font-weight:700" onclick="backToListPressed()">← Call List</button>
+    <button class="btn-sm" style="background:rgba(59,125,216,.15);border-color:rgba(59,125,216,.4);color:var(--accent2)" onclick="backToDashboard()">◀ Dashboard</button>
   </div>
 </div>
 
@@ -1522,11 +1568,12 @@ function subscribeRealtimeAdmin() {
 // ============================================================
 // SCREEN MANAGEMENT — zero-delay instant switching
 // ============================================================
-const SCREENS = ['setup-screen','dashboard-screen','admin-screen','calllist-screen','status-screen'];
+// status-screen is a fixed overlay managed separately — excluded from showScr
+const SCREENS = ['setup-screen','dashboard-screen','admin-screen','calllist-screen'];
 function showScr(id) {
   SCREENS.forEach(sid => {
     const el = document.getElementById(sid);
-    if (el) el.className = el.className.replace(' active','').replace('active','').trim() + (sid === id ? ' active' : '');
+    if (el) el.className = el.className.replace(/\bactive\b/g,'').trim() + (sid === id ? ' active' : '');
   });
   window.scrollTo(0, 0);
 }
@@ -1550,11 +1597,17 @@ function openMyList() {
   document.getElementById('srch').value = '';
   document.querySelectorAll('.ftab').forEach(t => t.classList.toggle('active', t.dataset.f === 'all'));
   document.getElementById('cl-title').textContent = (userProfile?.assigned_sheet || 'My') + "'s List";
-  showScr('calllist-screen');
-  renderMini();
-  renderClSummary();
-  renderTodayStrip();
-  renderList();
+
+  // Show loader counting 1→100, then open list instantly at 100
+  setLoader('Opening Call List…', 1);
+  animateLoader(1, 100, 320, () => {
+    hideLoader();
+    showScr('calllist-screen');
+    renderMini();
+    renderClSummary();
+    renderTodayStrip();
+    renderList();
+  });
 }
 
 // ============================================================
@@ -1710,39 +1763,84 @@ function renderTodayPills() {
 }
 
 // ============================================================
-// CALL LIST
+// CALL LIST — fast cached stats + chunked rendering
 // ============================================================
+
+// Cache: recomputed only when allContacts changes (status update, realtime)
+let _statsCache = null;
+function invalidateStatsCache() { _statsCache = null; }
+
+function getStats() {
+  if (_statsCache) return _statsCache;
+  let total = 0, pend = 0, ok = 0, fail = 0;
+  const today = todayStr();
+  const todayCounts = {};
+  const n = allContacts.length;
+  for (let i = 0; i < n; i++) {
+    const c = allContacts[i];
+    total++;
+    const st = c.call_status || '';
+    if (!st) { pend++; }
+    else if (st === 'Successful') { ok++; }
+    else { fail++; }
+    if (c.updated_at && c.updated_at.slice(0,10) === today && st) {
+      todayCounts[st] = (todayCounts[st] || 0) + 1;
+    }
+  }
+  _statsCache = { total, pend, ok, fail, altered: alteredContactIds.size, todayCounts };
+  return _statsCache;
+}
+
 function renderClSummary() {
-  const t       = allContacts.length;
-  const pend    = allContacts.filter(c => !c.call_status).length;
-  const ok      = allContacts.filter(c => c.call_status === 'Successful').length;
-  const fail    = allContacts.filter(c => c.call_status && c.call_status !== 'Successful').length;
-  const altered = alteredContactIds.size;
-  document.getElementById('cls-total').textContent   = t.toLocaleString();
-  document.getElementById('cls-pend').textContent    = pend.toLocaleString();
-  document.getElementById('cls-ok').textContent      = ok.toLocaleString();
-  document.getElementById('cls-altered').textContent = altered.toLocaleString();
-  document.getElementById('cls-fail').textContent    = fail.toLocaleString();
+  const s = getStats();
+  document.getElementById('cls-total').textContent   = s.total.toLocaleString();
+  document.getElementById('cls-pend').textContent    = s.pend.toLocaleString();
+  document.getElementById('cls-ok').textContent      = s.ok.toLocaleString();
+  document.getElementById('cls-altered').textContent = s.altered.toLocaleString();
+  document.getElementById('cls-fail').textContent    = s.fail.toLocaleString();
 }
 
 function renderTodayStrip() {
-  const today = todayStr();
-  const tRows = allContacts.filter(c => c.updated_at && c.updated_at.slice(0,10) === today && c.call_status);
-  if (!tRows.length) {
+  const { todayCounts } = getStats();
+  const total = Object.values(todayCounts).reduce((a,b)=>a+b,0);
+  if (!total) {
     document.getElementById('today-strip').innerHTML = '<div class="ts-pill"><span class="ts-ico">📅</span><span class="ts-lbl">No calls logged today yet</span></div>';
     return;
   }
-  const counts = {};
-  tRows.forEach(c => { counts[c.call_status] = (counts[c.call_status] || 0) + 1; });
-  const html = Object.entries(counts).map(([s,n]) =>
-    `<div class="ts-pill">
-      <span class="ts-ico">${STATUS_ICONS[s] || '🔵'}</span>
-      <span class="ts-lbl">${esc(s)}</span>
-      <span class="ts-cnt">${n}</span>
-    </div>`
+  const pills = Object.entries(todayCounts).map(([s,n]) =>
+    `<div class="ts-pill"><span class="ts-ico">${STATUS_ICONS[s]||'🔵'}</span><span class="ts-lbl">${esc(s)}</span><span class="ts-cnt">${n}</span></div>`
   ).join('');
   document.getElementById('today-strip').innerHTML =
-    `<div class="ts-pill" style="border-color:var(--accent)33"><span class="ts-cnt" style="color:var(--accent2)">${tRows.length}</span><span class="ts-lbl">today</span></div>` + html;
+    `<div class="ts-pill" style="border-color:var(--accent)33"><span class="ts-cnt" style="color:var(--accent2)">${total}</span><span class="ts-lbl">today</span></div>` + pills;
+}
+
+function renderMini() {
+  const s = getStats();
+  document.getElementById('mini-stats').innerHTML =
+    `<div class="ms-item"><div class="dot" style="background:var(--muted)"></div>${s.total.toLocaleString()} total</div>
+     <div class="ms-item"><div class="dot" style="background:var(--accent2)"></div>${s.pend.toLocaleString()} pending</div>
+     <div class="ms-item"><div class="dot" style="background:var(--green)"></div>${s.ok.toLocaleString()} successful</div>
+     <div class="ms-item"><div class="dot" style="background:var(--danger)"></div>${s.fail.toLocaleString()} other</div>`;
+}
+
+// Pre-build card HTML per contact (cached, rebuilt only on status change)
+const _cardCache = new Map(); // id → html string
+function _buildCard(c) {
+  const isOk  = c.call_status === 'Successful';
+  const hasSt = !!c.call_status;
+  const cls   = isOk ? 's-ok' : (hasSt ? 's-done' : '');
+  const bcls  = isOk ? 'b-ok' : (hasSt ? 'b-fail' : 'b-pend');
+  const label = c.call_status || 'Pending';
+  const altCnt = alterCountMap.get(c.id) || 0;
+  const altChip = altCnt > 0
+    ? `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;background:rgba(168,85,247,.18);color:#c084fc;border:1px solid rgba(168,85,247,.35);white-space:nowrap;margin-right:4px">alt×${altCnt}</span>`
+    : '';
+  return `<div class="ccard ${cls}" onclick="openSh(${c.id})"><div class="cnum">${c.row_num}</div><div class="cinfo"><div class="cname">${esc(c.name||'')}</div><div class="cdet">📱 ${esc(c.phone||'')} · 📍 ${esc(c.county||'')}, ${esc(c.ward||'')}</div></div>${altChip}<div class="cbadge ${bcls}">${esc(label)}</div></div>`;
+}
+function invalidateCardCache(id) { _cardCache.delete(id); }
+function getCard(c) {
+  if (!_cardCache.has(c.id)) _cardCache.set(c.id, _buildCard(c));
+  return _cardCache.get(c.id);
 }
 
 function setFilter(f, btn) {
@@ -1777,18 +1875,8 @@ function filteredContacts() {
   return out;
 }
 
-function renderMini() {
-  const t    = allContacts.length;
-  const ok   = allContacts.filter(c => c.call_status === 'Successful').length;
-  const fail = allContacts.filter(c => c.call_status && c.call_status !== 'Successful').length;
-  const pend = allContacts.filter(c => !c.call_status).length;
-  document.getElementById('mini-stats').innerHTML =
-    `<div class="ms-item"><div class="dot" style="background:var(--muted)"></div>${t.toLocaleString()} total</div>
-     <div class="ms-item"><div class="dot" style="background:var(--accent2)"></div>${pend.toLocaleString()} pending</div>
-     <div class="ms-item"><div class="dot" style="background:var(--green)"></div>${ok.toLocaleString()} successful</div>
-     <div class="ms-item"><div class="dot" style="background:var(--danger)"></div>${fail.toLocaleString()} other</div>`;
-}
-
+// Chunked render: show first 60 instantly, append rest in background chunks
+let _renderToken = 0;
 function renderList() {
   const rows = filteredContacts();
   const list = document.getElementById('clist');
@@ -1797,28 +1885,26 @@ function renderList() {
     return;
   }
 
-  // Build HTML for ALL rows but without animation delays for speed
-  const html = rows.map(c => {
-    const isOk  = c.call_status === 'Successful';
-    const hasSt = !!c.call_status;
-    const cls   = isOk ? 's-ok' : (hasSt ? 's-done' : '');
-    const bcls  = isOk ? 'b-ok' : (hasSt ? 'b-fail' : 'b-pend');
-    const label = c.call_status || 'Pending';
-    const altCnt = alterCountMap.get(c.id) || 0;
-    const altChip = altCnt > 0
-      ? `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;background:rgba(168,85,247,.18);color:#c084fc;border:1px solid rgba(168,85,247,.35);white-space:nowrap;margin-right:4px">alt ×${altCnt}</span>`
-      : '';
-    return `<div class="ccard ${cls}" onclick="openSh(${c.id})">
-      <div class="cnum">${c.row_num}</div>
-      <div class="cinfo">
-        <div class="cname">${esc(c.name||'')}</div>
-        <div class="cdet">📱 ${esc(c.phone||'')} · 📍 ${esc(c.county||'')}, ${esc(c.ward||'')}</div>
-      </div>
-      ${altChip}<div class="cbadge ${bcls}">${esc(label)}</div>
-    </div>`;
-  }).join('');
+  const token = ++_renderToken; // cancel any in-progress render
+  const FIRST = 60;             // rows to paint immediately
+  const CHUNK = 200;            // rows per background chunk
 
-  list.innerHTML = html;
+  // Paint first batch synchronously — user sees list instantly
+  list.innerHTML = rows.slice(0, FIRST).map(getCard).join('');
+
+  if (rows.length <= FIRST) return;
+
+  // Append remaining in idle chunks so UI stays responsive
+  let offset = FIRST;
+  function appendChunk() {
+    if (_renderToken !== token) return; // superseded
+    const slice = rows.slice(offset, offset + CHUNK);
+    if (!slice.length) return;
+    list.insertAdjacentHTML('beforeend', slice.map(getCard).join(''));
+    offset += slice.length;
+    if (offset < rows.length) requestIdleCallback ? requestIdleCallback(appendChunk) : setTimeout(appendChunk, 0);
+  }
+  requestIdleCallback ? requestIdleCallback(appendChunk) : setTimeout(appendChunk, 16);
 }
 
 // ============================================================
@@ -1830,11 +1916,16 @@ function openSh(cid) {
   contact = allContacts.find(c => c.id === cid);
   if (!contact) return;
   statusNavList = filteredContacts();
-  // Reset back-to-list button color for new contact
   const btn = document.getElementById('back-to-list-btn');
   if (btn) btn.classList.remove('btn-back-active');
   renderStatusScreen();
-  showScr('status-screen');
+  // Slide up as overlay — call list stays rendered underneath
+  const ss = document.getElementById('status-screen');
+  ss.style.display = 'flex';
+  ss.offsetHeight; // force reflow so CSS transition plays
+  ss.classList.add('active');
+  const sc = ss.querySelector('.ss-content');
+  if (sc) sc.scrollTop = 0;
 }
 
 function renderStatusScreen() {
@@ -1929,7 +2020,7 @@ function goStatusNext() {
     contact = allContacts.find(c => c.id === statusNavList[pos+1].id) || statusNavList[pos+1];
     renderStatusScreen();
   } else {
-    closeStatusScreen(); // reached end of list
+    closeStatusScreen(false); // reached end of list — slide back down
   }
 }
 
@@ -1939,9 +2030,20 @@ function backToListPressed() {
   closeStatusScreen();
 }
 
-function closeStatusScreen() {
-  showScr('calllist-screen');
-  renderList(); renderMini(); renderClSummary();
+function backToDashboard() {
+  closeStatusScreen(true);
+}
+
+function closeStatusScreen(goDash) {
+  const ss = document.getElementById('status-screen');
+  ss.classList.remove('active');
+  setTimeout(() => { ss.style.display = 'none'; }, 190);
+  if (goDash) {
+    setTimeout(() => showDash(), 100);
+  } else {
+    // Refresh counts while sliding down
+    requestAnimationFrame(() => { renderMini(); renderClSummary(); });
+  }
 }
 
 function closeSh(e) {} // kept for compat
@@ -2506,41 +2608,74 @@ function exportExcel() {
   const contacts = userProfile?.role === 'admin' ? adminData.contacts : allContacts;
   if (!contacts.length) { toast('No data loaded', 'warn'); return; }
 
-  const sheets = {};
-  contacts.forEach(c => {
-    if (!sheets[c.sheet_name]) sheets[c.sheet_name] = [];
-    sheets[c.sheet_name].push(c);
-  });
+  // Show export loader counting 1→100
+  showExportLoader();
+  setExportPct(1, 'Preparing data…', '');
 
-  const wb = XLSX.utils.book_new();
-  const hdr = ['DB ID','#','Name','Gender','Teen Mum','Phone Number','National ID','Year of Birth','PWDs','Refugee','Ward','County','Call Status','Last Updated','Altered'];
+  let _exportAnimId = null;
+  const startTime = performance.now();
+  const duration = 900; // ms to count to ~85 while processing
+  function animExport(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const pct = Math.round(1 + 84 * progress);
+    setExportPct(pct, pct < 40 ? 'Preparing data…' : pct < 75 ? 'Building spreadsheet…' : 'Finalizing…', '');
+    if (progress < 1) _exportAnimId = requestAnimationFrame(animExport);
+  }
+  _exportAnimId = requestAnimationFrame(animExport);
 
-  Object.entries(sheets).forEach(([sn, rows]) => {
-    rows.sort((a,b) => a.row_num - b.row_num);
-    const data = [hdr, ...rows.map(r => [
-      r.id, r.row_num, r.name, r.gender, r.teen_mum,
-      r.phone, r.national_id, r.yob, r.pwds, r.refugee,
-      r.ward, r.county, r.call_status||'',
-      r.updated_at ? new Date(r.updated_at).toLocaleString() : '',
-      (() => { const n = alterCountMap.get(r.id) || 0; return n > 0 ? `Yes ×${n}` : (r.call_status ? 'No' : 'Pending'); })()
-    ])];
-    const ws = XLSX.utils.aoa_to_sheet(data);
-    ws['!cols'] = [{wch:10},{wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},{wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18},{wch:22},{wch:8}];
-    rows.forEach((r,ri) => {
-      const bg = r.call_status === 'Successful' ? 'C6EFCE' : alteredContactIds.has(r.id) ? 'E8D5FF' : null;
-      if (bg) {
-        hdr.forEach((_,ci) => {
-          const ref = XLSX.utils.encode_cell({r:ri+1,c:ci});
-          if (ws[ref]) ws[ref].s = { fill:{ fgColor:{rgb:bg} } };
+  // Use setTimeout to let the loader render first
+  setTimeout(() => {
+    try {
+      const sheets = {};
+      contacts.forEach(c => {
+        if (!sheets[c.sheet_name]) sheets[c.sheet_name] = [];
+        sheets[c.sheet_name].push(c);
+      });
+
+      const wb = XLSX.utils.book_new();
+      const hdr = ['DB ID','#','Name','Gender','Teen Mum','Phone Number','National ID','Year of Birth','PWDs','Refugee','Ward','County','Call Status','Last Updated','Altered'];
+
+      Object.entries(sheets).forEach(([sn, rows]) => {
+        rows.sort((a,b) => a.row_num - b.row_num);
+        const data = [hdr, ...rows.map(r => [
+          r.id, r.row_num, r.name, r.gender, r.teen_mum,
+          r.phone, r.national_id, r.yob, r.pwds, r.refugee,
+          r.ward, r.county, r.call_status||'',
+          r.updated_at ? new Date(r.updated_at).toLocaleString() : '',
+          (() => { const n = alterCountMap.get(r.id) || 0; return n > 0 ? `Yes ×${n}` : (r.call_status ? 'No' : 'Pending'); })()
+        ])];
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        ws['!cols'] = [{wch:10},{wch:6},{wch:26},{wch:8},{wch:10},{wch:14},{wch:14},{wch:8},{wch:6},{wch:8},{wch:22},{wch:14},{wch:18},{wch:22},{wch:8}];
+        rows.forEach((r,ri) => {
+          const bg = r.call_status === 'Successful' ? 'C6EFCE' : alteredContactIds.has(r.id) ? 'E8D5FF' : null;
+          if (bg) {
+            hdr.forEach((_,ci) => {
+              const ref = XLSX.utils.encode_cell({r:ri+1,c:ci});
+              if (ws[ref]) ws[ref].s = { fill:{ fgColor:{rgb:bg} } };
+            });
+          }
         });
-      }
-    });
-    XLSX.utils.book_append_sheet(wb, ws, sn);
-  });
+        XLSX.utils.book_append_sheet(wb, ws, sn);
+      });
 
-  const fn = `Call_Status_${todayStr()}.xlsx`;
-  XLSX.writeFile(wb, fn);
-  toast('📊 Exported: ' + fn, 'ok');
+      // Stop animation and jump to 100
+      if (_exportAnimId) cancelAnimationFrame(_exportAnimId);
+      setExportPct(100, 'Done!', contacts.length.toLocaleString() + ' records exported');
+
+      const fn = `Call_Status_${todayStr()}.xlsx`;
+      setTimeout(() => {
+        XLSX.writeFile(wb, fn);
+        hideExportLoader();
+        toast('📊 Exported: ' + fn, 'ok');
+      }, 400);
+
+    } catch(err) {
+      if (_exportAnimId) cancelAnimationFrame(_exportAnimId);
+      hideExportLoader();
+      toast('❌ Export failed: ' + err.message, 'err');
+    }
+  }, 80);
 }
 
 // ============================================================
