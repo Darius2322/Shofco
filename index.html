@@ -266,6 +266,129 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .sync-dot.error{background:var(--danger)}
 @keyframes pulse{from{opacity:1}to{opacity:.3}}
 
+/* ============ CONNECTION PILL (LIVE / OFFLINE) ============ */
+.conn-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
+  padding:3px 9px;border-radius:20px;
+  border:1px solid;white-space:nowrap;
+  transition:all .3s;
+  cursor:default;
+}
+.conn-pill.live{
+  background:rgba(34,197,94,.1);color:var(--green);border-color:rgba(34,197,94,.3);
+}
+.conn-pill.offline{
+  background:rgba(239,68,68,.12);color:#f87171;border-color:rgba(239,68,68,.35);
+  animation:offpulse 1.6s ease-in-out infinite;
+}
+@keyframes offpulse{0%,100%{opacity:1}50%{opacity:.6}}
+.conn-pill-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.conn-pill.live .conn-pill-dot{animation:liveblink 2.4s ease-in-out infinite}
+@keyframes liveblink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Pending-sync badge (shows count of queued saves) */
+.pending-badge{
+  display:none;align-items:center;gap:4px;
+  font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;
+  background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.4);
+  white-space:nowrap;
+}
+.pending-badge.vis{display:inline-flex}
+
+/* ============ OFFLINE BANNER (top of call screens) ============ */
+#offline-banner{
+  display:none;
+  background:linear-gradient(135deg,rgba(239,68,68,.18),rgba(239,68,68,.08));
+  border-bottom:1px solid rgba(239,68,68,.35);
+  padding:8px 14px;
+  align-items:center;gap:9px;
+  font-size:12px;
+}
+#offline-banner.vis{display:flex}
+#offline-banner .ob-ico{font-size:18px;flex-shrink:0}
+#offline-banner .ob-text{flex:1;color:#fca5a5;font-weight:600;line-height:1.4}
+#offline-banner .ob-count{font-size:11px;font-weight:800;color:#f87171;white-space:nowrap}
+
+/* ============ OFFLINE FIRST-TIME MODAL ============ */
+#offline-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.85);z-index:600;
+  align-items:center;justify-content:center;padding:20px;
+}
+#offline-modal.vis{display:flex}
+.offline-modal-box{
+  background:var(--surface);border:1px solid rgba(239,68,68,.4);
+  border-radius:20px;width:100%;max-width:380px;padding:24px;
+  animation:modalPop .25s cubic-bezier(.175,.885,.32,1.275) both;
+}
+@keyframes modalPop{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
+.offline-modal-ico{font-size:48px;text-align:center;margin-bottom:12px}
+.offline-modal-title{font-size:18px;font-weight:900;letter-spacing:-.3px;margin-bottom:8px;color:#f87171;text-align:center}
+.offline-modal-body{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px;text-align:center}
+.offline-modal-body strong{color:var(--text)}
+
+/* Back-online toast is handled by existing toast system */
+
+/* ============ APP UPDATE MODAL ============ */
+#update-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.88);z-index:700;
+  align-items:center;justify-content:center;padding:20px;
+}
+#update-modal.vis{display:flex}
+.update-modal-box{
+  background:var(--surface);
+  border:1px solid rgba(59,125,216,.5);
+  border-radius:20px;width:100%;max-width:380px;padding:26px;
+  animation:modalPop .25s cubic-bezier(.175,.885,.32,1.275) both;
+  position:relative;overflow:hidden;
+}
+.update-modal-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--accent),#a855f7,var(--accent));
+  background-size:200% 100%;
+  animation:shimmer 2s linear infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.update-modal-ico{font-size:44px;text-align:center;margin-bottom:12px}
+.update-modal-title{font-size:19px;font-weight:900;letter-spacing:-.4px;margin-bottom:8px;color:var(--accent2);text-align:center}
+.update-modal-body{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:6px;text-align:center}
+.update-modal-body strong{color:var(--text)}
+.update-safe-note{
+  display:flex;align-items:flex-start;gap:8px;
+  background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);
+  border-radius:10px;padding:10px 12px;margin:14px 0 18px;
+  font-size:12px;color:#86efac;line-height:1.6;text-align:left;
+}
+.update-safe-note-ico{font-size:15px;flex-shrink:0;margin-top:1px}
+.update-modal-btns{display:flex;gap:8px}
+.update-modal-btns .btn-primary{flex:1.4;margin-top:0;font-size:14px}
+.update-modal-btns .btn-sm{flex:1;justify-content:center;font-size:13px}
+
+/* ============ SCROLL TO TOP BUTTON ============ */
+#scroll-top-btn{
+  position:fixed;
+  bottom:calc(80px + env(safe-area-inset-bottom));
+  right:16px;
+  width:44px;height:44px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),#5b21b6);
+  color:#fff;border:none;font-size:20px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 18px rgba(59,125,216,.45);
+  cursor:pointer;z-index:190;
+  opacity:0;pointer-events:none;
+  transform:translateY(10px) scale(.88);
+  transition:opacity .2s,transform .2s;
+  font-family:var(--font);line-height:1;
+}
+#scroll-top-btn.vis{
+  opacity:1;pointer-events:auto;
+  transform:translateY(0) scale(1);
+}
+#scroll-top-btn:active{transform:scale(.92)}
+
 /* ============ TOAST ============ */
 .toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-20px);background:#1e3a5f;color:#93c5fd;padding:10px 22px;border-radius:24px;font-size:13px;font-weight:700;opacity:0;transition:all .26s;z-index:500;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 40px);text-align:center;border:1px solid #2d5a9a55;backdrop-filter:blur(10px);box-shadow:0 4px 24px rgba(0,0,0,.4)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -480,7 +603,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <div id="dashboard-screen" class="screen">
   <div class="top-bar">
     <div class="tb-brand">📋 SHOFCO Survey</div>
-    <span class="rt-badge" id="rt-badge">🟢 Live</span>
+    <span class="conn-pill live" id="conn-pill-dash"><span class="conn-pill-dot"></span>Live</span>
+    <span class="pending-badge" id="pending-badge-dash">⏳ 0</span>
     <span class="tb-badge enum" id="user-badge">enumerator</span>
     <button class="btn-sm" onclick="exportExcel()">⬇️ Export</button>
   </div>
@@ -564,7 +688,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <div id="admin-screen" class="screen">
   <div class="top-bar">
     <div class="tb-brand" style="background:linear-gradient(90deg,#a855f7,#3b7dd8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">⚡ Admin Panel</div>
-    <span class="rt-badge">🟢 Live</span>
+    <span class="conn-pill live" id="conn-pill-admin"><span class="conn-pill-dot"></span>Live</span>
     <span class="tb-badge">Admin</span>
     <button class="btn-sm" id="admin-export-btn" onclick="exportAdminExcel()" style="background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--green);font-weight:700">⬇️ Export All</button>
     <button class="btn-sm" style="background:#1c0808;border-color:#7f1d1d55;color:#fca5a5;font-weight:700" onclick="doLogout()">🚪 Sign Out</button>
@@ -645,6 +769,19 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <button class="btn-primary" onclick="seedContacts()">🌱 Seed Database</button>
       <div id="seed-progress" style="margin-top:10px;font-size:12px;color:var(--muted)"></div>
     </div>
+
+    <!-- Push Update card — admin only -->
+    <div class="setup-card" style="max-width:100%;padding:16px;margin-top:0;border-color:rgba(59,125,216,.35)">
+      <div class="sc-title" style="color:var(--accent2)">🚀 Push App Update</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.6">
+        After you update this HTML file and reload your own browser, use this button to notify <strong style="color:var(--text)">all logged-in enumerators</strong> that a new version is available. They'll see a prompt asking them to refresh.
+      </p>
+      <div style="display:flex;align-items:flex-start;gap:7px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:9px;padding:9px 11px;margin-bottom:14px;font-size:11px;color:#86efac;line-height:1.6">
+        <span style="font-size:14px;flex-shrink:0">🛡️</span>
+        <span>Refreshing is safe — it only reloads the app interface. All contact data and saved statuses remain untouched in the database.</span>
+      </div>
+      <button class="btn-primary" id="push-update-btn" onclick="pushAppUpdate()" style="background:linear-gradient(135deg,var(--accent),#5b21b6)">🚀 Push Update to All Users</button>
+    </div>
   </div>
 </div>
 
@@ -653,8 +790,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   <div class="top-bar">
     <button class="btn-ico" onclick="showDash()">◀</button>
     <div class="tb-brand" id="cl-title">List</div>
+    <span class="conn-pill live" id="conn-pill-cl"><span class="conn-pill-dot"></span>Live</span>
+    <span class="pending-badge" id="pending-badge-cl">⏳ 0</span>
     <div class="sync-dot" id="sync-dot" title="Sync status"></div>
     <button class="btn-ico" id="sort-btn" onclick="toggleSort()" title="Toggle sort">⇅</button>
+  </div>
+
+  <!-- Offline banner — shown when device is offline -->
+  <div id="offline-banner">
+    <div class="ob-ico">📵</div>
+    <div class="ob-text">You're offline — keep working, your saves will sync automatically when you reconnect.</div>
+    <div class="ob-count" id="offline-q-count"></div>
   </div>
 
   <!-- Per-session status summary (today's calls for this enumerator) -->
@@ -697,6 +843,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
   <div class="clist" id="clist"></div>
 
+  <!-- Scroll to top FAB — appears after scrolling down -->
+  <button id="scroll-top-btn" onclick="scrollToTop()" title="Back to top">⬆</button>
+
   <div class="bbar">
     <button class="btn-sm" style="flex:1;justify-content:center" onclick="exportExcel()">⬇️ Export Excel</button>
     <button class="btn-sm" style="flex:1;justify-content:center;background:var(--admin-bg);border-color:var(--purple)33;color:#c084fc" onclick="showDash()">◀ Dashboard</button>
@@ -709,6 +858,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   <div class="top-bar" style="gap:6px">
     <button class="btn-sm" id="ss-prev" onclick="goStatusPrev()" style="padding:7px 12px;font-size:13px">◀ Prev</button>
     <div style="flex:1;text-align:center;font-size:12px;font-weight:700;color:var(--muted)" id="ss-pos">1 of 100</div>
+    <span class="conn-pill live" id="conn-pill-ss"><span class="conn-pill-dot"></span>Live</span>
     <button class="btn-sm" id="ss-next" onclick="goStatusNext()" style="padding:7px 12px;font-size:13px">Next ▶</button>
     <div class="sync-dot" id="ss-sync-dot" title="Sync status" style="width:14px;height:14px"></div>
   </div>
@@ -761,6 +911,40 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ====================== OFFLINE MODAL ====================== -->
+<div id="offline-modal">
+  <div class="offline-modal-box">
+    <div class="offline-modal-ico">📵</div>
+    <div class="offline-modal-title">You're Offline</div>
+    <div class="offline-modal-body">
+      <strong>No worries — keep working!</strong><br><br>
+      You can still open contacts and save statuses. Everything will be stored and <strong>automatically synced to the server</strong> the moment your internet comes back.<br><br>
+      <span style="font-size:12px;color:rgba(255,255,255,.4)">Look for the 📵 Offline banner at the top — it shows how many saves are waiting to sync.</span>
+    </div>
+    <button class="btn-primary" style="margin-top:0" onclick="document.getElementById('offline-modal').classList.remove('vis')">Got it — Continue Working</button>
+  </div>
+</div>
+
+<!-- ====================== APP UPDATE MODAL ====================== -->
+<div id="update-modal">
+  <div class="update-modal-box">
+    <div class="update-modal-ico">🚀</div>
+    <div class="update-modal-title">App Update Available</div>
+    <div class="update-modal-body">
+      A new version of the SHOFCO Survey app has been pushed by the admin.<br>
+      <strong>Refresh now to get the latest features and fixes.</strong>
+    </div>
+    <div class="update-safe-note">
+      <div class="update-safe-note-ico">🛡️</div>
+      <div><strong style="color:#86efac">Your data is completely safe.</strong> Refreshing only reloads the app interface — all your contacts, statuses, and saved progress live in the database and will be right there when you reload.</div>
+    </div>
+    <div class="update-modal-btns">
+      <button class="btn-primary" onclick="doAppRefresh()">🔄 Refresh Now</button>
+      <button class="btn-sm" onclick="dismissUpdate()">Later</button>
+    </div>
+  </div>
+</div>
 
 <!-- ====================== CUSTOM STATUS EDITOR ====================== -->
 <div class="modal-overlay" id="custom-status-modal">
@@ -1247,6 +1431,7 @@ async function loadUserAndRoute(user) {
 
   // Load shared settings from Supabase
   await loadSettings();
+  await loadAppVersion(); // store current version so we can detect changes
 
   if (profile.role === 'admin') {
     await loadAdminData();
@@ -1648,6 +1833,9 @@ function subscribeRealtime(sheet) {
         renderCustomStGrid();
         toast('🔄 Custom statuses updated by admin', 'ok');
       }
+      if (payload.new?.key === 'app_version') {
+        handleAppVersionChange(payload.new.value);
+      }
     })
     .subscribe();
 
@@ -1712,6 +1900,9 @@ function subscribeRealtimeAdmin() {
         customStatuses = payload.new.value;
         renderCustomStGrid();
         toast('🔄 Custom statuses updated', 'ok');
+      }
+      if (payload.new?.key === 'app_version') {
+        handleAppVersionChange(payload.new.value);
       }
     })
     .subscribe();
@@ -2006,6 +2197,24 @@ function setFilter(f, btn) {
 function clrSearch() { document.getElementById('srch').value = ''; renderList(); }
 function toggleSort() { sortAsc = !sortAsc; renderList(); }
 
+// ── Scroll-to-top button ──────────────────────────────────────
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+(function initScrollTopBtn() {
+  let _ticking = false;
+  window.addEventListener('scroll', () => {
+    if (_ticking) return;
+    _ticking = true;
+    requestAnimationFrame(() => {
+      const btn = document.getElementById('scroll-top-btn');
+      if (btn) btn.classList.toggle('vis', window.scrollY > 300);
+      _ticking = false;
+    });
+  }, { passive: true });
+})();
+
 function filteredContacts() {
   const q = document.getElementById('srch').value.toLowerCase().trim();
   let out = allContacts;
@@ -2073,8 +2282,6 @@ function openSh(cid) {
   statusNavList = filteredContacts();
   const btn = document.getElementById('back-to-list-btn');
   if (btn) btn.classList.remove('btn-back-active');
-  // Save resume position — saveResumePosition handles cache busting
-  saveResumePosition(cid); // async, non-blocking
   renderStatusScreen();
   // Slide up as overlay — call list stays rendered underneath
   const ss = document.getElementById('status-screen');
@@ -2217,6 +2424,7 @@ async function setSt(st) {
   const savedContact = { ...contact }; // snapshot before advance
   const prevStatus = savedContact.call_status || '';
   const newStatus  = st || '';
+  const prevResumeId = lastResumeContactId; // remember for rollback
 
   // Optimistic update in allContacts
   const idx = allContacts.findIndex(c => c.id === savedContact.id);
@@ -2252,12 +2460,34 @@ async function setSt(st) {
   if (st) setTimeout(() => goStatusNext(), 650);
 
   // Save to Supabase (use snapshot so advance doesn't corrupt)
+  // If offline, queue it and succeed optimistically
+  if (!isOnline) {
+    offlineQueue.push({
+      contactId: savedContact.id,
+      st, prevStatus, now: new Date().toISOString(),
+      savedContact: { ...savedContact }
+    });
+    updateConnPills();
+    setSyncDot('syncing');
+    // Resume marker moves optimistically for offline saves too
+    const prevResumeIdForOffline = lastResumeContactId;
+    if (lastResumeContactId !== savedContact.id) {
+      if (lastResumeContactId) invalidateCardCache(lastResumeContactId);
+      lastResumeContactId = savedContact.id;
+      invalidateCardCache(savedContact.id);
+    }
+    return; // will be synced by flushOfflineQueue when back online
+  }
+
   try {
     const now = new Date().toISOString();
     const { error: upErr } = await sb.from('contacts')
       .update({ call_status: st, updated_at: now, updated_by: currentUser.id })
       .eq('id', savedContact.id);
     if (upErr) throw upErr;
+
+    // ✅ Status saved — now move the resume marker to this contact
+    await saveResumePosition(savedContact.id);
 
     if (st) {
       await sb.from('call_logs').insert({
@@ -2281,7 +2511,27 @@ async function setSt(st) {
     }
     setSyncDot('ok');
   } catch(e) {
-    // Rollback
+    // If it looks like a network error, go offline and queue the save
+    const isNetworkErr = !navigator.onLine || e.message?.toLowerCase().includes('network') || e.message?.toLowerCase().includes('fetch') || e.message?.toLowerCase().includes('failed');
+    if (isNetworkErr) {
+      handleGoOffline();
+      offlineQueue.push({
+        contactId: savedContact.id,
+        st, prevStatus, now: new Date().toISOString(),
+        savedContact: { ...savedContact }
+      });
+      updateConnPills();
+      // Keep the optimistic update — don't rollback, it will sync later
+      // Move resume marker optimistically
+      if (lastResumeContactId !== savedContact.id) {
+        if (lastResumeContactId) invalidateCardCache(lastResumeContactId);
+        lastResumeContactId = savedContact.id;
+        invalidateCardCache(savedContact.id);
+      }
+      setSyncDot('syncing');
+      return;
+    }
+    // Real server error — rollback everything
     if (idx !== -1) { allContacts[idx].call_status = prevStatus; }
     invalidateCardCache(savedContact.id);
     invalidateStatsCache();
@@ -2289,6 +2539,12 @@ async function setSt(st) {
     if (!sheetStats[prevStatus]) sheetStats[prevStatus] = {count:0,today:0};
     if (prevStatus) sheetStats[prevStatus].count++;
     updateDashCard();
+    // Rollback resume marker to what it was before this failed save
+    if (lastResumeContactId !== prevResumeId) {
+      if (lastResumeContactId) invalidateCardCache(lastResumeContactId);
+      lastResumeContactId = prevResumeId;
+      if (lastResumeContactId) invalidateCardCache(lastResumeContactId);
+    }
     setSyncDot('error');
     toast('⚠️ Sync failed: ' + e.message, 'err');
   }
@@ -3168,9 +3424,210 @@ async function saveCustomStatuses() {
 }
 
 // ============================================================
+// APP UPDATE SYSTEM
+// ============================================================
+// How it works:
+//   Admin writes key='app_version' to the settings table.
+//   All connected clients receive it via realtime.
+//   They see the update modal and can refresh or dismiss.
+//   Refreshing reloads only the HTML/JS — all data stays in Supabase.
+
+let _currentAppVersion = null; // version string loaded at boot
+
+async function loadAppVersion() {
+  try {
+    const { data } = await sb.from('settings')
+      .select('value').eq('key', 'app_version').single();
+    if (data?.value?.version) {
+      _currentAppVersion = data.value.version;
+    }
+  } catch(e) { /* no version set yet — that's fine */ }
+}
+
+function handleAppVersionChange(newVal) {
+  if (!newVal?.version) return;
+  // Only show to non-admin users, or if the version actually changed
+  const isAdmin = userProfile?.role === 'admin';
+  if (isAdmin) return; // admin pushed it — they don't need to refresh themselves
+  if (_currentAppVersion && newVal.version === _currentAppVersion) return; // same version, ignore
+  // Show the update modal
+  document.getElementById('update-modal').classList.add('vis');
+}
+
+function doAppRefresh() {
+  // Hard reload — bypasses cache, gets fresh HTML/JS
+  window.location.reload(true);
+}
+
+function dismissUpdate() {
+  document.getElementById('update-modal').classList.remove('vis');
+  toast('⏭️ Update dismissed — you can refresh manually anytime', 'warn');
+}
+
+// Admin-only: push an update notification to all connected users
+async function pushAppUpdate() {
+  const btn = document.getElementById('push-update-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Pushing…'; }
+  try {
+    const newVersion = 'v' + Date.now(); // unique timestamp-based version string
+    const { error } = await sb.from('settings').upsert({
+      key: 'app_version',
+      value: { version: newVersion, pushed_at: new Date().toISOString(), pushed_by: currentUser?.email || 'admin' },
+      updated_at: new Date().toISOString(),
+      updated_by: currentUser.id
+    }, { onConflict: 'key' });
+    if (error) throw error;
+    _currentAppVersion = newVersion; // admin's own version updates so they don't see the modal
+    toast('✅ Update notification sent to all users!', 'ok');
+  } catch(err) {
+    toast('❌ Failed: ' + (err.message || err), 'err');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🚀 Push Update to All Users'; }
+  }
+}
+
+// ============================================================
+// OFFLINE DETECTION + PENDING QUEUE
+// ============================================================
+let isOnline = navigator.onLine;
+let offlineQueue = [];         // [{contactId, st, prevStatus, savedContact, now}]
+let offlineModalShown = false; // only show the first-time modal once per session
+let _syncingQueue = false;
+
+// Update every conn-pill + offline banner to reflect current state
+function updateConnPills() {
+  const pills = document.querySelectorAll('.conn-pill');
+  pills.forEach(p => {
+    p.classList.toggle('live', isOnline);
+    p.classList.toggle('offline', !isOnline);
+    p.innerHTML = isOnline
+      ? '<span class="conn-pill-dot"></span>Live'
+      : '<span class="conn-pill-dot"></span>Offline';
+  });
+
+  // Offline banner in call list
+  const banner = document.getElementById('offline-banner');
+  if (banner) banner.classList.toggle('vis', !isOnline);
+
+  // Pending-save badges
+  const n = offlineQueue.length;
+  document.querySelectorAll('.pending-badge').forEach(b => {
+    b.classList.toggle('vis', n > 0);
+    b.textContent = n > 0 ? `⏳ ${n} pending` : '';
+  });
+
+  // Offline queue count inside banner
+  const qc = document.getElementById('offline-q-count');
+  if (qc) qc.textContent = n > 0 ? `${n} queued` : '';
+}
+
+// Called when the device goes offline
+function handleGoOffline() {
+  if (isOnline === false) return; // already offline
+  isOnline = false;
+  updateConnPills();
+
+  // First time going offline → show the modal (only once per session)
+  if (!offlineModalShown) {
+    offlineModalShown = true;
+    document.getElementById('offline-modal').classList.add('vis');
+  } else {
+    // Subsequent drops — just a toast
+    toast('📵 You\'re offline — saves will queue automatically', 'warn');
+  }
+}
+
+// Called when the device comes back online
+async function handleGoOnline() {
+  if (isOnline === true) return; // already online
+  isOnline = true;
+  updateConnPills();
+  toast('✅ Back online! Syncing your saved data…', 'ok');
+  await flushOfflineQueue();
+}
+
+// Flush all pending saves to Supabase
+async function flushOfflineQueue() {
+  if (_syncingQueue || offlineQueue.length === 0) return;
+  _syncingQueue = true;
+  const total = offlineQueue.length;
+  let done = 0;
+
+  // Work through a copy so new offline saves during flush don't interfere
+  const batch = [...offlineQueue];
+  offlineQueue = [];
+  updateConnPills();
+
+  for (const item of batch) {
+    try {
+      const { error: upErr } = await sb.from('contacts')
+        .update({ call_status: item.st, updated_at: item.now, updated_by: currentUser.id })
+        .eq('id', item.contactId);
+      if (upErr) throw upErr;
+
+      // Resume position
+      await saveResumePosition(item.contactId);
+
+      if (item.st) {
+        await sb.from('call_logs').insert({
+          contact_id: item.contactId, sheet_name: item.savedContact.sheet_name,
+          contact_name: item.savedContact.name, phone: item.savedContact.phone,
+          status: item.st, logged_by: currentUser.id,
+          logged_by_name: userProfile?.full_name || userProfile?.assigned_sheet || currentUser.email,
+          logged_at: item.now
+        });
+      }
+      if (item.prevStatus && item.st && item.prevStatus !== item.st) {
+        await sb.from('status_alter_log').insert({
+          contact_id: item.contactId, sheet_name: item.savedContact.sheet_name,
+          contact_name: item.savedContact.name, phone: item.savedContact.phone,
+          prev_status: item.prevStatus, new_status: item.st,
+          altered_by: currentUser.id,
+          altered_by_name: userProfile?.full_name || userProfile?.assigned_sheet || currentUser.email,
+          altered_at: item.now
+        });
+      }
+      done++;
+    } catch(e) {
+      // Put it back in the queue to retry later
+      offlineQueue.push(item);
+    }
+  }
+
+  _syncingQueue = false;
+  updateConnPills();
+
+  if (done > 0) {
+    toast(`✅ Synced ${done} saved status${done>1?'es':''} to server`, 'ok');
+    setSyncDot('ok');
+    // Refresh list visuals
+    if (document.getElementById('calllist-screen')?.classList.contains('active')) {
+      renderList(); renderMini(); renderClSummary(); renderTodayStrip();
+    }
+    updateDashCard();
+  }
+  if (offlineQueue.length > 0) {
+    toast(`⚠️ ${offlineQueue.length} save(s) still pending — will retry`, 'warn');
+  }
+}
+
+// Wire up browser events
+window.addEventListener('online',  () => handleGoOnline());
+window.addEventListener('offline', () => handleGoOffline());
+
+// Poll every 8s as a belt-and-suspenders check (browser events can miss)
+setInterval(async () => {
+  const nowOnline = navigator.onLine;
+  if (nowOnline && !isOnline)      await handleGoOnline();
+  else if (!nowOnline && isOnline)  handleGoOffline();
+}, 8000);
+
+// ============================================================
 // BOOT
 // ============================================================
 init();
+// Set initial connection pill state
+updateConnPills();
 </script>
 </body>
 </html>
