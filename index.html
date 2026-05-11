@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>SHOFCO Survey — Supabase Edition</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -141,6 +145,25 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .pc-stat-label{color:var(--muted)}
 .pc-stat-val{font-weight:700}
 
+/* Admin per-enumerator export + history buttons */
+.pc-export-btn{
+  width:100%;margin-top:8px;
+  background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(34,197,94,.08));
+  border:1px solid rgba(34,197,94,.3);color:var(--green);border-radius:8px;
+  padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-family:var(--font);transition:all .15s;
+}
+.pc-export-btn:hover{background:rgba(34,197,94,.22)}
+.pc-history-btn{
+  width:100%;margin-top:6px;
+  background:rgba(59,125,216,.1);border:1px solid rgba(59,125,216,.3);
+  color:var(--accent2);border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  font-family:var(--font);transition:all .15s;
+}
+.pc-history-btn:hover{background:rgba(59,125,216,.18)}
+
 /* ============ CALL LIST SCREEN ============ */
 /* Enough padding so last item scrolls above the floating bbar */
 #calllist-screen{padding-bottom:90px}
@@ -265,6 +288,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .sync-dot.syncing{background:var(--warn);animation:pulse .6s infinite alternate}
 .sync-dot.error{background:var(--danger)}
 @keyframes pulse{from{opacity:1}to{opacity:.3}}
+@keyframes redpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 
 /* ============ CONNECTION PILL (LIVE / OFFLINE) ============ */
 .conn-pill{
@@ -310,6 +334,22 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 #offline-banner .ob-text{flex:1;color:#fca5a5;font-weight:600;line-height:1.4}
 #offline-banner .ob-count{font-size:11px;font-weight:800;color:#f87171;white-space:nowrap}
 
+/* ============ PERSISTENT OFFLINE STATUS BAR (dashboard + all screens) ============ */
+#offline-status-bar{
+  display:none;
+  position:sticky;top:49px;z-index:99;
+  background:linear-gradient(135deg,#1a0505,#200808);
+  border-bottom:2px solid rgba(239,68,68,.5);
+  padding:8px 14px;
+  align-items:center;gap:9px;
+  font-size:12px;font-weight:700;
+  color:#fca5a5;
+}
+#offline-status-bar.vis{display:flex}
+#offline-status-bar .osb-ico{font-size:16px;flex-shrink:0;animation:offpulse 1.6s ease-in-out infinite}
+#offline-status-bar .osb-text{flex:1;line-height:1.4}
+#offline-status-bar .osb-queue{font-size:10px;font-weight:800;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:20px;padding:2px 8px;white-space:nowrap;color:#f87171}
+
 /* ============ OFFLINE FIRST-TIME MODAL ============ */
 #offline-modal{
   display:none;position:fixed;inset:0;
@@ -329,6 +369,52 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .offline-modal-body strong{color:var(--text)}
 
 /* Back-online toast is handled by existing toast system */
+
+/* ============ PREVIOUS DAYS HISTORY MODAL ============ */
+#history-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.88);z-index:650;
+  flex-direction:column;padding:0;
+}
+#history-modal.vis{display:flex}
+.history-modal-inner{
+  background:var(--surface);
+  display:flex;flex-direction:column;
+  width:100%;height:100%;
+  overflow:hidden;
+}
+.history-modal-top{
+  display:flex;align-items:center;gap:10px;
+  padding:13px 16px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+  position:sticky;top:0;z-index:10;
+}
+.history-modal-title{flex:1;font-size:16px;font-weight:900;letter-spacing:-.3px}
+.history-body{flex:1;overflow-y:auto;padding:12px 14px 80px}
+
+/* Day chips in the picker */
+.history-day-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.history-day-chip{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;padding:11px 14px;cursor:pointer;
+  transition:all .15s;
+}
+.history-day-chip:hover,.history-day-chip.active{
+  border-color:var(--accent);background:rgba(59,125,216,.1);
+}
+.history-day-chip-date{font-size:13px;font-weight:700;flex:1}
+.history-day-chip-sub{font-size:11px;color:var(--muted)}
+.history-day-chip-count{font-size:15px;font-weight:800;color:var(--accent2)}
+
+/* Day detail breakdown (shown below the chip list) */
+#history-detail{margin-top:4px}
+.history-detail-hdr{
+  font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--muted);padding:10px 0 6px;border-top:1px solid var(--border);
+  margin-top:8px;
+}
 
 /* ============ APP UPDATE MODAL ============ */
 #update-modal{
@@ -609,13 +695,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <button class="btn-sm" onclick="exportExcel()">⬇️ Export</button>
   </div>
 
+  <!-- Persistent offline bar — stays visible the entire time user is offline -->
+  <div id="offline-status-bar">
+    <div class="osb-ico">📵</div>
+    <div class="osb-text">You're offline — keep working, changes will sync when you reconnect</div>
+    <div class="osb-queue" id="osb-queue-count" style="display:none"></div>
+  </div>
+
   <!-- Today's summary -->
   <div class="today-bar">
     <div class="today-label">📅 Today's Activity</div>
     <div class="today-pills" id="today-pills">
       <div class="tpill"><div><div class="tpill-v" id="tp-today">0</div><div class="tpill-l">Today's Calls</div></div></div>
       <div class="tpill"><div><div class="tpill-v" style="color:var(--green)" id="tp-ok">0</div><div class="tpill-l">Successful</div></div></div>
-      <div class="tpill" style="border-color:var(--accent)44"><div><div class="tpill-v" style="color:var(--accent2)" id="tp-total-calls">0</div><div class="tpill-l">Total Calls 🔴</div></div></div>
+
     </div>
   </div>
 
@@ -656,7 +749,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   </div>
 
   <!-- Today's Breakdown -->
-  <div class="sec-hdr">📅 Today's Breakdown</div>
+  <div class="sec-hdr" style="display:flex;align-items:center;justify-content:space-between;padding-right:14px">
+    <span>📅 Today's Breakdown</span>
+    <button onclick="openHistoryModal()" style="background:linear-gradient(135deg,rgba(59,125,216,.25),rgba(168,85,247,.2));border:1.5px solid rgba(59,125,216,.5);color:#fff;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 10px rgba(59,125,216,.2)">📆 Previous Days</button>
+  </div>
   <div style="padding:0 14px 10px">
     <div class="status-breakdown" id="enum-today-bd">
       <div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No calls logged today yet</div>
@@ -708,6 +804,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
   <div class="admin-tabs">
     <button class="atab" onclick="adminTab('today',this)">📅 Today</button>
+    <button class="atab" onclick="adminTab('prevdays',this)">📆 Prev Days</button>
     <button class="atab" onclick="adminTab('overall',this)">📊 Overall</button>
     <button class="atab active" onclick="adminTab('enumerators',this)">👥 Enumerators</button>
     <button class="atab" onclick="adminTab('users',this)">🔑 Users</button>
@@ -738,6 +835,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       </div>
       <div id="adm-overall-breakdown"></div>
     </div>
+  </div>
+
+  <!-- PREVIOUS DAYS TAB -->
+  <div class="admin-section" id="adm-prevdays-sec">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 10px">
+      <div id="adm-prevdays-loading" style="font-size:12px;color:var(--muted)">⏳ Loading…</div>
+      <button onclick="_admPrevDaysLogs=null;loadAdmPrevDays()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px">🔄 Refresh</button>
+    </div>
+    <div id="adm-prevdays-day-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div id="adm-prevdays-detail"></div>
   </div>
 
   <!-- ENUMERATORS TAB -->
@@ -942,6 +1049,40 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="update-modal-btns">
       <button class="btn-primary" onclick="doAppRefresh()">🔄 Refresh Now</button>
       <button class="btn-sm" onclick="dismissUpdate()">Later</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== ADMIN ENUMERATOR HISTORY MODAL ====================== -->
+<div id="adm-history-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:660;flex-direction:column;padding:0">
+  <div class="history-modal-inner">
+    <div class="history-modal-top">
+      <span style="font-size:20px">📆</span>
+      <div class="history-modal-title" id="adm-history-title">Enumerator History</div>
+      <button class="btn-ico" onclick="closeAdmHistoryModal()" style="font-size:20px">✕</button>
+    </div>
+    <div class="history-body">
+      <div id="adm-history-day-list" class="history-day-list">
+        <div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">Loading…</div>
+      </div>
+      <div id="adm-history-detail"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== PREVIOUS DAYS HISTORY MODAL ====================== -->
+<div id="history-modal">
+  <div class="history-modal-inner">
+    <div class="history-modal-top">
+      <span style="font-size:20px">📆</span>
+      <div class="history-modal-title">Previous Days</div>
+      <button class="btn-ico" onclick="closeHistoryModal()" style="font-size:20px">✕</button>
+    </div>
+    <div class="history-body">
+      <div id="history-day-list" class="history-day-list">
+        <div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">Loading history…</div>
+      </div>
+      <div id="history-detail"></div>
     </div>
   </div>
 </div>
@@ -1431,7 +1572,7 @@ async function loadUserAndRoute(user) {
 
   // Load shared settings from Supabase
   await loadSettings();
-  await loadAppVersion(); // store current version so we can detect changes
+  await loadAppVersion(); // store current version + check if stale
 
   if (profile.role === 'admin') {
     await loadAdminData();
@@ -1620,6 +1761,15 @@ async function loadEnumeratorData() {
   const sheet = userProfile.assigned_sheet;
   if (!sheet) { toast('⚠️ No sheet assigned', 'warn'); hideLoader(); showScr('setup-screen'); return; }
 
+  // Watchdog: if still loading after 20s, show error + retry
+  const _loadWatchdog = setTimeout(() => {
+    hideLoader();
+    showScr('setup-screen');
+    const errEl = document.getElementById('login-err');
+    if (errEl) errEl.innerHTML = '⏱️ Loading timed out — check connection then <a href="" style="color:var(--accent2)">tap here to retry</a>';
+    toast('⏱️ Load timed out — check your internet connection', 'err');
+  }, 20000);
+
   try {
     // Phase 1: Stats (15 → 35)
     setLoader('Loading stats…', 15);
@@ -1683,6 +1833,7 @@ async function loadEnumeratorData() {
     subscribeRealtime(sheet);
 
     // Count linearly 82→100, then immediately open dashboard
+    clearTimeout(_loadWatchdog);
     animateLoader(82, 100, 350, () => {
       hideLoader();
       showDash();
@@ -1707,6 +1858,7 @@ async function loadEnumeratorData() {
     });
 
   } catch(err) {
+    clearTimeout(_loadWatchdog);
     hideLoader();
     showScr('setup-screen');
     toast('❌ Load failed: ' + (err.message||'check connection'), 'err');
@@ -1888,6 +2040,7 @@ function subscribeRealtimeAdmin() {
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'call_logs' }, payload => {
       if (payload.new) adminData.logs.unshift(payload.new);
+      _admPrevDaysLogs = null; // invalidate cache so Prev Days reloads fresh
       refreshAdminStats();
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'status_alter_log' }, payload => {
@@ -2037,17 +2190,23 @@ function renderEnumBreakdowns() {
 
   const tdEl = document.getElementById('enum-today-bd');
   if (tdEl) {
-    if (!todayGrand) {
+    if (!todayLogged && !todayAltered) {
       tdEl.innerHTML = '<div style="padding:16px;font-size:12px;color:var(--muted);text-align:center">No calls logged today yet</div>';
     } else {
-      let rows = mkHdrRow('📞 Total Calls Today', todayGrand, 'var(--accent2)');
+      const totalToday = todayLogged; // unique contacts with a status logged today
+      let rows = mkHdrRow('📞 Total Calls Today', totalToday, 'var(--accent2)');
+      // Complete = contacts that have any status today (i.e. todayLogged)
+      if (totalToday > 0) {
+        const compPct = Math.round(Math.min(totalToday, totalContactCount) / Math.max(totalContactCount,1) * 100);
+        rows += mkRow('✅ Complete Today', totalToday, compPct, '#10b981', 'sb-row-complete', compPct, '#10b981');
+      }
       if (todayAltered > 0) {
-        const ap = Math.round(todayAltered/todayGrand*100);
+        const ap = Math.round(todayAltered / Math.max(totalToday,1) * 100);
         rows += mkRow('🔄 Altered', todayAltered, ap, '#a855f7', 'sb-row-altered', ap, '#a855f7');
       }
       rows += '<div class="sb-divider"></div>';
       rows += Object.entries(todayCounts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => {
-        const pct = Math.round(n/todayGrand*100);
+        const pct = Math.round(n / Math.max(totalToday,1) * 100);
         const col = STATUS_COLORS[s] || COLORS[0];
         return mkRow(`${STATUS_ICONS[s]||'🔵'} ${esc(s)}`, n, pct, col, '', pct, col);
       }).join('');
@@ -2076,9 +2235,12 @@ function renderEnumBreakdowns() {
       let rows = mkHdrRow('📋 Total Contacts', totalContactCount, 'var(--accent2)');
       if (overallLogged > 0)
         rows += mkRow('✅ Complete', overallLogged, completePct, '#10b981', 'sb-row-complete', completePct, '#10b981');
-      if (totalCallsAllTime > 0)
-        rows += mkRow('🔄 Complete + Altered', totalCallsAllTime, null, '#a855f7', 'sb-row-complete-alt',
-                      Math.round(Math.min(totalCallsAllTime,grandDenom)/grandDenom*100), '#a855f7');
+      // Complete + Altered = unique logged contacts + contacts that were altered (de-duped)
+      // i.e. overallLogged already covers altered ones; we just show the combined figure
+      const completeAndAltered = overallLogged + totalAlteredAllTime;
+      if (completeAndAltered > 0)
+        rows += mkRow('🔄 Complete + Altered', completeAndAltered, null, '#a855f7', 'sb-row-complete-alt',
+                      Math.round(Math.min(completeAndAltered, grandDenom) / grandDenom * 100), '#a855f7');
       if (pending > 0) {
         const pp = Math.round(pending/grandDenom*100);
         rows += mkRow('⏳ Pending', pending, pp, 'var(--muted)', 'sb-row-pending', pp, null);
@@ -2405,14 +2567,27 @@ function closeStatusScreen(goDash) {
   if (goDash) {
     setTimeout(() => showDash(), 100);
   } else {
-    // Bust resume card cache so highlight shows correctly
+    // Bust resume card cache so ribbon shows correctly
     if (lastResumeContactId) invalidateCardCache(lastResumeContactId);
     renderList(); renderMini(); renderClSummary();
-    // Scroll to the resume card after render
-    setTimeout(() => {
-      const el = document.querySelector('#clist .ccard.s-resume');
-      if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
-    }, 250);
+    // Scroll to the resume ribbon card — retry until it appears in the DOM
+    _scrollToRibbonCard(0);
+  }
+}
+
+function _scrollToRibbonCard(attempt) {
+  if (attempt > 15) return; // give up after ~750ms
+  let el = document.querySelector('#clist .ccard.s-resume');
+  if (!el && lastResumeContactId) {
+    el = document.querySelector(`#clist .ccard[onclick*="${lastResumeContactId}"]`);
+  }
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.style.transition = 'box-shadow .2s';
+    el.style.boxShadow = '0 0 0 3px #f59e0b';
+    setTimeout(() => { el.style.boxShadow = ''; }, 900);
+  } else {
+    setTimeout(() => _scrollToRibbonCard(attempt + 1), 50);
   }
 }
 
@@ -2575,11 +2750,13 @@ function openSurvey() {
 function adminTab(tab, btn) {
   document.querySelectorAll('.atab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('adm-today-sec').classList.toggle('vis',   tab==='today');
-  document.getElementById('adm-overall-sec').classList.toggle('vis', tab==='overall');
-  document.getElementById('adm-enum-sec').classList.toggle('vis',    tab==='enumerators');
-  document.getElementById('adm-users-sec').classList.toggle('vis',   tab==='users');
-  document.getElementById('adm-seed-sec').classList.toggle('vis',    tab==='seed');
+  document.getElementById('adm-today-sec').classList.toggle('vis',      tab==='today');
+  document.getElementById('adm-prevdays-sec').classList.toggle('vis',   tab==='prevdays');
+  document.getElementById('adm-overall-sec').classList.toggle('vis',    tab==='overall');
+  document.getElementById('adm-enum-sec').classList.toggle('vis',       tab==='enumerators');
+  document.getElementById('adm-users-sec').classList.toggle('vis',      tab==='users');
+  document.getElementById('adm-seed-sec').classList.toggle('vis',       tab==='seed');
+  if (tab === 'prevdays') loadAdmPrevDays();
 }
 
 function refreshAdminStats() {
@@ -2622,14 +2799,17 @@ function refreshAdminStats() {
   renderBreakdown('adm-today-breakdown', todayCounts, todayLogs.length, todayAlteredCount, null, false);
 
   // Today per-enumerator
+  const todayDateStr = today;
   const enumHtml = sheets.map(sn => {
     const s = stats[sn] || {todayTotal:0};
     if (!s.todayTotal) return '';
+    const snSafe = esc(sn).replace(/'/g,"\'");
     return `<div class="perf-card" style="margin-bottom:7px">
       <div style="display:flex;align-items:center;gap:10px;padding:9px 13px">
         <div class="pc-av" style="background:${COLORS[hashStr(sn)%COLORS.length]}">${sn.slice(0,2).toUpperCase()}</div>
         <div style="flex:1"><div class="pc-name">${esc(sn)}</div></div>
-        <div class="pc-today">${s.todayTotal} calls</div>
+        <div class="pc-today" style="font-weight:800;color:var(--accent2)">${s.todayTotal} calls today</div>
+        <button onclick="exportAdmDayForSheet('${snSafe}','${todayDateStr}')" style="margin-left:6px;background:linear-gradient(135deg,rgba(34,197,94,.2),rgba(34,197,94,.1));border:1px solid rgba(34,197,94,.4);color:var(--green);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:4px;white-space:nowrap">⬇️ Export</button>
       </div></div>`;
   }).join('');
   document.getElementById('adm-today-enum').innerHTML = enumHtml || '<div class="empty">No calls logged today</div>';
@@ -2672,6 +2852,7 @@ function refreshAdminStats() {
     const col = COLORS[hashStr(sn)%COLORS.length];
     const bRows = Object.entries(s.byStatus).filter(([k])=>k!=='').sort((a,b)=>b[1].count-a[1].count)
       .map(([st,v]) => `<div class="pc-stat-row"><span class="pc-stat-label">${STATUS_ICONS[st]||'🔵'} ${esc(st)}</span><span class="pc-stat-val">${v.count.toLocaleString()}</span></div>`).join('');
+    const snSafe = esc(sn).replace(/'/g,"\\'");
     return `<div class="perf-card">
       <div class="pc-hdr" onclick="this.nextElementSibling.classList.toggle('open')">
         <div class="pc-av" style="background:${col}">${sn.slice(0,2).toUpperCase()}</div>
@@ -2686,6 +2867,8 @@ function refreshAdminStats() {
         <div class="pc-stat-row"><span class="pc-stat-label">Progress</span><span class="pc-stat-val">${pct}%</span></div>
         <div class="pc-stat-row"><span class="pc-stat-label">Today</span><span class="pc-stat-val" style="color:var(--accent2)">${s.todayTotal}</span></div>
         ${bRows ? `<div style="margin-top:7px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding-bottom:4px">Breakdown</div>${bRows}` : ''}
+        <button class="pc-export-btn" onclick="exportSingleEnumerator('${snSafe}')">⬇️ Export ${esc(sn)}'s List</button>
+        <button class="pc-history-btn" onclick="openAdmHistoryModal('${snSafe}')">📆 View Previous Days</button>
       </div>
     </div>`;
   }).join('');
@@ -2867,6 +3050,219 @@ function setExportPct(pct, txt, sub) {
   }
   if (txt !== undefined) document.getElementById('export-txt').textContent = txt;
   if (sub !== undefined) document.getElementById('export-sub').textContent = sub;
+}
+
+// ============================================================
+// ADMIN — GLOBAL PREVIOUS DAYS (all enumerators combined)
+// ============================================================
+let _admPrevDaysLogs  = null;  // all call_logs fetched once
+let _admPrevDaysSel   = null;  // selected date string
+
+async function loadAdmPrevDays() {
+  const listEl   = document.getElementById('adm-prevdays-day-list');
+  const detailEl = document.getElementById('adm-prevdays-detail');
+  const loadEl   = document.getElementById('adm-prevdays-loading');
+
+  // Already loaded — just re-render
+  if (_admPrevDaysLogs) { renderAdmPrevDaysList(); return; }
+
+  if (loadEl) { loadEl.style.display = ''; loadEl.textContent = '⏳ Loading call history…'; }
+
+  try {
+    // Fetch all call_logs paginated (admin can see everything)
+    let allLogs = [];
+    let offset  = 0;
+    const PAGE  = 1000;
+    while (true) {
+      if (loadEl) loadEl.textContent = `⏳ Loading… ${allLogs.length.toLocaleString()} logs fetched`;
+      const { data, error } = await sb.from('call_logs')
+        .select('logged_at,status,contact_id,contact_name,sheet_name,logged_by_name')
+        .order('logged_at', { ascending: false })
+        .range(offset, offset + PAGE - 1);
+      if (error) throw error;
+      if (!data || !data.length) break;
+      allLogs = [...allLogs, ...data];
+      if (data.length < PAGE) break;
+      offset += data.length;
+    }
+    _admPrevDaysLogs = allLogs;
+    if (loadEl) { loadEl.textContent = `✅ ${allLogs.length.toLocaleString()} logs loaded`; }
+    renderAdmPrevDaysList();
+  } catch(e) {
+    if (loadEl) loadEl.textContent = '❌ Failed: ' + (e.message || e);
+    toast('❌ Could not load history: ' + e.message, 'err');
+  }
+}
+
+function renderAdmPrevDaysList() {
+  const listEl = document.getElementById('adm-prevdays-day-list');
+  if (!listEl) return;
+
+  const today = todayStr();
+  const byDay = {};
+  (_admPrevDaysLogs || []).forEach(l => {
+    const d = l.logged_at?.slice(0, 10);
+    if (!d) return;
+    if (!byDay[d]) byDay[d] = [];
+    byDay[d].push(l);
+  });
+
+  const days = Object.keys(byDay).sort((a, b) => b.localeCompare(a));
+  if (!days.length) {
+    listEl.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No previous days found</div>';
+    return;
+  }
+
+  listEl.innerHTML = days.map(d => {
+    const logs    = byDay[d];
+    const count   = logs.length;
+    const ok      = logs.filter(l => l.status === 'Successful').length;
+    const enumCount = [...new Set(logs.map(l=>l.sheet_name).filter(Boolean))].length;
+    const dateObj = new Date(d + 'T12:00:00');
+    const label   = dateObj.toLocaleDateString('en-KE', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    const labelSh = dateObj.toLocaleDateString('en-KE', { month:'short', day:'numeric' });
+    const isActive = _admPrevDaysSel === d;
+    return `<div class="history-day-chip${isActive ? ' active' : ''}" onclick="selectAdmPrevDay('${d}')">
+      <div style="flex:1">
+        <div class="history-day-chip-date">${label}</div>
+        <div class="history-day-chip-sub">✅ ${ok} successful · ${enumCount} enumerator${enumCount!==1?'s':''}</div>
+      </div>
+      <div class="history-day-chip-count">${count}</div>
+      <div style="font-size:11px;color:var(--muted);margin-left:2px">calls</div>
+      <button onclick="event.stopPropagation();exportAdmPrevDay('${d}')" style="margin-left:8px;flex-shrink:0;background:linear-gradient(135deg,rgba(34,197,94,.2),rgba(34,197,94,.1));border:1px solid rgba(34,197,94,.4);color:var(--green);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:4px;white-space:nowrap">⬇️ ${labelSh}</button>
+    </div>`;
+  }).join('');
+
+  // Re-render detail if a day was already selected
+  if (_admPrevDaysSel && byDay[_admPrevDaysSel]) {
+    renderAdmPrevDaysDetail(byDay[_admPrevDaysSel], _admPrevDaysSel);
+  }
+}
+
+function selectAdmPrevDay(dateStr) {
+  _admPrevDaysSel = dateStr;
+  renderAdmPrevDaysList();
+
+  const byDay = {};
+  (_admPrevDaysLogs || []).forEach(l => {
+    const d = l.logged_at?.slice(0, 10);
+    if (!d) return;
+    if (!byDay[d]) byDay[d] = [];
+    byDay[d].push(l);
+  });
+  renderAdmPrevDaysDetail(byDay[dateStr] || [], dateStr);
+
+  setTimeout(() => {
+    const det = document.getElementById('adm-prevdays-detail');
+    if (det) det.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function renderAdmPrevDaysDetail(logs, dateStr) {
+  const det = document.getElementById('adm-prevdays-detail');
+  if (!det) return;
+  if (!logs.length) { det.innerHTML = ''; return; }
+
+  const dateObj  = new Date(dateStr + 'T12:00:00');
+  const label    = dateObj.toLocaleDateString('en-KE', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  const labelSh  = dateObj.toLocaleDateString('en-KE', { month:'short', day:'numeric' });
+
+  // Overall counts
+  const counts = {};
+  logs.forEach(l => { if (l.status) counts[l.status] = (counts[l.status] || 0) + 1; });
+  const total = logs.length;
+  const ok    = counts['Successful'] || 0;
+
+  // Per-enumerator breakdown
+  const byEnum = {};
+  logs.forEach(l => {
+    const en = l.sheet_name || l.logged_by_name || 'Unknown';
+    if (!byEnum[en]) byEnum[en] = { total: 0, ok: 0 };
+    byEnum[en].total++;
+    if (l.status === 'Successful') byEnum[en].ok++;
+  });
+
+  let html = `<div style="margin-top:12px">`;
+
+  // Header + export
+  html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 8px;border-top:1px solid var(--border)">
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)">📅 ${label}</div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button onclick="exportAdmPrevDay('${dateStr}')" style="background:linear-gradient(135deg,rgba(34,197,94,.2),rgba(34,197,94,.1));border:1px solid rgba(34,197,94,.4);color:var(--green);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px">⬇️ Export ${labelSh}</button>
+      <button onclick="closeAdmPrevDaysDetail()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);line-height:1" title="Close">✕</button>
+    </div>
+  </div>`;
+
+  // Status breakdown
+  html += `<div class="status-breakdown" style="margin-bottom:12px">`;
+  html += mkHdrRow('📞 Total Calls', total, 'var(--accent2)');
+  if (ok > 0) html += mkRow('✅ Successful', ok, Math.round(ok/Math.max(total,1)*100), '#10b981', '', Math.round(ok/Math.max(total,1)*100), '#10b981');
+  html += '<div class="sb-divider"></div>';
+  html += Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => {
+    const pct = Math.round(n/Math.max(total,1)*100);
+    const col = STATUS_COLORS[s] || COLORS[0];
+    return mkRow(`${STATUS_ICONS[s]||'🔵'} ${esc(s)}`, n, pct, col, '', pct, col);
+  }).join('');
+  html += '</div>';
+
+  // Per-enumerator mini cards
+  html += `<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Per Enumerator</div>`;
+  html += Object.entries(byEnum).sort((a,b)=>b[1].total-a[1].total).map(([en, d]) => {
+    const col = COLORS[hashStr(en) % COLORS.length];
+    return `<div style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:6px">
+      <div style="width:30px;height:30px;border-radius:8px;background:${col};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0">${esc(en).slice(0,2).toUpperCase()}</div>
+      <div style="flex:1;font-size:13px;font-weight:700">${esc(en)}</div>
+      <div style="font-size:12px;font-weight:800;color:var(--accent2)">${d.total} calls</div>
+      <div style="font-size:11px;color:var(--green);margin-left:4px">✅ ${d.ok}</div>
+      <button onclick="exportAdmDayForSheet('${esc(en)}','${dateStr}')" style="margin-left:6px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--green);border-radius:7px;padding:4px 9px;font-size:10px;font-weight:800;cursor:pointer;font-family:var(--font)">⬇️</button>
+    </div>`;
+  }).join('');
+
+  html += '</div>';
+  det.innerHTML = html;
+}
+
+function closeAdmPrevDaysDetail() {
+  _admPrevDaysSel = null;
+  const det = document.getElementById('adm-prevdays-detail');
+  if (det) det.innerHTML = '';
+  renderAdmPrevDaysList(); // re-render chips to remove active highlight
+}
+
+function exportAdmPrevDay(dateStr) {
+  const today = todayStr();
+  const byDay = {};
+  (_admPrevDaysLogs || []).forEach(l => {
+    const d = l.logged_at?.slice(0, 10);
+    if (!d) return;
+    if (!byDay[d]) byDay[d] = [];
+    byDay[d].push(l);
+  });
+  const logs = byDay[dateStr] || [];
+  if (!logs.length) { toast('No data for this day', 'warn'); return; }
+
+  const dateObj = new Date(dateStr + 'T12:00:00');
+  const label   = dateObj.toLocaleDateString('en-KE', { weekday:'short', year:'numeric', month:'short', day:'numeric' }).replace(/,/g,'').replace(/ /g,'_');
+
+  const wb  = XLSX.utils.book_new();
+  const hdr = ['Enumerator', 'Contact Name', 'Status', 'Logged At'];
+  const data = [hdr, ...logs.map(l => [
+    l.sheet_name || l.logged_by_name || '',
+    l.contact_name || '',
+    l.status || '',
+    l.logged_at ? new Date(l.logged_at).toLocaleString() : ''
+  ])];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch:16},{wch:28},{wch:22},{wch:22}];
+  // Bold header
+  hdr.forEach((_, ci) => {
+    const ref = XLSX.utils.encode_cell({r:0, c:ci});
+    if (!ws[ref]) ws[ref] = {t:'s', v:hdr[ci]};
+    ws[ref].s = {font:{bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'1e3a5f'}},alignment:{horizontal:'center'}};
+  });
+  XLSX.utils.book_append_sheet(wb, ws, label.slice(0,31));
+  XLSX.writeFile(wb, `AllEnumerators_${label}.xlsx`);
+  toast(`📊 Exported ${logs.length} calls — ${label}`, 'ok');
 }
 
 // ============================================================
@@ -3434,14 +3830,29 @@ async function saveCustomStatuses() {
 
 let _currentAppVersion = null; // version string loaded at boot
 
+// Each HTML file gets a build stamp baked in at save time.
+// When admin pushes a new version, this stamp won't match → prompt shown.
+const APP_BUILD_STAMP = 'build_v44'; // ← bump this string each time you save a new version
+
 async function loadAppVersion() {
   try {
     const { data } = await sb.from('settings')
       .select('value').eq('key', 'app_version').single();
     if (data?.value?.version) {
       _currentAppVersion = data.value.version;
+      // Boot-time check: if the server has a newer version than this build, prompt now.
+      // This catches users running a cached old file who missed the realtime push.
+      if (_currentAppVersion && _currentAppVersion !== APP_BUILD_STAMP) {
+        const isAdmin = userProfile?.role === 'admin';
+        if (!isAdmin) {
+          // Small delay so the screen has rendered before the modal shows
+          setTimeout(() => {
+            document.getElementById('update-modal').classList.add('vis');
+          }, 1200);
+        }
+      }
     }
-  } catch(e) { /* no version set yet — that's fine */ }
+  } catch(e) { /* no version set yet — fine */ }
 }
 
 function handleAppVersionChange(newVal) {
@@ -3469,7 +3880,7 @@ async function pushAppUpdate() {
   const btn = document.getElementById('push-update-btn');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Pushing…'; }
   try {
-    const newVersion = 'v' + Date.now(); // unique timestamp-based version string
+    const newVersion = APP_BUILD_STAMP; // matches the stamp baked into this HTML file
     const { error } = await sb.from('settings').upsert({
       key: 'app_version',
       value: { version: newVersion, pushed_at: new Date().toISOString(), pushed_by: currentUser?.email || 'admin' },
@@ -3477,13 +3888,404 @@ async function pushAppUpdate() {
       updated_by: currentUser.id
     }, { onConflict: 'key' });
     if (error) throw error;
-    _currentAppVersion = newVersion; // admin's own version updates so they don't see the modal
+    _currentAppVersion = newVersion; // admin's own version matches — no modal for them
     toast('✅ Update notification sent to all users!', 'ok');
   } catch(err) {
     toast('❌ Failed: ' + (err.message || err), 'err');
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = '🚀 Push Update to All Users'; }
   }
+}
+
+// ============================================================
+// ADMIN — INDIVIDUAL ENUMERATOR EXPORT + HISTORY
+// ============================================================
+async function exportSingleEnumerator(sheetName) {
+  toast(`⏳ Fetching ${sheetName}'s contacts…`, 'info');
+  try {
+    let rows = [];
+    let offset = 0;
+    while (true) {
+      const { data, error } = await sb.from('contacts')
+        .select('*').eq('sheet_name', sheetName)
+        .order('row_num', { ascending: true })
+        .range(offset, offset + 999);
+      if (error) throw error;
+      if (!data || !data.length) break;
+      rows = [...rows, ...data];
+      if (data.length < 1000) break;
+      offset += data.length;
+    }
+    if (!rows.length) { toast('No contacts found', 'warn'); return; }
+
+    const wb = XLSX.utils.book_new();
+    const hdr = ['#','Name','Phone','Gender','County','Ward','YOB','National ID','Teen Mum','PWDs','Refugee','Call Status','Last Updated'];
+    const data = [hdr, ...rows.map(r => [
+      r.row_num, r.name||'', r.phone||'', r.gender||'', r.county||'', r.ward||'',
+      r.yob||'', r.national_id||'', r.teen_mum||'', r.pwds||'', r.refugee||'',
+      r.call_status||'', r.updated_at ? new Date(r.updated_at).toLocaleString() : ''
+    ])];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    ws['!cols'] = [{wch:6},{wch:26},{wch:16},{wch:8},{wch:14},{wch:20},{wch:6},{wch:14},{wch:9},{wch:6},{wch:8},{wch:18},{wch:20}];
+    XLSX.utils.book_append_sheet(wb, ws, sheetName.slice(0,31));
+    const fn = `${sheetName.replace(/\s+/g,'_')}_Export.xlsx`;
+    XLSX.writeFile(wb, fn);
+    toast(`✅ Exported ${sheetName} (${rows.length} contacts)`, 'ok');
+  } catch(e) {
+    toast('❌ Export failed: ' + e.message, 'err');
+  }
+}
+
+let _admHistorySheet = null;
+let _admHistoryLogs  = null;
+let _admHistorySelDay = null;
+
+async function openAdmHistoryModal(sheetName) {
+  _admHistorySheet = sheetName;
+  _admHistorySelDay = null;
+  document.getElementById('adm-history-title').textContent = `📆 ${sheetName}`;
+  document.getElementById('adm-history-modal').style.display = 'flex';
+  document.getElementById('adm-history-day-list').innerHTML =
+    '<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">Loading history…</div>';
+  document.getElementById('adm-history-detail').innerHTML = '';
+
+  try {
+    const { data, error } = await sb.from('call_logs')
+      .select('logged_at,status,contact_id,contact_name')
+      .eq('sheet_name', sheetName)
+      .order('logged_at', { ascending: false })
+      .limit(5000);
+    if (error) throw error;
+    _admHistoryLogs = data || [];
+  } catch(e) {
+    toast('⚠️ Could not load history: ' + e.message, 'err');
+    _admHistoryLogs = [];
+  }
+  renderAdmHistoryDayList();
+}
+
+function closeAdmHistoryModal() {
+  document.getElementById('adm-history-modal').style.display = 'none';
+}
+
+function renderAdmHistoryDayList() {
+  const container = document.getElementById('adm-history-day-list');
+  const byDay = {};
+  (_admHistoryLogs || []).forEach(l => {
+    const d = l.logged_at?.slice(0,10);
+    if (!d) return;
+    if (!byDay[d]) byDay[d] = [];
+    byDay[d].push(l);
+  });
+  const days = Object.keys(byDay).sort((a,b) => b.localeCompare(a));
+  if (!days.length) {
+    container.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No history found for this enumerator</div>';
+    return;
+  }
+  container.innerHTML = days.map(d => {
+    const logs = byDay[d];
+    const count = logs.length;
+    const ok = logs.filter(l => l.status === 'Successful').length;
+    const dateObj = new Date(d + 'T12:00:00');
+    const label = dateObj.toLocaleDateString('en-KE', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    const labelShort = dateObj.toLocaleDateString('en-KE', { month:'short', day:'numeric' });
+    const isActive = _admHistorySelDay === d;
+    return `<div style="display:flex;flex-direction:column;gap:6px">
+      <div class="history-day-chip${isActive ? ' active' : ''}" onclick="selectAdmHistoryDay('${d}')" style="margin-bottom:0">
+        <div style="flex:1">
+          <div class="history-day-chip-date">${label}</div>
+          <div class="history-day-chip-sub">✅ ${ok} successful</div>
+        </div>
+        <div class="history-day-chip-count">${count}</div>
+        <div style="font-size:11px;color:var(--muted);margin-left:2px">calls</div>
+        <button onclick="event.stopPropagation();exportAdmDayHistory('${d}')" style="margin-left:8px;flex-shrink:0;background:linear-gradient(135deg,rgba(34,197,94,.2),rgba(34,197,94,.1));border:1px solid rgba(34,197,94,.4);color:var(--green);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:4px;white-space:nowrap">⬇️ ${labelShort}</button>
+      </div>
+    </div>`;
+  }).join('');
+  if (_admHistorySelDay && byDay[_admHistorySelDay]) {
+    renderAdmHistoryDetail(byDay[_admHistorySelDay], _admHistorySelDay);
+  }
+}
+
+function selectAdmHistoryDay(dateStr) {
+  _admHistorySelDay = dateStr;
+  renderAdmHistoryDayList();
+  const byDay = {};
+  (_admHistoryLogs || []).forEach(l => {
+    const d = l.logged_at?.slice(0,10);
+    if (!d) return;
+    if (!byDay[d]) byDay[d] = [];
+    byDay[d].push(l);
+  });
+  renderAdmHistoryDetail(byDay[dateStr] || [], dateStr);
+  setTimeout(() => {
+    const det = document.getElementById('adm-history-detail');
+    if (det) det.scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 100);
+}
+
+function renderAdmHistoryDetail(logs, dateStr) {
+  const det = document.getElementById('adm-history-detail');
+  if (!det || !logs.length) { if(det) det.innerHTML=''; return; }
+
+  const dateObj = new Date(dateStr + 'T12:00:00');
+  const label = dateObj.toLocaleDateString('en-KE', { weekday:'long', month:'long', day:'numeric' });
+  const labelShort = dateObj.toLocaleDateString('en-KE', { month:'short', day:'numeric' });
+  const sn = _admHistorySheet || 'Export';
+
+  const counts = {};
+  logs.forEach(l => { if (l.status) counts[l.status] = (counts[l.status] || 0) + 1; });
+  const total = logs.length;
+  const ok = counts['Successful'] || 0;
+
+  let rows = `<div class="history-detail-hdr" style="display:flex;align-items:center;justify-content:space-between">
+    <span>📅 ${label}</span>
+    <button onclick="exportAdmDayHistory('${dateStr}')" style="background:linear-gradient(135deg,rgba(34,197,94,.2),rgba(34,197,94,.1));border:1px solid rgba(34,197,94,.4);color:var(--green);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px">⬇️ Export ${labelShort}</button>
+  </div>`;
+  rows += `<div class="status-breakdown" style="margin-top:0">`;
+  rows += mkHdrRow('📞 Total Calls', total, 'var(--accent2)');
+  if (ok > 0) rows += mkRow('✅ Successful', ok, Math.round(ok/Math.max(total,1)*100), '#10b981', '', Math.round(ok/Math.max(total,1)*100), '#10b981');
+  rows += '<div class="sb-divider"></div>';
+  rows += Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => {
+    const pct = Math.round(n/Math.max(total,1)*100);
+    const col = STATUS_COLORS[s] || COLORS[0];
+    return mkRow(`${STATUS_ICONS[s]||'🔵'} ${esc(s)}`, n, pct, col, '', pct, col);
+  }).join('');
+  rows += '</div>';
+  det.innerHTML = rows;
+}
+
+function exportAdmDayHistory(dateStr) {
+  const byDay = {};
+  (_admHistoryLogs || []).forEach(l => {
+    const d = l.logged_at?.slice(0,10);
+    if (!d) return;
+    if (!byDay[d]) byDay[d] = [];
+    byDay[d].push(l);
+  });
+  const logs = byDay[dateStr] || [];
+  if (!logs.length) { toast('No data for this day', 'warn'); return; }
+
+  const dateObj = new Date(dateStr + 'T12:00:00');
+  const label = dateObj.toLocaleDateString('en-KE', { weekday:'short', year:'numeric', month:'short', day:'numeric' }).replace(/,/g,'').replace(/ /g,'_');
+  const sn = (_admHistorySheet || 'Export').replace(/\s+/g,'_');
+
+  const wb = XLSX.utils.book_new();
+  const hdr = ['Contact Name','Status','Logged At'];
+  const data = [hdr, ...logs.map(l => [
+    l.contact_name||'', l.status||'',
+    l.logged_at ? new Date(l.logged_at).toLocaleString() : ''
+  ])];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch:28},{wch:22},{wch:22}];
+  XLSX.utils.book_append_sheet(wb, ws, label.slice(0,31));
+  XLSX.writeFile(wb, `${sn}_${label}.xlsx`);
+  toast(`📊 Exported ${label}`, 'ok');
+}
+// Export a specific enumerator's logs for a given date (used from Today tab)
+async function exportAdmDayForSheet(sheetName, dateStr) {
+  toast('⏳ Fetching ' + sheetName + "'s logs for " + dateStr + '…', 'info');
+  try {
+    const { data, error } = await sb.from('call_logs')
+      .select('contact_name,status,logged_at')
+      .eq('sheet_name', sheetName)
+      .gte('logged_at', dateStr + 'T00:00:00')
+      .lte('logged_at', dateStr + 'T23:59:59')
+      .order('logged_at', { ascending: true });
+    if (error) throw error;
+    if (!data || !data.length) { toast('No logs for this day', 'warn'); return; }
+
+    const dateObj = new Date(dateStr + 'T12:00:00');
+    const label = dateObj.toLocaleDateString('en-KE', { weekday:'short', year:'numeric', month:'short', day:'numeric' }).replace(/,/g,'').replace(/ /g,'_');
+    const snSafe = sheetName.replace(/\s+/g,'_');
+
+    const wb = XLSX.utils.book_new();
+    const hdr = ['Contact Name','Status','Logged At'];
+    const rows = [hdr, ...data.map(l => [
+      l.contact_name||'', l.status||'',
+      l.logged_at ? new Date(l.logged_at).toLocaleString() : ''
+    ])];
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{wch:28},{wch:22},{wch:22}];
+    XLSX.utils.book_append_sheet(wb, ws, label.slice(0,31));
+    XLSX.writeFile(wb, snSafe + '_' + label + '.xlsx');
+    toast('📊 Exported ' + sheetName + ' — ' + label + ' (' + data.length + ' calls)', 'ok');
+  } catch(e) {
+    toast('❌ Export failed: ' + e.message, 'err');
+  }
+}
+
+let _historyLogs = null;       // cached logs
+let _historySelectedDay = null;
+
+async function openHistoryModal() {
+  document.getElementById('history-modal').classList.add('vis');
+  if (!_historyLogs) await loadHistoryLogs();
+  renderHistoryDayList();
+}
+
+function closeHistoryModal() {
+  document.getElementById('history-modal').classList.remove('vis');
+}
+
+async function loadHistoryLogs() {
+  try {
+    const sheet = userProfile?.assigned_sheet;
+    if (!sheet) return;
+    const { data, error } = await sb.from('call_logs')
+      .select('logged_at,status,contact_id,contact_name')
+      .eq('sheet_name', sheet)
+      .order('logged_at', { ascending: false })
+      .limit(5000);
+    if (error) throw error;
+    _historyLogs = data || [];
+  } catch(e) {
+    toast('⚠️ Could not load history: ' + e.message, 'err');
+    _historyLogs = [];
+  }
+}
+
+function renderHistoryDayList() {
+  const container = document.getElementById('history-day-list');
+  if (!_historyLogs || !_historyLogs.length) {
+    container.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No call history found</div>';
+    return;
+  }
+
+  // Group by date — skip today (already shown on dashboard)
+  const today = todayStr();
+  const byDay = {};
+  _historyLogs.forEach(l => {
+    const d = l.logged_at?.slice(0, 10);
+    if (!d || d === today) return;
+    if (!byDay[d]) byDay[d] = [];
+    byDay[d].push(l);
+  });
+
+  const days = Object.keys(byDay).sort((a,b) => b.localeCompare(a));
+  if (!days.length) {
+    container.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No previous days found — only today\'s data is available</div>';
+    return;
+  }
+
+  container.innerHTML = days.map(d => {
+    const logs = byDay[d];
+    const count = logs.length;
+    const ok = logs.filter(l => l.status === 'Successful').length;
+    const dateObj = new Date(d + 'T12:00:00');
+    const label = dateObj.toLocaleDateString('en-KE', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    const isActive = _historySelectedDay === d;
+    return `<div class="history-day-chip${isActive ? ' active' : ''}" onclick="selectHistoryDay('${d}')">
+      <div style="flex:1">
+        <div class="history-day-chip-date">${label}</div>
+        <div class="history-day-chip-sub">✅ ${ok} successful</div>
+      </div>
+      <div class="history-day-chip-count">${count}</div>
+      <div style="font-size:11px;color:var(--muted);margin-left:2px">calls</div>
+    </div>`;
+  }).join('');
+
+  // Re-render detail if a day was already selected
+  if (_historySelectedDay && byDay[_historySelectedDay]) {
+    renderHistoryDetail(byDay[_historySelectedDay], _historySelectedDay);
+  }
+}
+
+function selectHistoryDay(dateStr) {
+  _historySelectedDay = dateStr;
+
+  // Re-render chips to highlight active
+  renderHistoryDayList();
+
+  // Build counts for this day
+  const today = todayStr();
+  const byDay = {};
+  (_historyLogs || []).forEach(l => {
+    const d = l.logged_at?.slice(0,10);
+    if (!d || d === today) return;
+    if (!byDay[d]) byDay[d] = [];
+    byDay[d].push(l);
+  });
+  const logs = byDay[dateStr] || [];
+  renderHistoryDetail(logs, dateStr);
+
+  // Scroll detail into view
+  setTimeout(() => {
+    const det = document.getElementById('history-detail');
+    if (det) det.scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 100);
+}
+
+function renderHistoryDetail(logs, dateStr) {
+  const det = document.getElementById('history-detail');
+  if (!det) return;
+  if (!logs.length) { det.innerHTML = ''; return; }
+
+  const dateObj = new Date(dateStr + 'T12:00:00');
+  const label = dateObj.toLocaleDateString('en-KE', { weekday:'long', month:'long', day:'numeric' });
+  const labelShort = dateObj.toLocaleDateString('en-KE', { month:'short', day:'numeric' });
+
+  const counts = {};
+  const uniqueContacts = new Set();
+  logs.forEach(l => {
+    if (l.status) counts[l.status] = (counts[l.status] || 0) + 1;
+    if (l.contact_id) uniqueContacts.add(l.contact_id);
+  });
+
+  const total = logs.length;
+  const unique = uniqueContacts.size;
+  const ok = counts['Successful'] || 0;
+
+  let rows = '';
+  rows += `<div class="history-detail-hdr" style="display:flex;align-items:center;justify-content:space-between">
+    <span>📅 ${label}</span>
+    <button onclick="exportDayHistory('${dateStr}')" style="background:linear-gradient(135deg,rgba(34,197,94,.2),rgba(34,197,94,.1));border:1px solid rgba(34,197,94,.4);color:var(--green);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px">⬇️ Export ${labelShort}</button>
+  </div>`;
+  rows += `<div class="status-breakdown" style="margin-top:0">`;
+  rows += mkHdrRow('📞 Total Calls', total, 'var(--accent2)');
+  if (unique > 0 && unique !== total)
+    rows += mkRow('👤 Unique Contacts', unique, Math.round(unique/Math.max(total,1)*100), '#06b6d4', '', Math.round(unique/Math.max(total,1)*100), '#06b6d4');
+  if (ok > 0)
+    rows += mkRow('✅ Successful', ok, Math.round(ok/Math.max(total,1)*100), '#10b981', '', Math.round(ok/Math.max(total,1)*100), '#10b981');
+  rows += '<div class="sb-divider"></div>';
+  rows += Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => {
+    const pct = Math.round(n/Math.max(total,1)*100);
+    const col = STATUS_COLORS[s] || COLORS[0];
+    return mkRow(`${STATUS_ICONS[s]||'🔵'} ${esc(s)}`, n, pct, col, '', pct, col);
+  }).join('');
+  rows += '</div>';
+
+  det.innerHTML = rows;
+}
+
+function exportDayHistory(dateStr) {
+  const today = todayStr();
+  const byDay = {};
+  (_historyLogs || []).forEach(l => {
+    const d = l.logged_at?.slice(0,10);
+    if (!d) return;
+    if (!byDay[d]) byDay[d] = [];
+    byDay[d].push(l);
+  });
+  const logs = byDay[dateStr] || [];
+  if (!logs.length) { toast('No data for this day', 'warn'); return; }
+
+  const dateObj = new Date(dateStr + 'T12:00:00');
+  const label = dateObj.toLocaleDateString('en-KE', { weekday:'short', year:'numeric', month:'short', day:'numeric' }).replace(/,/g,'').replace(/ /g,'_');
+  const sheet = userProfile?.assigned_sheet || 'Export';
+
+  const wb = XLSX.utils.book_new();
+  const hdr = ['Contact Name', 'Status', 'Logged At'];
+  const data = [hdr, ...logs.map(l => [
+    l.contact_name || '',
+    l.status || '',
+    l.logged_at ? new Date(l.logged_at).toLocaleString() : ''
+  ])];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch:28},{wch:22},{wch:22}];
+  XLSX.utils.book_append_sheet(wb, ws, label.slice(0,31));
+  XLSX.writeFile(wb, `${sheet}_${label}.xlsx`);
+  toast(`📊 Exported ${label}`, 'ok');
 }
 
 // ============================================================
@@ -3505,11 +4307,15 @@ function updateConnPills() {
       : '<span class="conn-pill-dot"></span>Offline';
   });
 
-  // Offline banner in call list
+  // Offline banner in call list (disappears when online)
   const banner = document.getElementById('offline-banner');
   if (banner) banner.classList.toggle('vis', !isOnline);
 
-  // Pending-save badges
+  // Persistent offline status bar — shows on dashboard, never hides unless online
+  const osb = document.getElementById('offline-status-bar');
+  if (osb) osb.classList.toggle('vis', !isOnline);
+
+  // Pending-save badges + queue count
   const n = offlineQueue.length;
   document.querySelectorAll('.pending-badge').forEach(b => {
     b.classList.toggle('vis', n > 0);
@@ -3519,6 +4325,13 @@ function updateConnPills() {
   // Offline queue count inside banner
   const qc = document.getElementById('offline-q-count');
   if (qc) qc.textContent = n > 0 ? `${n} queued` : '';
+
+  // Offline queue count in persistent bar
+  const osbQ = document.getElementById('osb-queue-count');
+  if (osbQ) {
+    osbQ.style.display = n > 0 ? '' : 'none';
+    osbQ.textContent = n > 0 ? `${n} pending` : '';
+  }
 }
 
 // Called when the device goes offline
@@ -3542,6 +4355,9 @@ async function handleGoOnline() {
   if (isOnline === true) return; // already online
   isOnline = true;
   updateConnPills();
+  // Auto-dismiss the offline modal when connection returns
+  const offMod = document.getElementById('offline-modal');
+  if (offMod) offMod.classList.remove('vis');
   toast('✅ Back online! Syncing your saved data…', 'ok');
   await flushOfflineQueue();
 }
