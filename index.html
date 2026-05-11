@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%233b7dd8'/><stop offset='1' stop-color='%23a855f7'/></linearGradient></defs><rect width='32' height='32' rx='9' fill='%230a0e1a'/><rect x='7' y='5' width='18' height='23' rx='4' fill='url(%23g)' opacity='.18'/><rect x='7' y='5' width='18' height='23' rx='4' fill='none' stroke='url(%23g)' stroke-width='1.5'/><rect x='11' y='3' width='10' height='5' rx='2.5' fill='%233b7dd8'/><rect x='10' y='12' width='12' height='1.8' rx='.9' fill='%234e90f0'/><rect x='10' y='16' width='9' height='1.8' rx='.9' fill='%234e90f0' opacity='.7'/><circle cx='22' cy='22' r='6' fill='%2322c55e'/><path d='M19.5 22l1.5 1.5 3-3' stroke='%23fff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
 <meta name="theme-color" content="#0a0e1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>SHOFCO Survey — Supabase Edition</title>
+<title>SHOFCO Survey — Supabase Edition v49</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -100,9 +100,85 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .admin-hero{background:linear-gradient(135deg,var(--admin-bg),#1a0d35);border-bottom:1px solid var(--purple)22;padding:16px 14px}
 .admin-hero-title{font-size:18px;font-weight:900;letter-spacing:-.4px;margin-bottom:4px}
 .admin-hero-sub{font-size:12px;color:var(--muted);line-height:1.5}
-.admin-tabs{display:flex;gap:8px;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto}
-.atab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .15s;white-space:nowrap;font-family:var(--font)}
-.atab.active{background:var(--admin);border-color:var(--admin);color:#fff}
+/* ===== ADMIN TABS — redesigned ===== */
+.admin-tabs-wrap{
+  background:var(--surface);
+  border-bottom:2px solid var(--border);
+  position:sticky;top:49px;z-index:90;
+}
+/* Active-tab breadcrumb strip */
+.admin-tab-crumb{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 14px 5px;border-bottom:1px solid var(--border2);
+}
+.admin-tab-crumb-ico{font-size:15px;flex-shrink:0}
+.admin-tab-crumb-section{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.admin-tab-crumb-arrow{font-size:10px;color:var(--border);flex-shrink:0}
+.admin-tab-crumb-val{font-size:13px;font-weight:800;color:#e9d5ff;letter-spacing:-.2px}
+/* Tab scroll row */
+.admin-tabs-scroll-wrap{
+  position:relative;display:flex;align-items:stretch;
+}
+.admin-tabs-arrow{
+  position:absolute;top:0;bottom:0;z-index:5;
+  display:flex;align-items:center;justify-content:center;
+  width:48px;pointer-events:none;opacity:0;
+  transition:opacity .2s;
+}
+.admin-tabs-arrow.show{opacity:1;pointer-events:auto}
+.admin-tabs-arrow-left{
+  left:0;
+  background:linear-gradient(to right,var(--surface) 60%,transparent);
+}
+.admin-tabs-arrow-right{
+  right:0;
+  background:linear-gradient(to left,var(--surface) 60%,transparent);
+}
+.admin-tabs-arrow-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(168,85,247,.55),rgba(91,33,182,.45));
+  border:2px solid rgba(168,85,247,.8);
+  color:#fff;font-size:22px;font-weight:900;line-height:1;
+  cursor:pointer;flex-shrink:0;
+  box-shadow:0 0 0 3px rgba(168,85,247,.2),0 4px 14px rgba(168,85,247,.4);
+  transition:background .15s,transform .15s,box-shadow .15s;
+}
+.admin-tabs-arrow-btn:hover{
+  background:linear-gradient(135deg,rgba(168,85,247,.85),rgba(91,33,182,.75));
+  transform:scale(1.12);
+  box-shadow:0 0 0 4px rgba(168,85,247,.3),0 6px 18px rgba(168,85,247,.55);
+}
+.admin-tabs{
+  display:flex;gap:6px;padding:8px 14px 10px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+  flex:1;
+}
+.admin-tabs::-webkit-scrollbar{display:none}
+.atab{
+  display:inline-flex;flex-direction:column;align-items:center;gap:3px;
+  padding:9px 13px 8px;border-radius:13px;min-width:58px;text-align:center;
+  font-family:var(--font);cursor:pointer;
+  border:1px solid var(--border);background:var(--surface2);
+  color:var(--muted);transition:all .18s;white-space:nowrap;flex-shrink:0;position:relative;
+}
+.atab-icon{font-size:20px;line-height:1;transition:transform .18s}
+.atab-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;line-height:1;margin-top:1px}
+.atab:hover{border-color:var(--accent);color:var(--text);background:rgba(59,125,216,.1)}
+.atab:hover .atab-icon{transform:translateY(-2px)}
+.atab.active{
+  background:linear-gradient(160deg,rgba(168,85,247,.28),rgba(91,33,182,.2));
+  color:#e9d5ff;border-color:#a855f7;
+  box-shadow:0 0 0 1px rgba(168,85,247,.25),0 4px 18px rgba(168,85,247,.22);
+}
+.atab.active .atab-icon{filter:drop-shadow(0 0 6px rgba(168,85,247,.75));transform:translateY(-2px)}
+/* active dot indicator */
+.atab.active::after{
+  content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);
+  width:20px;height:3px;border-radius:2px;
+  background:linear-gradient(90deg,#a855f7,#c084fc);
+  box-shadow:0 0 8px rgba(168,85,247,.7);
+}
 .admin-section{display:none;padding:14px}
 .admin-section.vis{display:block}
 
@@ -511,6 +587,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 /* ============ REAL-TIME STATUS ============ */
 .rt-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.2)}
 
+/* Prev-Days spinner */
+.prevdays-loader{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:36px 0}
+.prevdays-spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.prevdays-loader-txt{font-size:13px;font-weight:600;color:var(--muted);text-align:center}
+.prevdays-loader-sub{font-size:11px;color:var(--border);text-align:center}
+/* skeleton rows while loading */
+.skel-row{height:62px;border-radius:12px;background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);background-size:200% 100%;animation:skelshim 1.4s linear infinite;margin-bottom:8px}
+@keyframes skelshim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
 /* ============ RESPONSIVE ============ */
 @media(min-width:600px){
   .dash-stats{grid-template-columns:repeat(4,1fr)}
@@ -776,6 +862,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   <!-- Bottom bar with Sign Out -->
   <div class="bbar">
     <button class="btn-sm" style="flex:1;justify-content:center" onclick="openMyList()">📋 Open Call List</button>
+    <button class="btn-sm" style="flex:1;justify-content:center;background:linear-gradient(135deg,rgba(250,204,21,.15),rgba(234,179,8,.08));border-color:rgba(250,204,21,.4);color:#fde047;font-weight:700" onclick="openRateScreen()">⭐ Rate</button>
     <button class="btn-sm" style="flex:1;justify-content:center;background:#1c0808;border-color:#7f1d1d55;color:#fca5a5;font-weight:700" onclick="doLogout()">🚪 Sign Out</button>
   </div>
 </div>
@@ -802,13 +889,56 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="stat-c c-ok"><div class="stat-v" id="adm-today" style="color:var(--accent2)">0</div><div class="stat-l">Today</div></div>
   </div>
 
-  <div class="admin-tabs">
-    <button class="atab" onclick="adminTab('today',this)">📅 Today</button>
-    <button class="atab" onclick="adminTab('prevdays',this)">📆 Prev Days</button>
-    <button class="atab" onclick="adminTab('overall',this)">📊 Overall</button>
-    <button class="atab active" onclick="adminTab('enumerators',this)">👥 Enumerators</button>
-    <button class="atab" onclick="adminTab('users',this)">🔑 Users</button>
-    <button class="atab" onclick="adminTab('seed',this)">🌱 Seed Data</button>
+  <!-- Tab breadcrumb + pill bar -->
+  <div class="admin-tabs-wrap">
+    <div class="admin-tab-crumb">
+      <span class="admin-tab-crumb-ico" id="admin-crumb-ico">👥</span>
+      <span class="admin-tab-crumb-section">Admin</span>
+      <span class="admin-tab-crumb-arrow">›</span>
+      <span class="admin-tab-crumb-val" id="admin-current-tab-label">Team</span>
+    </div>
+    <div class="admin-tabs-scroll-wrap">
+      <div class="admin-tabs-arrow admin-tabs-arrow-left" id="atabs-arrow-left">
+        <button class="admin-tabs-arrow-btn" onclick="adminTabsScroll(-1)" aria-label="Scroll left">‹</button>
+      </div>
+      <div class="admin-tabs" id="admin-tabs-bar">
+        <button class="atab" onclick="adminTab('today',this)" data-label="Today" data-ico="📅">
+          <span class="atab-icon">📅</span>
+          <span class="atab-label">Today</span>
+        </button>
+        <button class="atab" onclick="adminTab('prevdays',this)" data-label="History" data-ico="📆">
+          <span class="atab-icon">📆</span>
+          <span class="atab-label">History</span>
+        </button>
+        <button class="atab" onclick="adminTab('overall',this)" data-label="Overall" data-ico="📊">
+          <span class="atab-icon">📊</span>
+          <span class="atab-label">Overall</span>
+        </button>
+        <button class="atab active" onclick="adminTab('enumerators',this)" data-label="Team" data-ico="👥">
+          <span class="atab-icon">👥</span>
+          <span class="atab-label">Team</span>
+        </button>
+        <button class="atab" onclick="adminTab('feedback',this)" data-label="Feedback" data-ico="⭐" id="atab-feedback">
+          <span class="atab-icon">⭐</span>
+          <span class="atab-label">Feedback</span>
+        </button>
+        <button class="atab" onclick="adminTab('finished',this)" data-label="Finished" data-ico="✅">
+          <span class="atab-icon">✅</span>
+          <span class="atab-label">Finished</span>
+        </button>
+        <button class="atab" onclick="adminTab('users',this)" data-label="Users" data-ico="🔑">
+          <span class="atab-icon">🔑</span>
+          <span class="atab-label">Users</span>
+        </button>
+        <button class="atab" onclick="adminTab('seed',this)" data-label="Seed" data-ico="🌱">
+          <span class="atab-icon">🌱</span>
+          <span class="atab-label">Seed</span>
+        </button>
+      </div>
+      <div class="admin-tabs-arrow admin-tabs-arrow-right show" id="atabs-arrow-right">
+        <button class="admin-tabs-arrow-btn" onclick="adminTabsScroll(1)" aria-label="Scroll right">›</button>
+      </div>
+    </div>
   </div>
 
   <!-- TODAY TAB -->
@@ -840,7 +970,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   <!-- PREVIOUS DAYS TAB -->
   <div class="admin-section" id="adm-prevdays-sec">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 10px">
-      <div id="adm-prevdays-loading" style="font-size:12px;color:var(--muted)">⏳ Loading…</div>
+      <div id="adm-prevdays-loading" style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px"></div>
       <button onclick="_admPrevDaysLogs=null;loadAdmPrevDays()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px">🔄 Refresh</button>
     </div>
     <div id="adm-prevdays-day-list" style="display:flex;flex-direction:column;gap:8px"></div>
@@ -850,6 +980,58 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   <!-- ENUMERATORS TAB -->
   <div class="admin-section vis" id="adm-enum-sec">
     <div id="adm-enum-cards"></div>
+  </div>
+
+  <!-- FEEDBACK TAB -->
+  <div class="admin-section" id="adm-feedback-sec">
+    <!-- SQL fix notice -->
+    <div id="feedback-sql-notice" style="background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(239,68,68,.06));border:1px solid rgba(239,68,68,.35);border-radius:12px;padding:12px 14px;margin-bottom:14px;display:none">
+      <div style="font-size:12px;font-weight:800;color:#f87171;margin-bottom:6px">⚠️ Supabase RLS Fix Required</div>
+      <div style="font-size:11px;color:#fca5a5;line-height:1.6;margin-bottom:8px">Run this SQL in your Supabase SQL Editor to allow feedback reads and enumerator status writes:</div>
+      <div style="background:#060d1a;border-radius:8px;padding:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#79c0ff;line-height:1.7;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto">-- 1. Allow all authenticated to INSERT feedback
+drop policy if exists "feedback_insert_own" on public.feedback;
+drop policy if exists "feedback_insert_authenticated" on public.feedback;
+create policy "feedback_insert_authenticated" on public.feedback
+  for insert with check (auth.role() = 'authenticated');
+
+-- 2. Allow all authenticated to SELECT feedback (admin needs this)
+drop policy if exists "feedback_select_all" on public.feedback;
+create policy "feedback_select_all" on public.feedback
+  for select using (auth.role() = 'authenticated');
+
+-- 3. Fix enumerator_status INSERT (Finished button)
+drop policy if exists "enum_status_insert_self" on public.enumerator_status;
+drop policy if exists "enum_status_insert_auth" on public.enumerator_status;
+create policy "enum_status_insert_auth" on public.enumerator_status
+  for insert with check (auth.role() = 'authenticated');
+
+-- 4. Fix enumerator_status UPDATE
+drop policy if exists "enum_status_update_self" on public.enumerator_status;
+create policy "enum_status_update_self" on public.enumerator_status
+  for update using (auth.uid() = id);</div>
+      <button onclick="document.getElementById('feedback-sql-notice').style.display='none'" style="margin-top:8px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#f87171;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font)">✕ Dismiss</button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0 12px">
+      <div style="font-size:13px;font-weight:700;color:var(--text)">Ratings &amp; Feedback</div>
+      <button onclick="loadAdminFeedback()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px">🔄 Refresh</button>
+    </div>
+    <!-- Stats row -->
+    <div id="adm-feedback-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px"></div>
+    <!-- List -->
+    <div id="adm-feedback-list" style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">Loading…</div>
+    </div>
+  </div>
+
+  <!-- FINISHED TAB -->
+  <div class="admin-section" id="adm-finished-sec">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0 12px">
+      <div style="font-size:13px;font-weight:700;color:var(--text)">Enumerator Status</div>
+      <button onclick="loadAdminFinished()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px">🔄 Refresh</button>
+    </div>
+    <div id="adm-finished-list" style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">Loading…</div>
+    </div>
   </div>
 
   <!-- USERS TAB -->
@@ -955,9 +1137,96 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
   <div class="bbar">
     <button class="btn-sm" style="flex:1;justify-content:center" onclick="exportExcel()">⬇️ Export Excel</button>
+    <button class="btn-sm" id="finished-btn" style="flex:1;justify-content:center;background:linear-gradient(135deg,rgba(34,197,94,.2),rgba(22,163,74,.1));border-color:rgba(34,197,94,.5);color:#4ade80;font-weight:700" onclick="toggleFinished()">✅ Finished</button>
     <button class="btn-sm" style="flex:1;justify-content:center;background:var(--admin-bg);border-color:var(--purple)33;color:#c084fc" onclick="showDash()">◀ Dashboard</button>
   </div>
 </div>
+
+<!-- ====================== RATE SCREEN ====================== -->
+<div id="rate-screen" class="screen" style="display:none;min-height:100vh;background:var(--bg);flex-direction:column">
+  <div class="top-bar">
+    <button class="btn-ico" onclick="closeRateScreen()">◀</button>
+    <div class="tb-brand" style="background:linear-gradient(90deg,#fde047,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">⭐ Rate & Feedback</div>
+  </div>
+
+  <!-- RATING FORM VIEW -->
+  <div id="rate-form-view" style="padding:0;flex:1;overflow-y:auto">
+    <!-- Hero banner -->
+    <div style="background:linear-gradient(160deg,#0d1428 0%,#14204a 50%,#1a1035 100%);padding:28px 20px 24px;text-align:center;border-bottom:1px solid var(--border);position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(168,85,247,.18),transparent 70%);pointer-events:none"></div>
+      <!-- DMN Logo -->
+      <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#3b7dd8,#a855f7);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px;box-shadow:0 8px 32px rgba(168,85,247,.35)">🌐</div>
+      <div style="font-size:20px;font-weight:900;letter-spacing:-.5px;color:var(--text);margin-bottom:3px">DMN Solutions</div>
+      <div style="font-size:11px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px">Digital Management &amp; Networks</div>
+      <a href="https://dmn-solution.vercel.app/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:rgba(59,125,216,.18);border:1px solid rgba(59,125,216,.4);color:var(--accent2);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:700;text-decoration:none">🔗 dmn-solution.vercel.app</a>
+    </div>
+
+    <div style="padding:20px 16px 32px">
+      <!-- Stars -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 16px;margin-bottom:14px;text-align:center">
+        <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px">How would you rate this app?</div>
+        <div id="star-row" style="display:flex;justify-content:center;gap:8px;margin-bottom:10px">
+          <span class="star-btn" data-v="1" onclick="setRating(1)" style="font-size:40px;cursor:pointer;transition:all .2s;filter:grayscale(1);opacity:.4;display:inline-block">⭐</span>
+          <span class="star-btn" data-v="2" onclick="setRating(2)" style="font-size:40px;cursor:pointer;transition:all .2s;filter:grayscale(1);opacity:.4;display:inline-block">⭐</span>
+          <span class="star-btn" data-v="3" onclick="setRating(3)" style="font-size:40px;cursor:pointer;transition:all .2s;filter:grayscale(1);opacity:.4;display:inline-block">⭐</span>
+          <span class="star-btn" data-v="4" onclick="setRating(4)" style="font-size:40px;cursor:pointer;transition:all .2s;filter:grayscale(1);opacity:.4;display:inline-block">⭐</span>
+          <span class="star-btn" data-v="5" onclick="setRating(5)" style="font-size:40px;cursor:pointer;transition:all .2s;filter:grayscale(1);opacity:.4;display:inline-block">⭐</span>
+        </div>
+        <div id="rating-label" style="min-height:22px;font-size:14px;font-weight:700;color:#fde047;letter-spacing:-.2px"></div>
+      </div>
+
+      <!-- Comment -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Leave a comment <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(optional)</span></div>
+        <textarea id="feedback-text" placeholder="Share your thoughts, suggestions, or anything else…" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:13px;font-family:var(--font);resize:none;outline:none;min-height:88px;transition:border .15s;line-height:1.6" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+      </div>
+
+      <!-- Submit -->
+      <button onclick="submitRating()" id="rate-submit-btn" style="width:100%;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;padding:15px 20px;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:var(--font);letter-spacing:-.2px;box-shadow:0 4px 20px rgba(249,115,22,.35);transition:all .2s">⭐ Submit Rating</button>
+    </div>
+  </div>
+
+  <!-- THANK YOU VIEW (hidden by default) -->
+  <div id="rate-thanks" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;background:var(--bg)">
+    <!-- Animated confetti ring -->
+    <div style="position:relative;width:110px;height:110px;margin:0 auto 24px">
+      <div style="position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,rgba(34,197,94,.25),rgba(59,125,216,.15));animation:pulseRing 2s ease-in-out infinite"></div>
+      <div style="position:absolute;inset:8px;border-radius:50%;background:linear-gradient(135deg,rgba(34,197,94,.35),rgba(22,163,74,.2));animation:pulseRing 2s ease-in-out infinite .3s"></div>
+      <div style="position:absolute;inset:18px;border-radius:50%;background:linear-gradient(135deg,#16a34a,#22c55e);display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 8px 24px rgba(34,197,94,.4)">🎉</div>
+    </div>
+    <div style="font-size:26px;font-weight:900;color:var(--text);margin-bottom:6px;letter-spacing:-.5px">Thank you!</div>
+    <div id="thanks-rating-display" style="font-size:22px;margin-bottom:8px">⭐⭐⭐⭐⭐</div>
+    <div style="font-size:14px;color:var(--muted);max-width:260px;line-height:1.7;margin-bottom:28px">Your rating has been recorded. Want to explore more of what DMN Solutions offers?</div>
+
+    <!-- Action cards -->
+    <div style="width:100%;display:flex;flex-direction:column;gap:10px;max-width:340px">
+      <a href="https://dmn-solution.vercel.app/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(59,125,216,.2),rgba(91,33,182,.15));border:1px solid rgba(59,125,216,.4);border-radius:14px;padding:14px 16px;text-decoration:none;color:var(--text);transition:all .2s" onmouseover="this.style.borderColor='rgba(59,125,216,.7)'" onmouseout="this.style.borderColor='rgba(59,125,216,.4)'">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#3b7dd8,#a855f7);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🌐</div>
+        <div style="text-align:left">
+          <div style="font-size:13px;font-weight:800;margin-bottom:2px">Visit Our Website</div>
+          <div style="font-size:11px;color:var(--muted)">dmn-solution.vercel.app</div>
+        </div>
+        <div style="margin-left:auto;font-size:16px;color:var(--muted)">→</div>
+      </a>
+
+      <button onclick="shareWebsite()" style="display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;font-family:var(--font);color:var(--text);width:100%;text-align:left;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="width:40px;height:40px;border-radius:12px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📤</div>
+        <div style="text-align:left">
+          <div style="font-size:13px;font-weight:800;margin-bottom:2px">Share DMN Solutions</div>
+          <div style="font-size:11px;color:var(--muted)">Invite others to check it out</div>
+        </div>
+        <div style="margin-left:auto;font-size:16px;color:var(--muted)">→</div>
+      </button>
+
+      <button onclick="closeRateScreen()" style="display:flex;align-items:center;justify-content:center;gap:8px;background:transparent;border:1px solid var(--border);border-radius:14px;padding:12px 16px;cursor:pointer;font-family:var(--font);color:var(--muted);font-size:13px;font-weight:600;width:100%;margin-top:4px">
+        ← Back to App
+      </button>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes pulseRing{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.08);opacity:1}}
+</style>
 
 <!-- ====================== STATUS SCREEN ====================== -->
 <div id="status-screen">
@@ -1391,6 +1660,80 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- ------------------------------------------------
+-- 13. FEEDBACK / RATINGS TABLE
+-- Stores star ratings and comments from enumerators.
+-- NOT included in Excel exports.
+-- ------------------------------------------------
+create table if not exists public.feedback (
+  id bigserial primary key,
+  submitted_by uuid references auth.users(id),
+  submitted_by_name text,
+  sheet_name text,
+  rating int not null check (rating between 1 and 5),
+  comment text,
+  submitted_at timestamptz default now()
+);
+alter table public.feedback enable row level security;
+
+drop policy if exists "feedback_insert_own"          on public.feedback;
+drop policy if exists "feedback_insert_authenticated" on public.feedback;
+drop policy if exists "feedback_read_admin"           on public.feedback;
+drop policy if exists "feedback_read_own"             on public.feedback;
+
+-- Any authenticated user can insert feedback
+create policy "feedback_insert_authenticated" on public.feedback
+  for insert with check (auth.role() = 'authenticated');
+
+create policy "feedback_read_admin" on public.feedback
+  for select using (public.is_admin());
+
+create policy "feedback_read_own" on public.feedback
+  for select using (submitted_by = auth.uid());
+
+create index if not exists idx_feedback_by  on public.feedback(submitted_by);
+create index if not exists idx_feedback_at  on public.feedback(submitted_at);
+
+do $$ begin
+  alter publication supabase_realtime add table public.feedback;
+exception when others then null; end $$;
+
+-- ------------------------------------------------
+-- 14. ENUMERATOR FINISH STATUS TABLE
+-- Tracks whether an enumerator has marked their
+-- list as finished. NOT included in Excel exports.
+-- ------------------------------------------------
+create table if not exists public.enumerator_status (
+  id uuid primary key references auth.users(id) on delete cascade,
+  sheet_name text not null,
+  full_name text,
+  is_finished boolean default false,
+  finished_at timestamptz,
+  unfinished_at timestamptz,
+  updated_at timestamptz default now()
+);
+alter table public.enumerator_status enable row level security;
+
+drop policy if exists "enum_status_self"        on public.enumerator_status;
+drop policy if exists "enum_status_read_admin"  on public.enumerator_status;
+drop policy if exists "enum_status_insert_self" on public.enumerator_status;
+drop policy if exists "enum_status_insert_auth" on public.enumerator_status;
+drop policy if exists "enum_status_update_self" on public.enumerator_status;
+
+create policy "enum_status_self" on public.enumerator_status
+  for select using (auth.uid() = id or public.is_admin());
+
+-- Any authenticated user can insert their own row
+create policy "enum_status_insert_auth" on public.enumerator_status
+  for insert with check (auth.role() = 'authenticated');
+
+create policy "enum_status_update_self" on public.enumerator_status
+  for update using (auth.uid() = id or public.is_admin());
+
+do $$ begin
+  alter publication supabase_realtime add table public.enumerator_status;
+exception when others then null; end $$;
 `;
 
 // ============================================================
@@ -2042,6 +2385,12 @@ function subscribeRealtimeAdmin() {
       if (payload.new) adminData.logs.unshift(payload.new);
       _admPrevDaysLogs = null; // invalidate cache so Prev Days reloads fresh
       refreshAdminStats();
+      // If the user is currently viewing Prev Days, silently reload it in the background
+      if (document.getElementById('adm-prevdays-sec')?.classList.contains('vis')) {
+        const loadEl = document.getElementById('adm-prevdays-loading');
+        if (loadEl) { loadEl.textContent = '🔄 New data — refreshing…'; loadEl.style.color = 'var(--accent2)'; }
+        setTimeout(() => loadAdmPrevDays(), 800); // small delay so multiple rapid inserts batch
+      }
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'status_alter_log' }, payload => {
       // Refresh logs so altered counts update
@@ -2067,11 +2416,18 @@ function subscribeRealtimeAdmin() {
 // SCREEN MANAGEMENT — zero-delay instant switching
 // ============================================================
 // status-screen is a fixed overlay managed separately — excluded from showScr
-const SCREENS = ['setup-screen','dashboard-screen','admin-screen','calllist-screen'];
+const SCREENS = ['setup-screen','dashboard-screen','admin-screen','calllist-screen','rate-screen'];
 function showScr(id) {
   SCREENS.forEach(sid => {
     const el = document.getElementById(sid);
-    if (el) el.className = el.className.replace(/\bactive\b/g,'').trim() + (sid === id ? ' active' : '');
+    if (!el) return;
+    if (sid === id) {
+      el.classList.add('active');
+      el.style.display = sid === 'rate-screen' ? 'flex' : '';
+    } else {
+      el.classList.remove('active');
+      if (sid === 'rate-screen') el.style.display = 'none';
+    }
   });
   window.scrollTo(0, 0);
 }
@@ -2088,6 +2444,9 @@ function showDash() {
 function showAdminPanel() {
   showScr('admin-screen');
   refreshAdminStats();
+  subscribeAdminFeedbackRT();
+  // Re-evaluate arrows now that the screen is visible
+  requestAnimationFrame(() => updateAdminTabArrows());
 }
 
 function openMyList() {
@@ -2095,6 +2454,7 @@ function openMyList() {
   document.getElementById('srch').value = '';
   document.querySelectorAll('.ftab').forEach(t => t.classList.toggle('active', t.dataset.f === 'all'));
   document.getElementById('cl-title').textContent = (userProfile?.assigned_sheet || 'My') + "'s List";
+  loadFinishedState(); // load finished state when opening call list
 
   // Show loader counting 1→100, then open list instantly at 100
   setLoader('Opening Call List…', 1);
@@ -2750,14 +3110,58 @@ function openSurvey() {
 function adminTab(tab, btn) {
   document.querySelectorAll('.atab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+
+  // Update breadcrumb
+  const labelEl = document.getElementById('admin-current-tab-label');
+  const icoEl   = document.getElementById('admin-crumb-ico');
+  if (labelEl) labelEl.textContent = btn.getAttribute('data-label') || tab;
+  if (icoEl)   icoEl.textContent   = btn.getAttribute('data-ico')   || '📋';
+
+  // Scroll active tab into view smoothly
+  btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+  // Update scroll arrows after scroll settles
+  setTimeout(updateAdminTabArrows, 350);
+
   document.getElementById('adm-today-sec').classList.toggle('vis',      tab==='today');
   document.getElementById('adm-prevdays-sec').classList.toggle('vis',   tab==='prevdays');
   document.getElementById('adm-overall-sec').classList.toggle('vis',    tab==='overall');
   document.getElementById('adm-enum-sec').classList.toggle('vis',       tab==='enumerators');
+  document.getElementById('adm-feedback-sec').classList.toggle('vis',   tab==='feedback');
+  document.getElementById('adm-finished-sec').classList.toggle('vis',   tab==='finished');
   document.getElementById('adm-users-sec').classList.toggle('vis',      tab==='users');
   document.getElementById('adm-seed-sec').classList.toggle('vis',       tab==='seed');
   if (tab === 'prevdays') loadAdmPrevDays();
+  if (tab === 'feedback') { loadAdminFeedback(); subscribeAdminFeedbackRT(); }
+  if (tab === 'finished') { loadAdminFinished(); subscribeAdminFeedbackRT(); }
 }
+
+/* ── Admin tab scroll arrows ── */
+function updateAdminTabArrows() {
+  const bar = document.getElementById('admin-tabs-bar');
+  const lArr = document.getElementById('atabs-arrow-left');
+  const rArr = document.getElementById('atabs-arrow-right');
+  if (!bar || !lArr || !rArr) return;
+  const atLeft  = bar.scrollLeft < 6;
+  const atRight = bar.scrollLeft + bar.clientWidth >= bar.scrollWidth - 6;
+  lArr.classList.toggle('show', !atLeft);
+  rArr.classList.toggle('show', !atRight);
+}
+function adminTabsScroll(dir) {
+  const bar = document.getElementById('admin-tabs-bar');
+  if (!bar) return;
+  bar.scrollBy({ left: dir * 120, behavior: 'smooth' });
+  setTimeout(updateAdminTabArrows, 300);
+}
+// Wire up scroll listener and run on init
+(function initAdminTabArrows() {
+  const bar = document.getElementById('admin-tabs-bar');
+  if (!bar) { setTimeout(initAdminTabArrows, 200); return; }
+  bar.addEventListener('scroll', updateAdminTabArrows, { passive: true });
+  // Run immediately and after a short delay to handle hidden-then-shown screens
+  updateAdminTabArrows();
+  setTimeout(updateAdminTabArrows, 400);
+})();
 
 function refreshAdminStats() {
   const stats  = adminData.statsBySheet || {};
@@ -3063,10 +3467,24 @@ async function loadAdmPrevDays() {
   const detailEl = document.getElementById('adm-prevdays-detail');
   const loadEl   = document.getElementById('adm-prevdays-loading');
 
-  // Already loaded — just re-render
+  // Already loaded — just re-render (data is up-to-date via realtime invalidation)
   if (_admPrevDaysLogs) { renderAdmPrevDaysList(); return; }
 
-  if (loadEl) { loadEl.style.display = ''; loadEl.textContent = '⏳ Loading call history…'; }
+  // Show spinner + skeleton placeholders while fetching
+  if (loadEl) { loadEl.style.display = ''; loadEl.textContent = ''; }
+  if (listEl) listEl.innerHTML = `
+    <div class="prevdays-loader">
+      <div class="prevdays-spinner"></div>
+      <div class="prevdays-loader-txt" id="prevdays-fetch-txt">Fetching call history…</div>
+      <div class="prevdays-loader-sub" id="prevdays-fetch-sub">This may take a moment for large datasets</div>
+    </div>
+    <div class="skel-row"></div><div class="skel-row" style="opacity:.7"></div>
+    <div class="skel-row" style="opacity:.45"></div>
+  `;
+  if (detailEl) detailEl.innerHTML = '';
+
+  const fetchTxt = () => document.getElementById('prevdays-fetch-txt');
+  const fetchSub = () => document.getElementById('prevdays-fetch-sub');
 
   try {
     // Fetch all call_logs paginated (admin can see everything)
@@ -3074,7 +3492,7 @@ async function loadAdmPrevDays() {
     let offset  = 0;
     const PAGE  = 1000;
     while (true) {
-      if (loadEl) loadEl.textContent = `⏳ Loading… ${allLogs.length.toLocaleString()} logs fetched`;
+      if (fetchTxt()) fetchTxt().textContent = `Fetching… ${allLogs.length.toLocaleString()} logs loaded`;
       const { data, error } = await sb.from('call_logs')
         .select('logged_at,status,contact_id,contact_name,sheet_name,logged_by_name')
         .order('logged_at', { ascending: false })
@@ -3082,20 +3500,41 @@ async function loadAdmPrevDays() {
       if (error) throw error;
       if (!data || !data.length) break;
       allLogs = [...allLogs, ...data];
+
+      // Progressive render: show days as they come in (every 2 pages)
+      if (allLogs.length % 2000 === 0 || data.length < PAGE) {
+        _admPrevDaysLogs = [...allLogs]; // partial snapshot
+        renderAdmPrevDaysList();
+        // Put spinner back if more pages expected
+        if (data.length === PAGE && listEl && !document.getElementById('prevdays-fetch-txt')) {
+          const header = `<div class="prevdays-loader" style="padding:14px 0">
+            <div class="prevdays-spinner"></div>
+            <div class="prevdays-loader-txt" id="prevdays-fetch-txt">Loading more… ${allLogs.length.toLocaleString()} so far</div>
+          </div>`;
+          listEl.insertAdjacentHTML('afterbegin', header);
+        }
+      }
       if (data.length < PAGE) break;
       offset += data.length;
     }
+
+    // Final set
     _admPrevDaysLogs = allLogs;
-    if (loadEl) { loadEl.textContent = `✅ ${allLogs.length.toLocaleString()} logs loaded`; }
+    if (loadEl) {
+      loadEl.textContent = `✅ ${allLogs.length.toLocaleString()} logs · Live`;
+      loadEl.style.color = 'var(--green)';
+    }
     renderAdmPrevDaysList();
   } catch(e) {
-    if (loadEl) loadEl.textContent = '❌ Failed: ' + (e.message || e);
+    if (listEl) listEl.innerHTML = `<div style="padding:24px;text-align:center;font-size:13px;color:var(--danger)">❌ Failed to load history<br><span style="font-size:11px;color:var(--muted)">${esc(e.message || String(e))}</span></div>`;
+    if (loadEl) { loadEl.textContent = '❌ Load failed'; loadEl.style.color = 'var(--danger)'; }
     toast('❌ Could not load history: ' + e.message, 'err');
   }
 }
 
 function renderAdmPrevDaysList() {
   const listEl = document.getElementById('adm-prevdays-day-list');
+  const loadEl = document.getElementById('adm-prevdays-loading');
   if (!listEl) return;
 
   const today = todayStr();
@@ -3111,6 +3550,11 @@ function renderAdmPrevDaysList() {
   if (!days.length) {
     listEl.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No previous days found</div>';
     return;
+  }
+
+  // Update the status badge to show live
+  if (loadEl && _admPrevDaysLogs) {
+    loadEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:var(--green);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:20px;padding:2px 8px"><span style="width:5px;height:5px;border-radius:50%;background:var(--green);animation:liveblink 2.4s ease-in-out infinite"></span>Live · ${_admPrevDaysLogs.length.toLocaleString()} logs</span>`;
   }
 
   listEl.innerHTML = days.map(d => {
@@ -3832,7 +4276,7 @@ let _currentAppVersion = null; // version string loaded at boot
 
 // Each HTML file gets a build stamp baked in at save time.
 // When admin pushes a new version, this stamp won't match → prompt shown.
-const APP_BUILD_STAMP = 'build_v44'; // ← bump this string each time you save a new version
+const APP_BUILD_STAMP = 'build_v49'; // ← bump this string each time you save a new version
 
 async function loadAppVersion() {
   try {
@@ -3842,7 +4286,8 @@ async function loadAppVersion() {
       _currentAppVersion = data.value.version;
       // Boot-time check: if the server has a newer version than this build, prompt now.
       // This catches users running a cached old file who missed the realtime push.
-      if (_currentAppVersion && _currentAppVersion !== APP_BUILD_STAMP) {
+      const ackVersion = localStorage.getItem('shofco_ack_version');
+      if (_currentAppVersion && _currentAppVersion !== APP_BUILD_STAMP && ackVersion !== _currentAppVersion) {
         const isAdmin = userProfile?.role === 'admin';
         if (!isAdmin) {
           // Small delay so the screen has rendered before the modal shows
@@ -3857,21 +4302,29 @@ async function loadAppVersion() {
 
 function handleAppVersionChange(newVal) {
   if (!newVal?.version) return;
-  // Only show to non-admin users, or if the version actually changed
+  // Never show if this IS the version already baked into the running file
+  if (newVal.version === APP_BUILD_STAMP) return;
+  // Never show if the user already refreshed/dismissed this specific version
+  if (localStorage.getItem('shofco_ack_version') === newVal.version) return;
+  // Only show to non-admin users
   const isAdmin = userProfile?.role === 'admin';
-  if (isAdmin) return; // admin pushed it — they don't need to refresh themselves
-  if (_currentAppVersion && newVal.version === _currentAppVersion) return; // same version, ignore
+  if (isAdmin) return;
+  if (_currentAppVersion && newVal.version === _currentAppVersion) return;
   // Show the update modal
   document.getElementById('update-modal').classList.add('vis');
 }
 
 function doAppRefresh() {
+  // Mark the current pushed version as acknowledged so the modal won't re-appear after reload
+  if (_currentAppVersion) localStorage.setItem('shofco_ack_version', _currentAppVersion);
   // Hard reload — bypasses cache, gets fresh HTML/JS
   window.location.reload(true);
 }
 
 function dismissUpdate() {
   document.getElementById('update-modal').classList.remove('vis');
+  // Remember the dismissed version so it doesn't reappear (even via realtime) in this session
+  if (_currentAppVersion) localStorage.setItem('shofco_ack_version', _currentAppVersion);
   toast('⏭️ Update dismissed — you can refresh manually anytime', 'warn');
 }
 
@@ -4437,6 +4890,283 @@ setInterval(async () => {
   if (nowOnline && !isOnline)      await handleGoOnline();
   else if (!nowOnline && isOnline)  handleGoOffline();
 }, 8000);
+
+// ============================================================
+// RATE / FEEDBACK SCREEN
+// ============================================================
+let selectedRating = 0;
+const RATING_LABELS = ['','😕 Poor','😐 Fair','🙂 Good','😊 Great','🤩 Excellent!'];
+
+function openRateScreen() {
+  selectedRating = 0;
+  document.getElementById('feedback-text').value = '';
+  // Reset to form view
+  document.getElementById('rate-form-view').style.display = 'block';
+  document.getElementById('rate-thanks').style.display = 'none';
+  document.getElementById('rate-submit-btn').style.display = 'block';
+  document.getElementById('rate-submit-btn').disabled = false;
+  document.getElementById('rate-submit-btn').textContent = '⭐ Submit Rating';
+  document.querySelectorAll('.star-btn').forEach(s => {
+    s.style.filter = 'grayscale(1)'; s.style.opacity = '.4'; s.style.transform = 'scale(1)';
+  });
+  document.getElementById('rating-label').textContent = '';
+  // Show the screen
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const rs = document.getElementById('rate-screen');
+  rs.style.display = 'flex'; rs.classList.add('active');
+}
+
+function closeRateScreen() {
+  const rs = document.getElementById('rate-screen');
+  rs.style.display = 'none'; rs.classList.remove('active');
+  showDash();
+}
+
+function setRating(v) {
+  selectedRating = v;
+  document.querySelectorAll('.star-btn').forEach(s => {
+    const sv = parseInt(s.dataset.v);
+    s.style.filter    = sv <= v ? 'none' : 'grayscale(1)';
+    s.style.opacity   = sv <= v ? '1' : '.4';
+    s.style.transform = sv === v ? 'scale(1.25)' : sv < v ? 'scale(1.1)' : 'scale(1)';
+  });
+  document.getElementById('rating-label').textContent = RATING_LABELS[v] || '';
+}
+
+async function submitRating() {
+  if (!selectedRating) { toast('⭐ Please select a star rating first', 'warn'); return; }
+  const comment = document.getElementById('feedback-text').value.trim();
+  const btn = document.getElementById('rate-submit-btn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    // Re-fetch session to ensure auth token is fresh
+    const { data: sessionData } = await sb.auth.getSession();
+    const uid  = sessionData?.session?.user?.id || currentUser?.id;
+    const name = userProfile?.full_name || sessionData?.session?.user?.email || currentUser?.email || 'Unknown';
+    if (!uid) throw new Error('Not logged in — please sign out and back in.');
+
+    const { error } = await sb.from('feedback').insert({
+      submitted_by:      uid,
+      submitted_by_name: name,
+      sheet_name:        userProfile?.assigned_sheet || null,
+      rating:            selectedRating,
+      comment:           comment || null,
+      submitted_at:      new Date().toISOString(),
+    });
+    if (error) throw error;
+
+    // Show thank-you view
+    document.getElementById('rate-form-view').style.display = 'none';
+    const thanks = document.getElementById('rate-thanks');
+    thanks.style.display = 'flex';
+    // Show the submitted stars
+    document.getElementById('thanks-rating-display').textContent = '⭐'.repeat(selectedRating) + '☆'.repeat(5 - selectedRating);
+    toast('⭐ Rating submitted — thank you!', 'ok');
+  } catch(e) {
+    toast('❌ Failed to submit: ' + e.message, 'err');
+    btn.disabled = false; btn.textContent = '⭐ Submit Rating';
+  }
+}
+
+function shareWebsite() {
+  const shareData = { title: 'DMN Solutions', text: 'Check out DMN Solutions — Digital Management & Networks', url: 'https://dmn-solution.vercel.app/' };
+  if (navigator.share) { navigator.share(shareData).catch(() => {}); }
+  else { navigator.clipboard.writeText('https://dmn-solution.vercel.app/').then(() => toast('🔗 Link copied!', 'ok')); }
+}
+
+// ============================================================
+// FINISHED BUTTON — CALL LIST
+// ============================================================
+let enumFinishedState = false;
+
+async function loadFinishedState() {
+  if (!sb || !currentUser) return;
+  try {
+    const { data } = await sb.from('enumerator_status').select('is_finished').eq('id', currentUser.id).maybeSingle();
+    enumFinishedState = data?.is_finished || false;
+    updateFinishedBtn();
+  } catch(e) { /* ignore */ }
+}
+
+function updateFinishedBtn() {
+  const btn = document.getElementById('finished-btn');
+  if (!btn) return;
+  if (enumFinishedState) {
+    btn.textContent = '↩️ Unfinish';
+    btn.style.background = 'linear-gradient(135deg,rgba(234,179,8,.2),rgba(161,98,7,.1))';
+    btn.style.borderColor = 'rgba(234,179,8,.5)';
+    btn.style.color = '#fde047';
+  } else {
+    btn.textContent = '✅ Finished';
+    btn.style.background = 'linear-gradient(135deg,rgba(34,197,94,.2),rgba(22,163,74,.1))';
+    btn.style.borderColor = 'rgba(34,197,94,.5)';
+    btn.style.color = '#4ade80';
+  }
+}
+
+async function toggleFinished() {
+  if (!sb) return;
+  // Refresh session to ensure auth token is current
+  const { data: sessionData } = await sb.auth.getSession();
+  const uid = sessionData?.session?.user?.id || currentUser?.id;
+  if (!uid) { toast('⚠️ Session expired — please sign out and back in.', 'warn'); return; }
+
+  const newState = !enumFinishedState;
+  const now = new Date().toISOString();
+  try {
+    const payload = {
+      id:            uid,
+      sheet_name:    userProfile?.assigned_sheet || '',
+      full_name:     userProfile?.full_name || currentUser?.email || 'Unknown',
+      is_finished:   newState,
+      finished_at:   newState ? now : null,
+      unfinished_at: newState ? null : now,
+      updated_at:    now,
+    };
+    const { error } = await sb.from('enumerator_status').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      if (error.message?.toLowerCase().includes('row-level security') || error.message?.toLowerCase().includes('policy')) {
+        toast('❌ RLS error — ask admin to run the SQL fix in the Supabase dashboard', 'err');
+      } else {
+        throw error;
+      }
+      return;
+    }
+    enumFinishedState = newState;
+    updateFinishedBtn();
+    toast(newState ? '✅ Marked as Finished!' : '↩️ Marked as Unfinished', 'ok');
+  } catch(e) {
+    toast('❌ Failed: ' + e.message, 'err');
+  }
+}
+
+// ============================================================
+// ADMIN — FEEDBACK PANEL
+// ============================================================
+async function loadAdminFeedback() {
+  const listEl = document.getElementById('adm-feedback-list');
+  const statsEl = document.getElementById('adm-feedback-stats');
+  listEl.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">Loading…</div>';
+  try {
+    // Try submitted_at first, fall back to created_at
+    let { data, error } = await sb.from('feedback').select('*').order('submitted_at', { ascending: false }).limit(500);
+    if (error && (error.message?.includes('submitted_at') || error.code === '42703')) {
+      // Column doesn't exist — try created_at
+      const res2 = await sb.from('feedback').select('*').order('created_at', { ascending: false }).limit(500);
+      data = res2.data; error = res2.error;
+    }
+    if (error) throw error;
+    const rows = data || [];
+    // Show SQL notice if no rows (likely RLS issue)
+    const notice = document.getElementById('feedback-sql-notice');
+    if (notice) notice.style.display = rows.length === 0 ? 'block' : 'none';
+    // Stats
+    const avg  = rows.length ? (rows.reduce((s,r)=>s+(r.rating||0),0)/rows.length).toFixed(1) : '—';
+    const dist = [1,2,3,4,5].map(v => rows.filter(r=>r.rating===v).length);
+    statsEl.innerHTML = `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:28px;font-weight:900;color:#fde047">${avg}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">Avg Rating</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:28px;font-weight:900;color:var(--accent2)">${rows.length}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">Total Ratings</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:28px;font-weight:900;color:var(--green)">${dist[4]}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">5-Star Ratings</div>
+      </div>`;
+    if (!rows.length) {
+      listEl.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:24px">No feedback yet — check the SQL fix above if you\'ve already rated</div>';
+      return;
+    }
+    listEl.innerHTML = rows.map(r => {
+      const ts = r.submitted_at || r.created_at;
+      const dateStr = ts ? new Date(ts).toLocaleString('en-KE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+      return `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="font-size:13px;font-weight:700">${esc(r.submitted_by_name||'Unknown')}</div>
+          <div style="font-size:11px;color:var(--muted)">${dateStr}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:${r.comment?'8px':'0'}">
+          <div style="color:#fde047;font-size:16px">${'⭐'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</div>
+          <div style="font-size:11px;color:var(--muted)">${RATING_LABELS[r.rating]||''}</div>
+          ${r.sheet_name ? `<div style="margin-left:auto;font-size:10px;background:rgba(59,125,216,.15);color:var(--accent2);border:1px solid rgba(59,125,216,.3);border-radius:20px;padding:2px 8px">${esc(r.sheet_name)}</div>` : ''}
+        </div>
+        ${r.comment ? `<div style="font-size:12px;color:var(--text);background:var(--surface2);border-radius:8px;padding:8px 10px;border:1px solid var(--border2);line-height:1.6">"${esc(r.comment)}"</div>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    const notice = document.getElementById('feedback-sql-notice');
+    if (notice) notice.style.display = 'block';
+    listEl.innerHTML = `<div style="font-size:12px;color:var(--danger);text-align:center;padding:20px">Error: ${esc(e.message)}<br><span style="font-size:11px;color:var(--muted)">See SQL fix above to resolve RLS issues</span></div>`;
+  }
+}
+
+// ============================================================
+// ADMIN — FINISHED STATUS PANEL
+// ============================================================
+async function loadAdminFinished() {
+  const listEl = document.getElementById('adm-finished-list');
+  listEl.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">Loading…</div>';
+  try {
+    // Get all enumerators from profiles
+    const { data: profiles } = await sb.from('profiles').select('*').eq('role','enumerator');
+    const { data: statuses } = await sb.from('enumerator_status').select('*');
+    const statusMap = {};
+    (statuses||[]).forEach(s => statusMap[s.id] = s);
+    const profs = profiles || [];
+    if (!profs.length) {
+      listEl.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:24px">No enumerators found</div>';
+      return;
+    }
+    const finished = profs.filter(p => statusMap[p.id]?.is_finished).length;
+    const total    = profs.length;
+    listEl.innerHTML = `
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:13px;font-weight:700;color:var(--text)">${finished} / ${total} Finished</div>
+        <div style="font-size:11px;color:var(--muted)">${Math.round(finished/total*100)||0}% complete</div>
+      </div>
+      ${profs.sort((a,b)=>{
+        const af = statusMap[a.id]?.is_finished || false;
+        const bf = statusMap[b.id]?.is_finished || false;
+        return bf - af;
+      }).map(p => {
+        const st = statusMap[p.id];
+        const done = st?.is_finished;
+        const time = done && st.finished_at ? new Date(st.finished_at).toLocaleString('en-KE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : null;
+        return `<div style="background:var(--surface);border:1px solid ${done?'rgba(34,197,94,.35)':'var(--border)'};border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px">
+          <div style="width:36px;height:36px;border-radius:9px;background:${done?'rgba(34,197,94,.2)':'var(--surface2)'};border:1px solid ${done?'rgba(34,197,94,.4)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${done?'✅':'⏳'}</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700">${esc(p.full_name||'—')}</div>
+            <div style="font-size:10px;color:var(--muted)">${esc(p.assigned_sheet||'no sheet')}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;font-weight:700;color:${done?'#4ade80':'var(--muted)'}">${done?'Finished':'Pending'}</div>
+            ${time?`<div style="font-size:9px;color:var(--muted)">${time}</div>`:''}
+          </div>
+        </div>`;
+      }).join('')}`;
+  } catch(e) {
+    listEl.innerHTML = `<div style="font-size:12px;color:var(--danger);text-align:center;padding:20px">Error: ${esc(e.message)}</div>`;
+  }
+}
+
+// Realtime: subscribe to feedback and enumerator_status for admin
+let _adminFeedbackRTSubscribed = false;
+function subscribeAdminFeedbackRT() {
+  if (!sb || _adminFeedbackRTSubscribed) return;
+  _adminFeedbackRTSubscribed = true;
+  sb.channel('admin-feedback-rt')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'feedback' }, () => {
+      if (document.getElementById('adm-feedback-sec')?.classList.contains('vis')) loadAdminFeedback();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'enumerator_status' }, () => {
+      if (document.getElementById('adm-finished-sec')?.classList.contains('vis')) loadAdminFinished();
+    })
+    .subscribe();
+}
 
 // ============================================================
 // BOOT
